@@ -1,5 +1,6 @@
 package com.apoffice.backend.config;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,12 +28,10 @@ public class SecurityConfig {
                 
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/login").permitAll()
-
-                    .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/tugas")
-                    .hasRole("EMPLOYEE")
-
+                    .requestMatchers(HttpMethod.POST, "/api/tugas").hasRole("EMPLOYEE")
+                    .requestMatchers(HttpMethod.PUT, "/api/tugas/*/verify").hasRole("ADMIN")
                     .anyRequest().authenticated()
-                )
+)
                 
                 .addFilterBefore(
                         jwtAuthenticationFilter,

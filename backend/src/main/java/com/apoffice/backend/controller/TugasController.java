@@ -11,6 +11,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.apoffice.backend.dto.VerifyTugasRequest;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import java.util.List;
 
 @RestController
@@ -24,10 +28,14 @@ public class TugasController {
     }
 
     @GetMapping
-    public List<Tugas> getAllTugas() {
-        return tugasService.getAllTugas();
-    }
-    
+        public List<Tugas> getAllTugas(HttpServletRequest httpRequest) {
+
+            String username = (String) httpRequest.getAttribute("username");
+            String role = (String) httpRequest.getAttribute("role");
+
+            return tugasService.getAllTugas(username, role);
+        }
+
     @PostMapping
     public Tugas createTugas(
         @RequestBody CreateTugasRequest request,
@@ -35,5 +43,13 @@ public class TugasController {
     ){
         String username = (String) httpRequest.getAttribute("username");
         return tugasService.createTugas(request, username);
+    }
+    
+    @PutMapping("/{id}/verify")
+    public Tugas verifyTugas(
+            @PathVariable Long id,
+            @RequestBody VerifyTugasRequest request
+    ) {
+        return tugasService.verifyTugas(id, request);
     }
 }
