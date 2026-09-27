@@ -1,5 +1,9 @@
 package com.apoffice.backend.service;
 
+import java.io.IOException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import com.apoffice.backend.service.FileStorageService;
 import com.apoffice.backend.entity.Tugas;
 import com.apoffice.backend.repository.TugasRepository;
 import org.springframework.stereotype.Service;
@@ -23,13 +27,17 @@ public class TugasService {
     private final TugasRepository tugasRepository;
     private final UserRepository userRepository;
 
-    public TugasService(
+    private final FileStorageService fileStorageService;
+
+public TugasService(
         TugasRepository tugasRepository,
-        UserRepository userRepository  
-    ){
+        UserRepository userRepository,
+        FileStorageService fileStorageService
+) {
     this.tugasRepository = tugasRepository;
     this.userRepository = userRepository;
-    }
+    this.fileStorageService = fileStorageService;
+}
 
    public List<Tugas> getAllTugas(String username, String role) {
 
@@ -63,7 +71,17 @@ public class TugasService {
                 tugas.setUser(user);
                 tugas.setJudul(request.getJudul());
                 tugas.setDeskripsi(request.getDeskripsi());
-                tugas.setFotoBukti(request.getFotoBukti());
+                if (request.getFoto() != null && !request.getFoto().isEmpty()) {
+                    try {
+                        String fileName = fileStorageService.saveFile(request.getFoto());
+                        tugas.setFotoBukti(fileName);
+                    } catch (IOException e) {
+                        throw new ResponseStatusException(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Gagal menyimpan foto"
+                        );
+                    }
+                }
 
                 tugas.setStatus("PENDING");
                 tugas.setNominal(null);

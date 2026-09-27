@@ -5,6 +5,8 @@ import com.apoffice.backend.service.TugasService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.apoffice.backend.dto.CreateTugasRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,14 +38,24 @@ public class TugasController {
             return tugasService.getAllTugas(username, role);
         }
 
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data")
     public Tugas createTugas(
-        @RequestBody CreateTugasRequest request,
-        HttpServletRequest httpRequest
-    ){
-        String username = (String) httpRequest.getAttribute("username");
-        return tugasService.createTugas(request, username);
-    }
+            @RequestParam("judul") String judul,
+            @RequestParam("deskripsi") String deskripsi,
+            @RequestParam(value = "foto", required = false) MultipartFile foto,
+            HttpServletRequest httpRequest
+    ) {
+
+    String username = (String) httpRequest.getAttribute("username");
+
+    CreateTugasRequest request = new CreateTugasRequest();
+
+    request.setJudul(judul);
+    request.setDeskripsi(deskripsi);
+    request.setFoto(foto);
+
+    return tugasService.createTugas(request, username);
+}
     
     @PutMapping("/{id}/verify")
     public Tugas verifyTugas(

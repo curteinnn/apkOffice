@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import com.apoffice.backend.dto.ChangePasswordRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.apoffice.backend.dto.CreateUserRequest;
 import com.apoffice.backend.entity.User;
@@ -51,6 +55,18 @@ public class UserController {
     public String deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return "user berhasil di hapus";
+    }
+    
+    @PutMapping("/change-password")
+    public String changePassword(
+            @RequestBody ChangePasswordRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        String username = (String) httpRequest.getAttribute("username");
+
+        userService.changePassword(username, request);
+
+        return "Password berhasil diubah";
     }
     
 }

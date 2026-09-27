@@ -1,10 +1,12 @@
 package com.apoffice.backend.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class CreateTugasRequest {
 
     private String judul;
     private String deskripsi;
-    private String fotoBukti;
+    private MultipartFile foto;
 
     public String getJudul() {
         return judul;
@@ -22,11 +24,11 @@ public class CreateTugasRequest {
         this.deskripsi = deskripsi;
     }
 
-    public String getFotoBukti() {
-        return fotoBukti;
+    public MultipartFile getFoto() {
+        return foto;
     }
 
-    public void setFotoBukti(String fotoBukti) {
-        this.fotoBukti = fotoBukti;
+    public void setFoto(MultipartFile foto) {
+        this.foto = foto;
     }
 }

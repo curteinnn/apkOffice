@@ -21,13 +21,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
-                    .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement(session ->
+                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     )
                 
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/login").permitAll()
+                    .requestMatchers("/uploads/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/api/tugas").hasRole("EMPLOYEE")
                     .requestMatchers(HttpMethod.PUT, "/api/tugas/*/verify").hasRole("ADMIN")
                     .anyRequest().authenticated()
