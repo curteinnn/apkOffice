@@ -42,7 +42,7 @@ function Login() {
 
         <form
           onSubmit={handleSubmit}
-          className="w-80 justify-center items-center space-y-5"
+          className="w-50 justify-center items-center space-y-5"
         >
           <div>
             <label
@@ -98,10 +98,6 @@ function Login() {
             {loading ? "Loading..." : "Login"}
           </button>
         </form>
-
-        <p className="mt-8 text-center text-xs text-zinc-600">
-          Employee Management System
-        </p>
       </div>
     </main>
   );
