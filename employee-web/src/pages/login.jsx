@@ -33,12 +33,8 @@ function Login() {
           <section className="w-full lg:flex-1">
             <div className="mb-8">
               <h1 className="text-center text-2xl font-bold tracking-tight text-black lg:text-left">
-                Welcome back
+                Login
               </h1>
-
-              <p className="mt-2 text-center text-sm text-gray-500 lg:text-left">
-                Login untuk mengakses akun
-              </p>
             </div>
 
             <form
