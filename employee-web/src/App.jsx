@@ -10,10 +10,11 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
 
+        <Route path="/preview-dashboard" element={<Dashboard />} />
+
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
-
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
