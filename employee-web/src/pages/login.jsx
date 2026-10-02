@@ -28,21 +28,21 @@ function Login() {
   };
 
   return (
-    <main className="min-h-screen flex bg-linear-to-r from-blue-300 to-white px-6 py-10 text-white">
-      <div className="mx-auto w-80 h-130 rounded-lg bg-white p-10 justify-center">
+    <main className="min-h-screen flex bg-linear-to-br justify-center items-center from-blue-300 to-white text-white">
+      <div className="w-100 h-130 rounded-lg bg-white p-10">
         <div className="mb-8">
-          <h1 className="text-3xl text-black font-bold tracking-tight">
-            Selamat Datang
+          <h1 className="text-3xl text-black font-bold text-center tracking-tight">
+            Welcome back
           </h1>
 
-          <p className="mt-2 text-sm text-zinc-400">
-            Login untuk mengakses akun kamu.
+          <p className="mt-2 text-sm text-center text-zinc-400">
+            Login untuk mengakses akun
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="w- justify-center items-center space-y-5"
+          className="w-80 justify-center items-center space-y-5"
         >
           <div>
             <label
@@ -60,7 +60,7 @@ function Login() {
               placeholder="Masukkan username"
               autoComplete="username"
               required
-              className="w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-zinc-600 focus:border-zinc-500"
+              className="w-full rounded-xl border border-black text-black px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-zinc-500"
             />
           </div>
 
@@ -80,7 +80,7 @@ function Login() {
               placeholder="Masukkan password"
               autoComplete="current-password"
               required
-              className="w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-zinc-600 focus:border-zinc-500"
+              className="w-full rounded-xl border border-black text-black px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-zinc-500"
             />
           </div>
 
@@ -93,7 +93,7 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-xl bg-blue-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Loading..." : "Login"}
           </button>
