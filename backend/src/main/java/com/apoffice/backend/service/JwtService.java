@@ -1,8 +1,10 @@
+
 package com.apoffice.backend.service;
 
 import com.apoffice.backend.entity.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -12,10 +14,16 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    private final String secretKey =
-            "apoffice-secret-key-untuk-jwt-2026-yang-panjang";
+    private final String secretKey;
+    private final long expiration;
 
-    private final long expiration = 1000 * 60 * 60; // 1 jam
+    public JwtService(
+            @Value("${jwt.secret}") String secretKey,
+            @Value("${jwt.expiration:3600000}") long expiration
+    ) {
+        this.secretKey = secretKey;
+        this.expiration = expiration;
+    }
 
     private SecretKey getKey() {
         return Keys.hmacShaKeyFor(
@@ -24,7 +32,6 @@ public class JwtService {
     }
 
     public String generateToken(User user) {
-
         return Jwts.builder()
                 .subject(user.getUsername())
                 .claim("role", user.getRole().name())

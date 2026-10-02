@@ -1,40 +1,26 @@
-import { useState } from "react";
-import { login } from "../services/api";
 import Logo from "../assets/logo.png";
 import { useGSAP } from "@gsap/react";
 import { animationLogin } from "../animations/animationLogin";
+import useLogin from "../hooks/useLogin";
 
-function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    setError("");
-    setLoading(true);
-
-    try {
-      const data = await login(username, password);
-
-      console.log("Login berhasil:", data);
-      alert(`Selamat datang, ${data.namaLengkap}`);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+export default function Login() {
+  const {
+    username,
+    setUsername,
+    password,
+    setPassword,
+    error,
+    loading,
+    handleSubmit,
+  } = useLogin();
 
   useGSAP(() => {
     animationLogin();
   });
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-300 to-white p-4">
-      <div className="card w-75 rounded-2xl bg-white p-6 shadow-xl sm:p-10 md:w-100 lg:p-12 lg:w-150">
+    <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-300 to-white p-4">
+      <div className="card w-75 rounded-2xl bg-white p-6 shadow-xl sm:p-10 md:w-100 lg:w-150 lg:p-12">
         <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-12">
           <section className="w-full lg:flex-1">
             <div className="mb-8">
@@ -88,7 +74,10 @@ function Login() {
               </div>
 
               {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                <div
+                  role="alert"
+                  className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+                >
                   {error}
                 </div>
               )}
@@ -115,5 +104,3 @@ function Login() {
     </main>
   );
 }
-
-export default Login;

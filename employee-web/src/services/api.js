@@ -1,3 +1,4 @@
+
 const API_URL = "http://localhost:8080";
 
 export async function login(username, password) {
@@ -15,7 +16,9 @@ export async function login(username, password) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Login gagal");
+    throw new Error(
+      data.message || "Username atau password salah"
+    );
   }
 
   return data;

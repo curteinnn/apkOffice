@@ -30,11 +30,38 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/login").permitAll()
                     .requestMatchers("/uploads/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/api/tugas").hasRole("EMPLOYEE")
-                    .requestMatchers(HttpMethod.PUT, "/api/tugas/*/verify").hasRole("ADMIN")
+
+                    .requestMatchers(HttpMethod.PUT, "/api/users/change-password")
+                        .hasAnyRole("ADMIN", "EMPLOYEE")
+
+                    .requestMatchers(HttpMethod.GET, "/api/users")
+                        .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/users")
+                        .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/users/*")
+                        .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/users/*")
+                        .hasRole("ADMIN")
+
+                    .requestMatchers(HttpMethod.GET, "/api/attendance")
+                        .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/tugas/*/verify")
+                        .hasRole("ADMIN")
+
+                    .requestMatchers(HttpMethod.POST, "/api/tugas")
+                        .hasRole("EMPLOYEE")
+                    .requestMatchers(HttpMethod.POST, "/api/attendance/check-in")
+                        .hasRole("EMPLOYEE")
+                    .requestMatchers(HttpMethod.POST, "/api/attendance/check-out")
+                        .hasRole("EMPLOYEE")
+                    .requestMatchers(HttpMethod.GET, "/api/attendance/my")
+                        .hasRole("EMPLOYEE")
+
+                    .requestMatchers(HttpMethod.GET, "/api/tugas")
+                        .hasAnyRole("ADMIN", "EMPLOYEE")
+
                     .anyRequest().authenticated()
-)
+                )
                 
                 .addFilterBefore(
                         jwtAuthenticationFilter,

@@ -24,6 +24,13 @@ public class AttendanceController {
     public List<Attendance> getAllAttendance() {
         return attendanceService.getAllAttendance();
     }
+
+    
+    @GetMapping("/my")
+    public List<Attendance> getMyAttendance(HttpServletRequest request) {
+    String username = (String) request.getAttribute("username");
+        return attendanceService.getMyAttendance(username);
+}
     
     @PostMapping("/check-in")
     public Attendance checkIn(HttpServletRequest request) {
