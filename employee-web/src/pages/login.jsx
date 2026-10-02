@@ -29,7 +29,7 @@ function Login() {
 
   return (
     <main className="min-h-screen flex bg-linear-to-br justify-center items-center from-blue-300 to-white text-white">
-      <div className="w-100 h-130 rounded-lg bg-white p-10">
+      <div className="w-70 h-100 rounded-lg bg-white p-10">
         <div className="mb-8">
           <h1 className="text-3xl text-black font-bold text-center tracking-tight">
             Welcome back
