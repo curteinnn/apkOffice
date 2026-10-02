@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { login } from "../services/api";
+import Logo from "../assets/logo.png";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -29,8 +30,15 @@ function Login() {
 
   return (
     <main className="min-h-screen flex bg-linear-to-br justify-center items-center from-blue-300 to-white text-white">
-      <div className="w-70 h-100 rounded-lg bg-white p-10 sm:w-100 lg:w-200">
+      <div className="w-70 h-130 flex justify-between rounded-lg bg-white p-10 sm:w-100 lg:w-200">
         <div className="mb-8">
+          <div className="logo flex">
+            <img
+              src={Logo}
+              alt="Logo"
+              className="bg-black items-center h-60 w-auto"
+            />
+          </div>
           <h1 className="text-3xl text-black font-bold text-center tracking-tight lg:text-left">
             Welcome back
           </h1>
