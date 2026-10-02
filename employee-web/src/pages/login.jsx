@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { login } from "../services/api";
 import Logo from "../assets/logo.png";
+import { useGSAP } from "@gsap/react";
+import { animationLogin } from "../animations/animationLogin";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -26,9 +28,13 @@ function Login() {
     }
   };
 
+  useGSAP(() => {
+    animationLogin();
+  });
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-300 to-white p-4">
-      <div className="w-75 rounded-2xl bg-white p-6 shadow-xl sm:p-10 md:w-100 lg:p-12 lg:w-150">
+      <div className="card w-75 rounded-2xl bg-white p-6 shadow-xl sm:p-10 md:w-100 lg:p-12 lg:w-150">
         <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-12">
           <section className="w-full lg:flex-1">
             <div className="mb-8">
@@ -39,7 +45,7 @@ function Login() {
 
             <form
               onSubmit={handleSubmit}
-              className="flex w-full flex-col gap-5"
+              className="form flex w-full flex-col gap-5"
             >
               <div>
                 <label
@@ -101,7 +107,7 @@ function Login() {
             <img
               src={Logo}
               alt="Logo"
-              className="h-auto w-full max-w-64 object-contain"
+              className="logo h-auto w-full max-w-80 object-contain"
             />
           </section>
         </div>
