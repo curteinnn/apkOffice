@@ -1,10 +1,10 @@
-import Login from "./pages/login";
 import Dashboard from "./pages/dashboard";
+import Login from "./pages/login";
 
 function App() {
   return (
     <>
-      <Login />
+      <Dashboard />
     </>
   );
 }
