@@ -29,20 +29,20 @@ function Login() {
 
   return (
     <main className="min-h-screen flex bg-linear-to-br justify-center items-center from-blue-300 to-white text-white">
-      <div className="w-70 h-100 rounded-lg bg-white p-10">
+      <div className="w-70 h-100 rounded-lg bg-white p-10 sm:w-100 lg:w-200">
         <div className="mb-8">
-          <h1 className="text-3xl text-black font-bold text-center tracking-tight">
+          <h1 className="text-3xl text-black font-bold text-center tracking-tight lg:text-left">
             Welcome back
           </h1>
 
-          <p className="mt-2 text-sm text-center text-zinc-400">
+          <p className="mt-2 text-sm text-center text-gray-500 lg:text-left">
             Login untuk mengakses akun
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="w-50 justify-center items-center space-y-5"
+          className="w-50 justify-center items-center space-y-5 sm:w-80"
         >
           <div>
             <label
