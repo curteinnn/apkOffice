@@ -18,8 +18,6 @@ function Login() {
       const data = await login(username, password);
 
       console.log("Login berhasil:", data);
-
-      // sementara
       alert(`Selamat datang, ${data.namaLengkap}`);
     } catch (err) {
       setError(err.message);
@@ -29,83 +27,88 @@ function Login() {
   };
 
   return (
-    <main className="min-h-screen flex bg-linear-to-br justify-center items-center from-blue-300 to-white text-white">
-      <div className="w-70 h-130 flex justify-between rounded-lg bg-white p-10 sm:w-100 lg:w-200">
-        <div className="mb-8">
-          <div className="logo flex">
+    <main className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-300 to-white p-4">
+      <div className="w-75 rounded-2xl bg-white p-6 shadow-xl sm:p-10 md:w-100 lg:p-12 lg:w-150">
+        <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-12">
+          <section className="w-full lg:flex-1">
+            <div className="mb-8">
+              <h1 className="text-center text-2xl font-bold tracking-tight text-black lg:text-left">
+                Welcome back
+              </h1>
+
+              <p className="mt-2 text-center text-sm text-gray-500 lg:text-left">
+                Login untuk mengakses akun
+              </p>
+            </div>
+
+            <form
+              onSubmit={handleSubmit}
+              className="flex w-full flex-col gap-5"
+            >
+              <div>
+                <label
+                  htmlFor="username"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
+                  Username
+                </label>
+
+                <input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Masukkan username"
+                  autoComplete="username"
+                  required
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-black outline-none transition placeholder:text-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="password"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
+                  Password
+                </label>
+
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Masukkan password"
+                  autoComplete="current-password"
+                  required
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-black outline-none transition placeholder:text-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
+              {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-blue-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading ? "Loading..." : "Login"}
+              </button>
+            </form>
+          </section>
+
+          <section className="hidden flex-1 items-center justify-center lg:flex">
             <img
               src={Logo}
               alt="Logo"
-              className="bg-black items-center h-60 w-auto"
+              className="h-auto w-full max-w-64 object-contain"
             />
-          </div>
-          <h1 className="text-3xl text-black font-bold text-center tracking-tight lg:text-left">
-            Welcome back
-          </h1>
-
-          <p className="mt-2 text-sm text-center text-gray-500 lg:text-left">
-            Login untuk mengakses akun
-          </p>
+          </section>
         </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="w-50 justify-center items-center space-y-5 sm:w-80"
-        >
-          <div>
-            <label
-              htmlFor="username"
-              className="mb-2 block text-sm font-medium text-zinc-300"
-            >
-              Username
-            </label>
-
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Masukkan username"
-              autoComplete="username"
-              required
-              className="w-full rounded-xl border border-black text-black px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-zinc-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-2 block text-sm font-medium text-zinc-300"
-            >
-              Password
-            </label>
-
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Masukkan password"
-              autoComplete="current-password"
-              required
-              className="w-full rounded-xl border border-black text-black px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-zinc-500"
-            />
-          </div>
-
-          {error && (
-            <div className="rounded-xl border border-red-900/50 bg-red-950/40 px-4 py-3 text-sm text-red-400">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-blue-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {loading ? "Loading..." : "Login"}
-          </button>
-        </form>
       </div>
     </main>
   );
