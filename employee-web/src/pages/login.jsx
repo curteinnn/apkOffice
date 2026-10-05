@@ -24,7 +24,7 @@ export default function Login() {
         <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-12">
           <section className="w-full lg:flex-1">
             <div className="mb-8">
-              <h1 className="text-center text-2xl font-bold tracking-tight text-black lg:text-left">
+              <h1 className="title text-center text-2xl font-bold tracking-tight text-black lg:text-left">
                 Login
               </h1>
             </div>

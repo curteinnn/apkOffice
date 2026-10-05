@@ -13,12 +13,6 @@ export default function Dashboard() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-400 to-white p-4 sm:p-8">
       <section className="w-full max-w-5xl py-6">
-        <button
-          onClick={handleLogout}
-          className="rounded-lg bg-red-500 px-4 py-2 text-white transition hover:bg-red-600"
-        >
-          Logout
-        </button>
         <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="title px-1 text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -99,6 +93,13 @@ export default function Dashboard() {
             <p className="mt-2 text-sm text-blue-800">
               Ajukan izin atau keperluan lainnya.
             </p>
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="rounded-lg bg-red-500 px-4 w-20 py-2 text-white transition hover:bg-red-600"
+          >
+            Logout
           </button>
         </div>
       </section>
