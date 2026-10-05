@@ -1,7 +1,7 @@
 import gsap from "gsap";
 
 export function animationLogin() {
-  gsap.from(".form", {
+  gsap.from(".form,.title", {
     y: 10,
     opacity: 0,
     duration: 0.5,

@@ -43,7 +43,7 @@ POST /api/auth/login
 ```json
 {
   "username": "aldry",
-  "password": "123"
+  "password": "aldryyy"
 }
 ```
 

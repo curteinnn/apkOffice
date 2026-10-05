@@ -30,8 +30,7 @@ export default function Dashboard() {
           </div>
         </header>
 
-        {/* Informasi */}
-        <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {/* <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="flex min-h-20 items-center rounded-xl bg-blue-300 p-5">
             <p className="font-medium text-blue-950">Informasi Kehadiran</p>
           </div>
@@ -39,9 +38,8 @@ export default function Dashboard() {
           <div className="flex min-h-20 items-center rounded-xl bg-blue-300 p-5">
             <p className="font-medium text-blue-950">Informasi Pekerjaan</p>
           </div>
-        </div>
+        </div> */}
 
-        {/* Menu utama */}
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">
           <button
             type="button"
