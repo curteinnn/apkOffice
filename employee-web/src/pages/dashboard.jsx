@@ -45,12 +45,12 @@ export default function Dashboard() {
             type="button"
             className="flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
           >
-            <h2 className="text-lg font-semibold text-blue-950">
-              Rekam Kehadiran
-            </h2>
+            <h2 className="text-lg font-semibold text-blue-950">Absen Masuk</h2>
 
             <p className="mt-2 text-sm text-blue-800">
-              Rekam kehadiran Anda saat memulai pekerjaan.
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae
+              molestiae recusandae deserunt id officiis hic vitae dolorum!
+              Soluta inventore eligendi, voluptatibus
             </p>
           </button>
 
@@ -59,11 +59,23 @@ export default function Dashboard() {
             className="flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
           >
             <h2 className="text-lg font-semibold text-blue-950">
-              Riwayat Kehadiran
+              Absen Pulang
             </h2>
 
             <p className="mt-2 text-sm text-blue-800">
-              Lihat catatan kehadiran Anda.
+              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facilis
+              pariatur nulla voluptas, facere, tenetur nam excepturi blanditiis
+            </p>
+          </button>
+
+          <button
+            type="button"
+            className="flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
+          >
+            <h2 className="text-lg font-semibold text-blue-950">List Visit</h2>
+
+            <p className="mt-2 text-sm text-blue-800">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias,
             </p>
           </button>
 
@@ -72,24 +84,12 @@ export default function Dashboard() {
             className="flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
           >
             <h2 className="text-lg font-semibold text-blue-950">
-              Tugas Pekerjaan
+              Riwayat Absensi
             </h2>
 
             <p className="mt-2 text-sm text-blue-800">
-              Lihat dan kirim bukti pekerjaan.
-            </p>
-          </button>
-
-          <button
-            type="button"
-            className="flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
-          >
-            <h2 className="text-lg font-semibold text-blue-950">
-              Pengajuan Izin
-            </h2>
-
-            <p className="mt-2 text-sm text-blue-800">
-              Ajukan izin atau keperluan lainnya.
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maxime
+              nostrum quia, minus aliquid error tempora non exercitationem,
             </p>
           </button>
 
