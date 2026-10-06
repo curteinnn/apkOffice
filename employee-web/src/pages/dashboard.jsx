@@ -12,7 +12,7 @@ export default function Dashboard() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-400 to-white p-4 sm:p-8">
-      <section className="w-full max-w-5xl py-6">
+      <section className="w-full max-w-5xl py-6 ">
         <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="title px-1 text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -43,6 +43,7 @@ export default function Dashboard() {
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">
           <button
             type="button"
+            onClick={() => navigate("/absenMasuk")}
             className="flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
           >
             <h2 className="text-lg font-semibold text-blue-950">Absen Masuk</h2>
@@ -56,6 +57,7 @@ export default function Dashboard() {
 
           <button
             type="button"
+            onClick={() => navigate("/absenKeluar")}
             className="flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
           >
             <h2 className="text-lg font-semibold text-blue-950">
@@ -70,6 +72,7 @@ export default function Dashboard() {
 
           <button
             type="button"
+            onClick={() => navigate("/listVisit")}
             className="flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
           >
             <h2 className="text-lg font-semibold text-blue-950">List Visit</h2>
@@ -81,6 +84,7 @@ export default function Dashboard() {
 
           <button
             type="button"
+            onClick={() => navigate("/riwayatAbsensi")}
             className="flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
           >
             <h2 className="text-lg font-semibold text-blue-950">
