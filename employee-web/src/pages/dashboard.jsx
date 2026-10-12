@@ -34,54 +34,31 @@ export default function Dashboard() {
             <p className="font-medium text-gray-800">{user?.jabatan || "-"}</p>
           </div>
         </header>
-
-        {/* <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="flex min-h-20 items-center rounded-xl bg-blue-300 p-5">
+        <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="flex min-h-20 items-center justify-between rounded-xl bg-blue-300 p-5">
             <p className="font-medium text-blue-950">Informasi Kehadiran</p>
-          </div>
-
-          <div className="flex min-h-20 items-center rounded-xl bg-blue-300 p-5">
-            <p className="font-medium text-blue-950">Informasi Pekerjaan</p>
-          </div>
-        </div> */}
-
-        <div className=" mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2 ">
-          <div className="card-dashboard flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center ">
-            <h2 className="text-lg font-semibold text-blue-950">
-              Absen Pulang
-            </h2>
-
-            <p className="mt-2 text-sm text-blue-800">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facilis
-              pariatur nulla voluptas, facere, tenetur nam excepturi blanditiis
-            </p>
 
             <button
               type="button"
-              className="btn mt-4 w-50 bg-blue-500 rounded-lg text-white text-sm"
+              className="cursor-pointer rounded-lg bg-blue-500 px-5 py-2 text-sm text-white transition hover:bg-blue-600"
             >
               Check In
             </button>
           </div>
 
-          <div className="card-dashboard flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center ">
-            <h2 className="text-lg font-semibold text-blue-950">
-              Absen Pulang
-            </h2>
-
-            <p className="mt-2 text-sm text-blue-800">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facilis
-              pariatur nulla voluptas, facere, tenetur nam excepturi blanditiis
-            </p>
+          <div className="flex min-h-20 items-center justify-between rounded-xl bg-blue-300 p-5">
+            <p className="font-medium text-blue-950">Informasi Pekerjaan</p>
 
             <button
               type="button"
-              className="btn mt-4 w-50 bg-blue-500 rounded-lg text-white text-sm"
+              className="cursor-pointer rounded-lg bg-blue-500 px-5 py-2 text-sm text-white transition hover:bg-blue-600"
             >
               Check Out
             </button>
           </div>
+        </div>
 
+        <div className=" mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2 ">
           <button
             type="button"
             onClick={() => navigate("/listVisit")}
