@@ -17,7 +17,7 @@ export default function Dashboard() {
   });
   return (
     <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-400 to-white p-4 sm:p-8">
-      <section className="w-full max-w-5xl py-6">
+      <section className="w-full max-w-5xl py-3 ">
         <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="title px-1 text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -35,7 +35,7 @@ export default function Dashboard() {
           </div>
         </header>
         <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="flex min-h-20 items-center justify-between rounded-xl bg-blue-300 p-5">
+          <div className="flex min-h-20 items-center justify-between rounded-xl bg-white p-5">
             <p className="font-medium text-blue-950">Absen Masuk</p>
 
             <button
@@ -46,12 +46,12 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="flex min-h-20 items-center justify-between rounded-xl bg-blue-300 p-5">
+          <div className="flex min-h-20 items-center justify-between rounded-xl bg-white p-5">
             <p className="font-medium text-blue-950">Absen Keluar</p>
 
             <button
               type="button"
-              className="cursor-pointer rounded-lg bg-blue-500 px-5 py-2 text-sm text-white transition hover:bg-blue-600"
+              className="cursor-pointer rounded-lg bg-blue-500 px-4 py-2 text-sm text-white transition hover:bg-blue-600"
             >
               Check Out
             </button>
