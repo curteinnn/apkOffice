@@ -36,7 +36,7 @@ export default function Dashboard() {
         </header>
         <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="flex min-h-20 items-center justify-between rounded-xl bg-blue-300 p-5">
-            <p className="font-medium text-blue-950">Informasi Kehadiran</p>
+            <p className="font-medium text-blue-950">Absen Masuk</p>
 
             <button
               type="button"
@@ -47,7 +47,7 @@ export default function Dashboard() {
           </div>
 
           <div className="flex min-h-20 items-center justify-between rounded-xl bg-blue-300 p-5">
-            <p className="font-medium text-blue-950">Informasi Pekerjaan</p>
+            <p className="font-medium text-blue-950">Absen Keluar</p>
 
             <button
               type="button"
