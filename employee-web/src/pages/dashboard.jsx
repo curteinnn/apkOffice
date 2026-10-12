@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { animationDashboard } from "../animations/animationDashboard";
 import { useGSAP } from "@gsap/react";
+import { useState } from "react";
 
 export default function Dashboard() {
+  const [isCheckedIn, setIsCheckedIn] = useState();
+  const [isCheckedOut, setIsCheckedOut] = useState();
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user") || "null");
   const handleLogout = () => {
@@ -40,9 +43,15 @@ export default function Dashboard() {
 
             <button
               type="button"
-              className="cursor-pointer rounded-lg bg-blue-500 px-5 py-2 text-sm text-white transition hover:bg-blue-600"
+              onClick={() => setIsCheckedIn(true)}
+              disabled={isCheckedIn}
+              className={`cursor-pointer rounded-lg px-5 py-2 text-sm text-white transition ${
+                isCheckedIn
+                  ? "bg-green-500 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+              }`}
             >
-              Check In
+              {isCheckedIn ? "Sudah Check In" : "Check In"}
             </button>
           </div>
 
@@ -51,9 +60,15 @@ export default function Dashboard() {
 
             <button
               type="button"
-              className="cursor-pointer rounded-lg bg-blue-500 px-4 py-2 text-sm text-white transition hover:bg-blue-600"
+              onClick={() => setIsCheckedOut(true)}
+              disabled={!isCheckedIn || isCheckedOut}
+              className={`rounded-lg px-4 py-2 text-sm text-white transition ${
+                !isCheckedIn || isCheckedOut
+                  ? "cursor-not-allowed bg-gray-400"
+                  : "cursor-pointer bg-blue-500 hover:bg-blue-600"
+              }`}
             >
-              Check Out
+              {isCheckedOut ? "Sudah Check Out" : "Check Out"}
             </button>
           </div>
         </div>
