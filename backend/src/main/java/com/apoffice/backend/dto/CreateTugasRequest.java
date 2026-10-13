@@ -1,12 +1,22 @@
 package com.apoffice.backend.dto;
 
-import org.springframework.web.multipart.MultipartFile;
+import java.time.LocalDate;
 
 public class CreateTugasRequest {
 
+    private Long userId;
     private String judul;
+    private String lokasi;
     private String deskripsi;
-    private MultipartFile foto;
+    private LocalDate tanggal;
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public String getJudul() {
         return judul;
@@ -14,6 +24,14 @@ public class CreateTugasRequest {
 
     public void setJudul(String judul) {
         this.judul = judul;
+    }
+
+    public String getLokasi() {
+        return lokasi;
+    }
+
+    public void setLokasi(String lokasi) {
+        this.lokasi = lokasi;
     }
 
     public String getDeskripsi() {
@@ -24,11 +42,11 @@ public class CreateTugasRequest {
         this.deskripsi = deskripsi;
     }
 
-    public MultipartFile getFoto() {
-        return foto;
+    public LocalDate getTanggal() {
+        return tanggal;
     }
 
-    public void setFoto(MultipartFile foto) {
-        this.foto = foto;
+    public void setTanggal(LocalDate tanggal) {
+        this.tanggal = tanggal;
     }
 }

@@ -1,4 +1,3 @@
-
 package com.apoffice.backend.config;
 
 import io.jsonwebtoken.Claims;
@@ -8,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,6 +19,7 @@ import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -46,12 +47,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
+        // Request tanpa token diteruskan ke SecurityConfig.
+        // Endpoint publik tetap bisa diakses.
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7).trim();
 
         try {
             Claims claims = Jwts.parser()
@@ -61,9 +64,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .getPayload();
 
             String username = claims.getSubject();
-            String role = claims.get("role", String.class);
+            String roleClaim = claims.get("role", String.class);
 
-            if (username == null || role == null) {
+            if (username == null || username.isBlank()
+                    || roleClaim == null || roleClaim.isBlank()) {
+
                 response.sendError(
                         HttpServletResponse.SC_UNAUTHORIZED,
                         "Token tidak valid"
@@ -71,15 +76,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // Menyimpan identitas user untuk digunakan controller
+            // Normalisasi role:
+            // ADMIN      -> ROLE_ADMIN
+            // admin      -> ROLE_ADMIN
+            // ROLE_ADMIN -> ROLE_ADMIN
+            String role = roleClaim
+                    .trim()
+                    .toUpperCase(Locale.ROOT);
+
+            if (role.startsWith("ROLE_")) {
+                role = role.substring(5);
+            }
+
+            // Hanya role yang dikenal yang diterima.
+            if (!"ADMIN".equals(role)
+                    && !"EMPLOYEE".equals(role)) {
+
+                response.sendError(
+                        HttpServletResponse.SC_UNAUTHORIZED,
+                        "Role pada token tidak valid"
+                );
+                return;
+            }
+
+            // Identitas untuk digunakan controller.
             request.setAttribute("username", username);
             request.setAttribute("role", role);
 
-            var authorities = List.of(
+            // hasRole("ADMIN") membutuhkan authority ROLE_ADMIN.
+            List<SimpleGrantedAuthority> authorities = List.of(
                     new SimpleGrantedAuthority("ROLE_" + role)
             );
 
-            var authentication =
+            UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             username,
                             null,
@@ -94,9 +123,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.clearContext();
 
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(
+                    HttpServletResponse.SC_UNAUTHORIZED
+            );
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
+
             response.getWriter().write(
                     "{\"message\":\"Token tidak valid atau kedaluwarsa\"}"
             );

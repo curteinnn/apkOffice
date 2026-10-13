@@ -28,40 +28,29 @@ public class SecurityConfig {
                     )
                 
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/login").permitAll()
-                    .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/uploads/**").permitAll()
 
-                    .requestMatchers(HttpMethod.PUT, "/api/users/change-password")
-                        .hasAnyRole("ADMIN", "EMPLOYEE")
+                // User management
+                .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/users/change-password").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/users/*").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/users/*").hasRole("ADMIN")
+                        
+                //absen
+                .requestMatchers(HttpMethod.GET, "/api/attendance").hasRole("ADMIN") 
+                .requestMatchers(HttpMethod.DELETE, "/api/attendance/my").hasRole("EMPLOYEE")       
 
-                    .requestMatchers(HttpMethod.GET, "/api/users")
-                        .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/api/users")
-                        .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/api/users/*")
-                        .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/api/users/*")
-                        .hasRole("ADMIN")
+                // Task management
+                .requestMatchers(HttpMethod.GET, "/api/tugas").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/tugas").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/tugas/*/submit").hasRole("EMPLOYEE")
+                .requestMatchers(HttpMethod.PUT, "/api/tugas/*/verify").hasRole("ADMIN")
 
-                    .requestMatchers(HttpMethod.GET, "/api/attendance")
-                        .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/api/tugas/*/verify")
-                        .hasRole("ADMIN")
-
-                    .requestMatchers(HttpMethod.POST, "/api/tugas")
-                        .hasRole("EMPLOYEE")
-                    .requestMatchers(HttpMethod.POST, "/api/attendance/check-in")
-                        .hasRole("EMPLOYEE")
-                    .requestMatchers(HttpMethod.POST, "/api/attendance/check-out")
-                        .hasRole("EMPLOYEE")
-                    .requestMatchers(HttpMethod.GET, "/api/attendance/my")
-                        .hasRole("EMPLOYEE")
-
-                    .requestMatchers(HttpMethod.GET, "/api/tugas")
-                        .hasAnyRole("ADMIN", "EMPLOYEE")
-
-                    .anyRequest().authenticated()
-                )
+                // Attendance and other protected endpoints
+                .anyRequest().authenticated()
+            )
                 
                 .addFilterBefore(
                         jwtAuthenticationFilter,

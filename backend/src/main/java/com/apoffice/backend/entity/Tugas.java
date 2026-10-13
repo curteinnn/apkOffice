@@ -1,3 +1,4 @@
+
 package com.apoffice.backend.entity;
 
 import jakarta.persistence.*;
@@ -13,21 +14,25 @@ public class Tugas {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "visit_id")
+    private Visit visit;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(nullable = false, length = 150)
     private String judul;
+    
+    @Column (length = 255)
+    private String lokasi;
 
     @Column(columnDefinition = "TEXT")
     private String deskripsi;
 
-    @Column(name = "foto_bukti", length = 255)
-    private String fotoBukti;
-
     @Column(nullable = false, length = 20)
-    private String status;
+    private String status = "ASSIGNED";
 
     @Column(precision = 12, scale = 2)
     private BigDecimal nominal;
@@ -45,6 +50,14 @@ public class Tugas {
         return id;
     }
 
+    public Visit getVisit() {
+        return visit;
+    }
+
+    public void setVisit(Visit visit) {
+        this.visit = visit;
+    }
+
     public User getUser() {
         return user;
     }
@@ -60,6 +73,14 @@ public class Tugas {
     public void setJudul(String judul) {
         this.judul = judul;
     }
+    
+    public String getLokasi(){
+        return lokasi;
+    }
+    
+    public void setLokasi (String lokasi){
+        this.lokasi = lokasi;
+    }
 
     public String getDeskripsi() {
         return deskripsi;
@@ -67,14 +88,6 @@ public class Tugas {
 
     public void setDeskripsi(String deskripsi) {
         this.deskripsi = deskripsi;
-    }
-
-    public String getFotoBukti() {
-        return fotoBukti;
-    }
-
-    public void setFotoBukti(String fotoBukti) {
-        this.fotoBukti = fotoBukti;
     }
 
     public String getStatus() {
