@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/tugas/*/verify").hasRole("ADMIN")
 
                 // Attendance and other protected endpoints
+                .requestMatchers("/health").permitAll()
                 .anyRequest().authenticated()
             )
                 
