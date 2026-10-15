@@ -7,6 +7,10 @@ export default function riwayatAbsensi() {
             RIWAYAT ABSENSI
           </h1>
         </div>
+
+        <div className="container w-full bg-red-300">
+          <div className="w-50 h-50 bg-black "></div>
+        </div>
       </section>
     </main>
   );

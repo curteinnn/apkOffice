@@ -5,7 +5,6 @@ export function animationDashboard() {
     ".card-dashboard",
     {
       opacity: 0,
-      delay: 0.5,
     },
     { opacity: 1 },
   );

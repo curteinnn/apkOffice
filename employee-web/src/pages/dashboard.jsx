@@ -60,7 +60,7 @@ export default function Dashboard() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-400 to-white p-4 sm:p-8">
-      <section className="w-full max-w-5xl py-3">
+      <section className="card-dashboard w-full max-w-5xl py-3">
         <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="title px-1 text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -78,7 +78,6 @@ export default function Dashboard() {
           </div>
         </header>
 
-        {/* Informasi Absensi */}
         <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="flex min-h-20 items-center justify-between rounded-xl bg-white p-5">
             <div>
@@ -129,7 +128,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Menu Dashboard */}
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <button
             type="button"
