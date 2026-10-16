@@ -1,51 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { animationDashboard } from "../animations/animationDashboard";
 import { useGSAP } from "@gsap/react";
-import { useState } from "react";
-import { getAttendance, saveAttendance } from "../utils/attendanceStorage";
+import { animationDashboard } from "../animations/animationDashboard";
+import useAttendance from "../hooks/useAttendance";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user") || "null");
 
-  const attendanceKey = `myin-attendance-${
-    user?.id ?? user?.email ?? user?.username ?? user?.namaLengkap ?? "default"
-  }`;
-
-  const [attendance, setAttendance] = useState(() =>
-    getAttendance(attendanceKey),
-  );
-
-  const isCheckedIn = attendance.checkedIn;
-  const isCheckedOut = attendance.checkedOut;
-
-  const updateAttendance = (updates) => {
-    const updated = {
-      ...attendance,
-      ...updates,
-      date: new Date().toLocaleDateString("en-CA"),
-    };
-
-    setAttendance(updated);
-    saveAttendance(attendanceKey, updated);
-  };
-
-  const handleCheckIn = () => {
-    if (isCheckedIn) return;
-
-    updateAttendance({
-      checkedIn: true,
-      checkedOut: false,
-    });
-  };
-
-  const handleCheckOut = () => {
-    if (!isCheckedIn || isCheckedOut) return;
-
-    updateAttendance({
-      checkedOut: true,
-    });
-  };
+  const { isCheckedIn, isCheckedOut, handleCheckIn, handleCheckOut } =
+    useAttendance();
 
   const handleLogout = () => {
     sessionStorage.removeItem("token");

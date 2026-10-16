@@ -1,44 +1,84 @@
-import { useState } from "react";
-import { getAttendance, saveAttendance } from "../utils/attendanceStorage";
+import { useCallback, useEffect, useState } from "react";
+import {
+  getMyAttendance,
+  checkIn,
+  checkOut,
+} from "../services/attendanceService";
 
-export default function useAttendance(attendanceKey) {
-  const [attendance, setAttendance] = useState(() =>
-    getAttendance(attendanceKey),
-  );
+function getToday() {
+  const today = new Date();
 
-  const isCheckedIn = attendance.checkedIn;
-  const isCheckedOut = attendance.checkedOut;
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
 
-  const updateAttendance = (updates) => {
-    const updated = {
-      ...attendance,
-      ...updates,
-      date: new Date().toLocaleDateString("en-CA"),
-    };
+  return `${year}-${month}-${day}`;
+}
 
-    setAttendance(updated);
-    saveAttendance(attendanceKey, updated);
+export default function useAttendance() {
+  const [attendance, setAttendance] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const refreshAttendance = useCallback(async () => {
+    const records = await getMyAttendance();
+    const todayAttendance = Array.isArray(records)
+      ? records.find((record) => record.tanggal === getToday())
+      : null;
+
+    setAttendance(todayAttendance ?? null);
+  }, []);
+
+  useEffect(() => {
+    refreshAttendance()
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [refreshAttendance]);
+
+  const isCheckedIn = Boolean(attendance?.jamMasuk);
+  const isCheckedOut = Boolean(attendance?.jamKeluar);
+
+  const handleCheckIn = async () => {
+    if (isCheckedIn || submitting) return;
+
+    setSubmitting(true);
+    setError("");
+
+    try {
+      await checkIn();
+      await refreshAttendance();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleCheckIn = () => {
-    if (isCheckedIn) return;
+  const handleCheckOut = async () => {
+    if (!isCheckedIn || isCheckedOut || submitting) return;
 
-    updateAttendance({
-      checkedIn: true,
-      checkedOut: false,
-    });
-  };
+    setSubmitting(true);
+    setError("");
 
-  const handleCheckOut = () => {
-    if (!isCheckedIn || isCheckedOut) return;
-
-    updateAttendance({ checkedOut: true });
+    try {
+      await checkOut();
+      await refreshAttendance();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return {
     isCheckedIn,
     isCheckedOut,
+    loading,
+    submitting,
+    error,
     handleCheckIn,
     handleCheckOut,
+    refreshAttendance,
   };
 }
