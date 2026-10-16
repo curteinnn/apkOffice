@@ -17,7 +17,9 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of(
-                "https://apk-office.vercel.app"
+                "https://apk-office.vercel.app",
+                "http://localhost:8080",
+                "http://127.0.0.1:5173"
         ));
 
         configuration.setAllowedMethods(List.of(
