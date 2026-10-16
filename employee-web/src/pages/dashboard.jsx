@@ -1,195 +1,170 @@
 import { useNavigate } from "react-router-dom";
-import { useGSAP } from "@gsap/react";
 import { animationDashboard } from "../animations/animationDashboard";
-import { useAttendance } from "../hooks/useAttendance";
+import { useGSAP } from "@gsap/react";
+import { useState } from "react";
+import { getAttendance, saveAttendance } from "../utils/attendanceStorage";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user") || "null");
 
-  const {
-    attendance,
-    loading,
-    submitting,
-    error,
-    success,
-    checkedIn,
-    checkedOut,
-    handleCheckIn,
-    handleCheckOut,
-    handleLogout,
-  } = useAttendance();
+  const attendanceKey = `myin-attendance-${
+    user?.id ?? user?.email ?? user?.username ?? user?.namaLengkap ?? "default"
+  }`;
+
+  const [attendance, setAttendance] = useState(() =>
+    getAttendance(attendanceKey),
+  );
+
+  const isCheckedIn = attendance.checkedIn;
+  const isCheckedOut = attendance.checkedOut;
+
+  const updateAttendance = (updates) => {
+    const updated = {
+      ...attendance,
+      ...updates,
+      date: new Date().toLocaleDateString("en-CA"),
+    };
+
+    setAttendance(updated);
+    saveAttendance(attendanceKey, updated);
+  };
+
+  const handleCheckIn = () => {
+    if (isCheckedIn) return;
+
+    updateAttendance({
+      checkedIn: true,
+      checkedOut: false,
+    });
+  };
+
+  const handleCheckOut = () => {
+    if (!isCheckedIn || isCheckedOut) return;
+
+    updateAttendance({
+      checkedOut: true,
+    });
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+
+    navigate("/", { replace: true });
+  };
 
   useGSAP(() => {
     animationDashboard();
   });
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl">
-        <header className="mb-8 flex items-center justify-between gap-4">
+    <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-400 to-white p-4 sm:p-8">
+      <section className="card-dashboard w-full max-w-5xl py-3">
+        <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm text-slate-500">Employee Management System</p>
-            <h1 className="mt-1 text-2xl font-bold text-slate-900">
-              Dashboard
+            <h1 className="title px-1 text-2xl font-bold text-gray-900 sm:text-3xl">
+              WELCOME TO MYIN
             </h1>
-            <p className="mt-2 text-sm text-slate-600">
-              Selamat datang, {user?.namaLengkap || user?.username || "User"}.
+
+            <p className="mt-2 px-1 text-sm text-gray-700">
+              Halo, {user?.namaLengkap || "Karyawan"}!
             </p>
           </div>
+
+          <div className="rounded-lg bg-white/70 px-4 py-3 shadow-sm">
+            <p className="text-sm text-gray-500">Jabatan</p>
+            <p className="font-medium text-gray-800">{user?.jabatan || "-"}</p>
+          </div>
+        </header>
+
+        <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="flex min-h-20 items-center justify-between rounded-xl bg-white p-5">
+            <div>
+              <p className="font-medium text-blue-950">Absen Masuk</p>
+              <p className="mt-1 text-xs text-gray-500">
+                {isCheckedIn ? "Sudah absen hari ini" : "Belum absen"}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCheckIn}
+              disabled={isCheckedIn}
+              className={`rounded-lg px-5 py-2 text-sm text-white transition ${
+                isCheckedIn
+                  ? "cursor-not-allowed bg-green-500"
+                  : "cursor-pointer bg-blue-500 hover:bg-blue-600"
+              }`}
+            >
+              {isCheckedIn ? "Sudah Check In" : "Check In"}
+            </button>
+          </div>
+
+          <div className="flex min-h-20 items-center justify-between rounded-xl bg-white p-5">
+            <div>
+              <p className="font-medium text-blue-950">Absen Keluar</p>
+              <p className="mt-1 text-xs text-gray-500">
+                {isCheckedOut
+                  ? "Sudah absen keluar"
+                  : isCheckedIn
+                    ? "Belum absen keluar"
+                    : "Check In terlebih dahulu"}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCheckOut}
+              disabled={!isCheckedIn || isCheckedOut}
+              className={`rounded-lg px-4 py-2 text-sm text-white transition ${
+                !isCheckedIn || isCheckedOut
+                  ? "cursor-not-allowed bg-gray-400"
+                  : "cursor-pointer bg-blue-500 hover:bg-blue-600"
+              }`}
+            >
+              {isCheckedOut ? "Sudah Check Out" : "Check Out"}
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => navigate("/listVisit")}
+            className="card-dashboard flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
+          >
+            <h2 className="text-lg font-semibold text-blue-950">List Visit</h2>
+
+            <p className="mt-2 text-sm text-blue-800">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias,
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate("/riwayatAbsensi")}
+            className="card-dashboard flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
+          >
+            <h2 className="text-lg font-semibold text-blue-950">
+              Riwayat Absensi
+            </h2>
+
+            <p className="mt-2 text-sm text-blue-800">
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maxime
+              nostrum quia, minus aliquid error tempora non exercitationem.
+            </p>
+          </button>
 
           <button
             type="button"
             onClick={handleLogout}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+            className="card-dashboard w-20 rounded-lg bg-red-500 px-4 py-2 text-white transition hover:bg-red-600"
           >
-            Keluar
+            Logout
           </button>
-        </header>
-
-        {error && (
-          <p
-            role="alert"
-            className="mb-5 rounded-lg bg-red-50 p-3 text-sm text-red-700"
-          >
-            {error}
-          </p>
-        )}
-
-        {success && (
-          <p
-            role="status"
-            className="mb-5 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700"
-          >
-            {success}
-          </p>
-        )}
-
-        <section className="mb-6 grid gap-4 sm:grid-cols-2">
-          <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">Status Absensi</p>
-            <h2 className="mt-3 text-xl font-semibold text-slate-900">
-              {loading
-                ? "Memuat..."
-                : checkedOut
-                  ? "Sudah Pulang"
-                  : checkedIn
-                    ? "Sudah Absen Masuk"
-                    : "Belum Absen"}
-            </h2>
-            <p className="mt-2 text-sm text-slate-500">
-              {new Date().toLocaleDateString("id-ID", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </p>
-          </article>
-
-          <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">Jam Kerja Hari Ini</p>
-            <div className="mt-4 flex gap-8">
-              <div>
-                <p className="text-xs text-slate-500">Masuk</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {attendance?.jamMasuk
-                    ? new Date(attendance.jamMasuk).toLocaleTimeString(
-                        "id-ID",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        },
-                      )
-                    : "--:--"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Pulang</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {attendance?.jamKeluar
-                    ? new Date(attendance.jamKeluar).toLocaleTimeString(
-                        "id-ID",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        },
-                      )
-                    : "--:--"}
-                </p>
-              </div>
-            </div>
-          </article>
-        </section>
-
-        <section className="mb-6">
-          <h2 className="mb-4 text-lg font-semibold text-slate-900">
-            Menu Absensi
-          </h2>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <button
-              type="button"
-              disabled={loading || submitting || checkedIn}
-              onClick={handleCheckIn}
-              className="flex min-h-36 flex-col items-center justify-center rounded-xl bg-blue-100 p-6 text-center transition hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <span className="text-lg font-semibold text-blue-950">
-                {checkedIn ? "Sudah Absen Masuk" : "Absen Masuk"}
-              </span>
-              <span className="mt-2 text-sm text-blue-800">
-                Catat waktu kedatangan
-              </span>
-            </button>
-
-            <button
-              type="button"
-              disabled={loading || submitting || !checkedIn || checkedOut}
-              onClick={handleCheckOut}
-              className="flex min-h-36 flex-col items-center justify-center rounded-xl bg-emerald-100 p-6 text-center transition hover:bg-emerald-200 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <span className="text-lg font-semibold text-emerald-950">
-                {checkedOut ? "Sudah Absen Pulang" : "Absen Pulang"}
-              </span>
-              <span className="mt-2 text-sm text-emerald-800">
-                Catat waktu kepulangan
-              </span>
-            </button>
-          </div>
-        </section>
-
-        <section>
-          <h2 className="mb-4 text-lg font-semibold text-slate-900">
-            Informasi Lainnya
-          </h2>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={() => navigate("/listVisit")}
-              className="rounded-xl border border-slate-200 bg-white p-5 text-left transition hover:bg-slate-100"
-            >
-              <h3 className="font-semibold text-slate-900">Daftar Kunjungan</h3>
-              <p className="mt-2 text-sm text-slate-500">
-                Lihat daftar kunjungan yang tersedia.
-              </p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigate("/riwayatAbsensi")}
-              className="rounded-xl border border-slate-200 bg-white p-5 text-left transition hover:bg-slate-100"
-            >
-              <h3 className="font-semibold text-slate-900">Riwayat Absensi</h3>
-              <p className="mt-2 text-sm text-slate-500">
-                Lihat catatan absensi sebelumnya.
-              </p>
-            </button>
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </main>
   );
 }

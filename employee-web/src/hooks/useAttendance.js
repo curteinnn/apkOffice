@@ -1,107 +1,44 @@
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  getMyAttendance,
-  checkIn,
-  checkOut,
-} from "../services/attendanceService";
+import { useState } from "react";
+import { getAttendance, saveAttendance } from "../utils/attendanceStorage";
 
-function getToday() {
-  const now = new Date();
+export default function useAttendance(attendanceKey) {
+  const [attendance, setAttendance] = useState(() =>
+    getAttendance(attendanceKey),
+  );
 
-  return [
-    now.getFullYear(),
-    String(now.getMonth() + 1).padStart(2, "0"),
-    String(now.getDate()).padStart(2, "0"),
-  ].join("-");
-}
+  const isCheckedIn = attendance.checkedIn;
+  const isCheckedOut = attendance.checkedOut;
 
-export function useAttendance() {
-  const navigate = useNavigate();
+  const updateAttendance = (updates) => {
+    const updated = {
+      ...attendance,
+      ...updates,
+      date: new Date().toLocaleDateString("en-CA"),
+    };
 
-  const [attendance, setAttendance] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const checkedIn = Boolean(attendance?.jamMasuk);
-  const checkedOut = Boolean(attendance?.jamKeluar);
-
-  const loadAttendance = useCallback(async () => {
-    if (!sessionStorage.getItem("token")) {
-      navigate("/", { replace: true });
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      const records = await getMyAttendance();
-
-      if (!Array.isArray(records)) {
-        throw new Error("Data absensi tidak valid.");
-      }
-
-      const todayRecord =
-        records.find((record) => record.tanggal === getToday()) ?? null;
-
-      setAttendance(todayRecord);
-    } catch (err) {
-      setError(err.message || "Gagal mengambil data absensi.");
-    } finally {
-      setLoading(false);
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    loadAttendance();
-  }, [loadAttendance]);
-
-  const submitAttendance = async (action) => {
-    if (loading || submitting) return;
-
-    setSubmitting(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      if (action === "check-in") {
-        await checkIn();
-        setSuccess("Absen masuk berhasil.");
-      } else {
-        await checkOut();
-        setSuccess("Absen pulang berhasil.");
-      }
-
-      await loadAttendance();
-    } catch (err) {
-      setError(err.message || "Gagal menyimpan absensi.");
-    } finally {
-      setSubmitting(false);
-    }
+    setAttendance(updated);
+    saveAttendance(attendanceKey, updated);
   };
 
-  const handleCheckIn = () => submitAttendance("check-in");
-  const handleCheckOut = () => submitAttendance("check-out");
+  const handleCheckIn = () => {
+    if (isCheckedIn) return;
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("user");
-    navigate("/", { replace: true });
+    updateAttendance({
+      checkedIn: true,
+      checkedOut: false,
+    });
+  };
+
+  const handleCheckOut = () => {
+    if (!isCheckedIn || isCheckedOut) return;
+
+    updateAttendance({ checkedOut: true });
   };
 
   return {
-    attendance,
-    loading,
-    submitting,
-    error,
-    success,
-    checkedIn,
-    checkedOut,
+    isCheckedIn,
+    isCheckedOut,
     handleCheckIn,
     handleCheckOut,
-    handleLogout,
   };
 }
