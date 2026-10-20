@@ -151,7 +151,15 @@ export default function ListVisit() {
 
               <div>
                 <p className="text-sm text-gray-500">Status</p>
-                <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-900">
+                <span
+                  className={`rounded-full px-3 py-1 font-medium ${
+                    selectedTugas.status === "PENDING"
+                      ? "bg-orange-100 text-yellow-500"
+                      : selectedTugas.status === "REJECTED"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-green-100 text-green-700"
+                  }`}
+                >
                   {selectedTugas.status || "PENDING"}
                 </span>
               </div>
