@@ -7,7 +7,7 @@ export default function RiwayatAbsensi() {
   return (
     <main className="min-h-screen bg-linear-to-br from-blue-400 to-white p-4 sm:p-8">
       <section className="mx-auto min-h-[calc(100vh-4rem)] w-full max-w-5xl bg-white p-4 shadow-sm sm:p-6">
-        <h1 className="mb-2 text-2xl font-bold text-gray-900 sm:text-3xl">
+        <h1 className="mb-2 text-2xl font-bold text-gray-900 sm:text-3xl pb-5">
           RIWAYAT ABSENSI
         </h1>
 
