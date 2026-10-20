@@ -23,11 +23,13 @@ export default function ListVisit() {
         </h1>
 
         {loading ? (
-          <p className="mt-8 text-center text-gray-500">
+          <p className="flex min-h-[60vh] items-center justify-center text-center text-gray-500">
             Memuat daftar tugas...
           </p>
         ) : error ? (
-          <p className="mt-8 text-center text-red-600">{error}</p>
+          <p className="flex min-h-[60vh] items-center justify-center text-center text-red-600">
+            {error}
+          </p>
         ) : tugas.length === 0 ? (
           <p className="flex min-h-[60vh] items-center justify-center text-center text-gray-500">
             Belum ada tugas.
