@@ -80,4 +80,22 @@ public class TugasController {
 
         return tugasService.verifyTugas(id, request);
     }
+
+    @PutMapping("/{id}/start")
+    public Tugas startTugas(
+            @PathVariable Long id,
+            HttpServletRequest httpRequest
+    ) {
+        String username = (String) httpRequest.getAttribute("username");
+        String role = (String) httpRequest.getAttribute("role");
+
+        if (!"EMPLOYEE".equals(role)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN,
+                    "Hanya karyawan yang dapat memulai tugas"
+            );
+        }
+
+        return tugasService.startTugas(id, username);
+    }
 }

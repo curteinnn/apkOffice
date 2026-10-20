@@ -88,6 +88,35 @@ public class TugasService {
     }
 
     @Transactional
+    public Tugas startTugas(Long id, String username) {
+        Tugas tugas = tugasRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Tugas tidak ditemukan"
+                ));
+
+        if (!tugas.getUser().getUsername().equals(username)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Kamu tidak memiliki akses ke tugas ini"
+            );
+        }
+
+        if (!"PENDING".equals(tugas.getStatus())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Tugas tidak dapat dimulai dengan status saat ini"
+            );
+        }
+
+        tugas.setStatus("IN_PROGRESS");
+        tugas.setUpdatedAt(LocalDateTime.now());
+
+        
+        return tugasRepository.save(tugas);
+    }
+
+    @Transactional
     public Tugas submitTugas(Long id, String username) {
         Tugas tugas = tugasRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -102,16 +131,15 @@ public class TugasService {
             );
         }
 
-        if (!"PENDING".equals(tugas.getStatus())
+        if (!"IN_PROGRESS".equals(tugas.getStatus())
                 && !"REJECTED".equals(tugas.getStatus())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Tugas tidak dapat dikirim dengan status saat ini"
+                    "Tugas belum dimulai atau sudah dikirim"
             );
         }
 
-        // Pengiriman ulang setelah ditolak kembali menjadi PENDING.
-        tugas.setStatus("PENDING");
+        tugas.setStatus("SUBMITTED");
         tugas.setUpdatedAt(LocalDateTime.now());
 
         return tugasRepository.save(tugas);
@@ -134,10 +162,10 @@ public class TugasService {
             );
         }
 
-        if (!"PENDING".equals(tugas.getStatus())) {
+        if (!"SUBMITTED".equals(tugas.getStatus())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Admin hanya bisa memeriksa tugas berstatus PENDING"
+                    "Admin hanya bisa memeriksa tugas yang sudah dikirim"
             );
         }
 

@@ -43,9 +43,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/attendance").hasRole("ADMIN") 
                 .requestMatchers(HttpMethod.DELETE, "/api/attendance/my").hasRole("EMPLOYEE")       
 
-                // Task management
+                
+              // Task management
                 .requestMatchers(HttpMethod.GET, "/api/tugas").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/tugas").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/tugas/*/start").hasRole("EMPLOYEE")
                 .requestMatchers(HttpMethod.PUT, "/api/tugas/*/submit").hasRole("EMPLOYEE")
                 .requestMatchers(HttpMethod.PUT, "/api/tugas/*/verify").hasRole("ADMIN")
 
