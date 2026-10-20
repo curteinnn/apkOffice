@@ -23,6 +23,9 @@ public class Tugas {
     @Column(length = 255)
     private String lokasi;
 
+    @Column(name = "link_gmaps", columnDefinition = "TEXT")
+    private String linkGmaps;
+
     @Column(columnDefinition = "TEXT")
     private String deskripsi;
 
@@ -67,6 +70,14 @@ public class Tugas {
 
     public void setLokasi(String lokasi) {
         this.lokasi = lokasi;
+    }
+
+    public String getLinkGmaps() {
+    return linkGmaps;
+    }
+
+    public void setLinkGmaps(String linkGmaps) {
+    this.linkGmaps = linkGmaps;
     }
 
     public String getDeskripsi() {

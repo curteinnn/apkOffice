@@ -9,6 +9,7 @@ public class CreateTugasRequest {
     private String lokasi;
     private String deskripsi;
     private LocalDate tanggal;
+    private String linkGmaps;
 
     public Long getUserId() {
         return userId;
@@ -32,6 +33,14 @@ public class CreateTugasRequest {
 
     public void setLokasi(String lokasi) {
         this.lokasi = lokasi;
+    }
+
+    public String getLinkGmaps(){
+        return linkGmaps;
+    }
+
+    public void setLinkGmaps(String linkGmaps){
+        this.linkGmaps = linkGmaps;
     }
 
     public String getDeskripsi() {

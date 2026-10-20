@@ -74,6 +74,7 @@ public class TugasService {
         tugas.setUser(user);
         tugas.setJudul(request.getJudul().trim());
         tugas.setLokasi(request.getLokasi().trim());
+        tugas.setLinkGmaps(request.getLinkGmaps());
         tugas.setDeskripsi(request.getDeskripsi());
         tugas.setTanggal(request.getTanggal());
         tugas.setStatus("PENDING");

@@ -16,7 +16,7 @@ export default function ListVisit() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-300 to-white p-4 sm:p-8">
+    <main className="min-h-screen bg-linear-to-br from-blue-300 to-white p-4 sm:p-8">
       <section className="mx-auto w-full max-w-5xl py-6">
         <h1 className="px-1 text-2xl font-bold text-gray-900 sm:text-3xl">
           LIST CUSTOMER
@@ -41,7 +41,7 @@ export default function ListVisit() {
                 key={item.id}
                 type="button"
                 onClick={() => setSelectedTugas(item)}
-                className="flex min-h-40 flex-col rounded-xl bg-blue-200 p-6 text-left transition hover:bg-blue-300"
+                className="flex min-h-40 flex-col rounded-xl bg-white p-6 text-left transition hover:bg-blue-300"
               >
                 <h2 className="text-lg font-semibold text-blue-950">
                   {item.judul}
@@ -53,7 +53,15 @@ export default function ListVisit() {
 
                 <div className="mt-auto flex items-center justify-between gap-2 pt-4 text-sm text-blue-950">
                   <span>{formatTanggal(item.tanggal)}</span>
-                  <span className="rounded-full bg-white/70 px-3 py-1 font-medium">
+                  <span
+                    className={`rounded-full px-3 py-1 font-medium ${
+                      item.status === "PENDING"
+                        ? "bg-orange-100 text-yellow-500"
+                        : item.status === "REJECTED"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-green-100 text-green-700"
+                    }`}
+                  >
                     {item.status || "PENDING"}
                   </span>
                 </div>
@@ -115,6 +123,23 @@ export default function ListVisit() {
               <div>
                 <p className="text-sm text-gray-500">Lokasi</p>
                 <p className="text-gray-800">{selectedTugas.lokasi || "-"}</p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500">Google Maps</p>
+
+                {selectedTugas.linkGmaps ? (
+                  <a
+                    href={selectedTugas.linkGmaps}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-blue-600 hover:text-blue-800"
+                  >
+                    Buka lokasi di Google Maps
+                  </a>
+                ) : (
+                  <p className="text-gray-800">Link belum tersedia.</p>
+                )}
               </div>
 
               <div>
