@@ -1,21 +1,17 @@
-
 package com.apoffice.backend.service;
 
 import com.apoffice.backend.dto.CreateTugasRequest;
 import com.apoffice.backend.dto.VerifyTugasRequest;
 import com.apoffice.backend.entity.Tugas;
 import com.apoffice.backend.entity.User;
-import com.apoffice.backend.entity.Visit;
 import com.apoffice.backend.repository.TugasRepository;
 import com.apoffice.backend.repository.UserRepository;
-import com.apoffice.backend.repository.VisitRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,16 +20,13 @@ public class TugasService {
 
     private final TugasRepository tugasRepository;
     private final UserRepository userRepository;
-    private final VisitRepository visitRepository;
 
     public TugasService(
             TugasRepository tugasRepository,
-            UserRepository userRepository,
-            VisitRepository visitRepository
+            UserRepository userRepository
     ) {
         this.tugasRepository = tugasRepository;
         this.userRepository = userRepository;
-        this.visitRepository = visitRepository;
     }
 
     public List<Tugas> getAllTugas(String username, String role) {
@@ -52,7 +45,6 @@ public class TugasService {
 
     @Transactional
     public Tugas createTugas(CreateTugasRequest request) {
-
         if (request.getUserId() == null
                 || request.getJudul() == null
                 || request.getJudul().isBlank()
@@ -80,12 +72,11 @@ public class TugasService {
 
         Tugas tugas = new Tugas();
         tugas.setUser(user);
-        tugas.setVisit(null);
         tugas.setJudul(request.getJudul().trim());
         tugas.setLokasi(request.getLokasi().trim());
         tugas.setDeskripsi(request.getDeskripsi());
         tugas.setTanggal(request.getTanggal());
-        tugas.setStatus("ASSIGNED");
+        tugas.setStatus("PENDING");
         tugas.setNominal(null);
 
         LocalDateTime now = LocalDateTime.now();
@@ -110,7 +101,7 @@ public class TugasService {
             );
         }
 
-        if (!"ASSIGNED".equals(tugas.getStatus())
+        if (!"PENDING".equals(tugas.getStatus())
                 && !"REJECTED".equals(tugas.getStatus())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -118,7 +109,8 @@ public class TugasService {
             );
         }
 
-        tugas.setStatus("SUBMITTED");
+        // Pengiriman ulang setelah ditolak kembali menjadi PENDING.
+        tugas.setStatus("PENDING");
         tugas.setUpdatedAt(LocalDateTime.now());
 
         return tugasRepository.save(tugas);
@@ -141,10 +133,10 @@ public class TugasService {
             );
         }
 
-        if (!"SUBMITTED".equals(tugas.getStatus())) {
+        if (!"PENDING".equals(tugas.getStatus())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Admin hanya bisa memeriksa tugas yang sudah dikirim"
+                    "Admin hanya bisa memeriksa tugas berstatus PENDING"
             );
         }
 
