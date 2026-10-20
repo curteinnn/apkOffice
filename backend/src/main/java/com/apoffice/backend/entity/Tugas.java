@@ -1,4 +1,3 @@
-
 package com.apoffice.backend.entity;
 
 import jakarta.persistence.*;
@@ -15,24 +14,20 @@ public class Tugas {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "visit_id")
-    private Visit visit;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(nullable = false, length = 150)
     private String judul;
-    
-    @Column (length = 255)
+
+    @Column(length = 255)
     private String lokasi;
 
     @Column(columnDefinition = "TEXT")
     private String deskripsi;
 
     @Column(nullable = false, length = 20)
-    private String status = "ASSIGNED";
+    private String status = "PENDING";
 
     @Column(precision = 12, scale = 2)
     private BigDecimal nominal;
@@ -50,14 +45,6 @@ public class Tugas {
         return id;
     }
 
-    public Visit getVisit() {
-        return visit;
-    }
-
-    public void setVisit(Visit visit) {
-        this.visit = visit;
-    }
-
     public User getUser() {
         return user;
     }
@@ -73,12 +60,12 @@ public class Tugas {
     public void setJudul(String judul) {
         this.judul = judul;
     }
-    
-    public String getLokasi(){
+
+    public String getLokasi() {
         return lokasi;
     }
-    
-    public void setLokasi (String lokasi){
+
+    public void setLokasi(String lokasi) {
         this.lokasi = lokasi;
     }
 
