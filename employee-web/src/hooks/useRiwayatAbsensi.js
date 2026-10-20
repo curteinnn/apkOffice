@@ -28,11 +28,15 @@ export default function useRiwayatAbsensi() {
   const formatJam = (waktu) => {
     if (!waktu) return "-";
 
-    return new Date(waktu).toLocaleTimeString("id-ID", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+    // Backend mengirim LocalDateTime tanpa penanda timezone.
+    // Tampilkan jam yang diterima apa adanya, tanpa konversi timezone.
+    const jam = waktu.match(/T(\d{2}):(\d{2})/);
+
+    if (jam) {
+      return `${jam[1]}:${jam[2]}`;
+    }
+
+    return "-";
   };
 
   return {
