@@ -1,8 +1,10 @@
 package com.apoffice.backend.service;
 
 import com.apoffice.backend.entity.Attendance;
+import com.apoffice.backend.entity.Tugas;
 import com.apoffice.backend.entity.User;
 import com.apoffice.backend.repository.AttendanceRepository;
+import com.apoffice.backend.repository.TugasRepository;
 import com.apoffice.backend.repository.UserRepository;
 
 import org.springframework.http.HttpStatus;
@@ -23,13 +25,16 @@ public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+    private final TugasRepository tugasRepository;
 
     public AttendanceService(
             AttendanceRepository attendanceRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            TugasRepository tugasRepository
     ) {
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
+        this.tugasRepository = tugasRepository;
     }
 
     public List<Attendance> getAllAttendance() {
@@ -77,20 +82,36 @@ public class AttendanceService {
                         "User tidak ditemukan"
                 ));
 
-        LocalDate hariIni =
-                LocalDate.now(ZONA_WIB);
+        LocalDate hariIni = LocalDate.now(ZONA_WIB);
 
         Attendance attendance = attendanceRepository
                 .findByUserAndTanggal(user, hariIni)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
-                        "Anda belum melakukan check-in hari ini"
+                        "Silakan check-in terlebih dahulu"
                 ));
 
         if (attendance.getJamKeluar() != null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Anda sudah melakukan check-out hari ini"
+            );
+        }
+
+        // Karyawan harus menyelesaikan minimal satu tugas.
+        List<Tugas> daftarTugas =
+                tugasRepository.findByUser(user);
+
+        boolean adaTugasSelesai = daftarTugas.stream()
+                .anyMatch(tugas ->
+                        "SUBMITTED".equals(tugas.getStatus())
+                        || "APPROVED".equals(tugas.getStatus())
+                );
+
+        if (!adaTugasSelesai) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Selesaikan minimal satu tugas sebelum check-out"
             );
         }
 

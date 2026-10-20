@@ -1,17 +1,51 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiRequest } from "../services/api";
 
+const getTanggalWIB = () => {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+
+  const values = Object.fromEntries(
+    parts.map(({ type, value }) => [type, value]),
+  );
+
+  return `${values.year}-${values.month}-${values.day}`;
+};
+
 export default function useListVisit() {
   const [tugas, setTugas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   const fetchTugas = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    setAccessDenied(false);
+
     try {
+      const attendance = await apiRequest("/api/attendance/my");
+
+      const hariIni = getTanggalWIB();
+
+      const attendanceHariIni = Array.isArray(attendance)
+        ? attendance.find((item) => item.tanggal === hariIni)
+        : null;
+
+      if (!attendanceHariIni?.jamMasuk) {
+        setTugas([]);
+        setAccessDenied(true);
+        return;
+      }
+
       const data = await apiRequest("/api/tugas");
+
       setTugas(Array.isArray(data) ? data : []);
-      setError("");
     } catch (err) {
       setError(err.message || "Gagal memuat daftar tugas.");
     } finally {
@@ -50,6 +84,7 @@ export default function useListVisit() {
     loading,
     error,
     actionLoading,
+    accessDenied,
     updateStatus,
   };
 }

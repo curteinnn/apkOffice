@@ -2,7 +2,8 @@ import { useState } from "react";
 import useListVisit from "../hooks/useListVisit";
 
 export default function ListVisit() {
-  const { tugas, loading, error, actionLoading, updateStatus } = useListVisit();
+  const { tugas, loading, error, actionLoading, accessDenied, updateStatus } =
+    useListVisit();
 
   const [selectedTugas, setSelectedTugas] = useState(null);
   const [actionError, setActionError] = useState("");
@@ -52,6 +53,49 @@ export default function ListVisit() {
     setActionError("");
   };
 
+  if (loading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-300 to-white p-4">
+        <p className="text-center text-gray-500">
+          Memeriksa absensi dan memuat daftar tugas...
+        </p>
+      </main>
+    );
+  }
+
+  if (accessDenied) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-300 to-white p-4">
+        <section
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="attendance-required-title"
+          className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl"
+        >
+          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-orange-100 text-3xl font-bold text-orange-600">
+            !
+          </div>
+
+          <h1
+            id="attendance-required-title"
+            className="mt-5 text-xl font-bold text-gray-900"
+          >
+            Absensi Diperlukan
+          </h1>
+
+          <p className="mt-3 text-sm leading-6 text-gray-600">
+            Silakan check-in terlebih dahulu sebelum mengakses daftar tugas atau
+            List Visit.
+          </p>
+
+          <p className="mt-2 text-xs text-gray-500">
+            Setelah check-in berhasil, buka kembali halaman ini.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-linear-to-br from-blue-300 to-white p-4 sm:p-8">
       <section className="mx-auto w-full max-w-5xl py-6">
@@ -59,11 +103,7 @@ export default function ListVisit() {
           LIST CUSTOMER
         </h1>
 
-        {loading ? (
-          <p className="flex min-h-[60vh] items-center justify-center text-center text-gray-500">
-            Memuat daftar tugas...
-          </p>
-        ) : error ? (
+        {error ? (
           <p className="flex min-h-[60vh] items-center justify-center text-center text-red-600">
             {error}
           </p>
