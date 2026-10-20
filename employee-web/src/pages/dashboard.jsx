@@ -7,8 +7,14 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user") || "null");
 
-  const { isCheckedIn, isCheckedOut, handleCheckIn, handleCheckOut } =
-    useAttendance();
+  const {
+    isCheckedIn,
+    isCheckedOut,
+    handleCheckIn,
+    handleCheckOut,
+    checkoutWarning,
+    closeCheckoutWarning,
+  } = useAttendance();
 
   const handleLogout = () => {
     sessionStorage.removeItem("token");
@@ -128,6 +134,36 @@ export default function Dashboard() {
           </button>
         </div>
       </section>
+      {checkoutWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="checkout-warning-title"
+            className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl"
+          >
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-2xl">
+              ⚠️
+            </div>{" "}
+            <h2
+              id="checkout-warning-title"
+              className="mt-4 text-xl font-bold text-gray-900"
+            >
+              Tugas Belum Selesai
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              {checkoutWarning}
+            </p>
+            <button
+              type="button"
+              onClick={closeCheckoutWarning}
+              className="mt-6 w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition hover:bg-blue-700"
+            >
+              Mengerti
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

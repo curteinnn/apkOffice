@@ -12,7 +12,7 @@ function getToday() {
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
 
-  return `${year}-${month}-${day}`;
+  return "${year}-${month}-${day}";
 }
 
 export default function useAttendance() {
@@ -20,9 +20,11 @@ export default function useAttendance() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [checkoutWarning, setCheckoutWarning] = useState("");
 
   const refreshAttendance = useCallback(async () => {
     const records = await getMyAttendance();
+
     const todayAttendance = Array.isArray(records)
       ? records.find((record) => record.tanggal === getToday())
       : null;
@@ -32,7 +34,7 @@ export default function useAttendance() {
 
   useEffect(() => {
     refreshAttendance()
-      .catch((err) => setError(err.message))
+      .catch((err) => setError(err.message || "Gagal memuat absensi."))
       .finally(() => setLoading(false));
   }, [refreshAttendance]);
 
@@ -49,7 +51,7 @@ export default function useAttendance() {
       await checkIn();
       await refreshAttendance();
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Gagal melakukan check-in.");
     } finally {
       setSubmitting(false);
     }
@@ -60,15 +62,31 @@ export default function useAttendance() {
 
     setSubmitting(true);
     setError("");
+    setCheckoutWarning("");
 
     try {
       await checkOut();
       await refreshAttendance();
     } catch (err) {
-      setError(err.message);
+      const message = err.message || "";
+
+      if (
+        message.toLowerCase().includes("tugas") ||
+        message.toLowerCase().includes("task")
+      ) {
+        setCheckoutWarning(
+          "Anda belum menyelesaikan tugas. Selesaikan minimal satu tugas terlebih dahulu sebelum check-out.",
+        );
+      } else {
+        setError(message || "Gagal melakukan check-out.");
+      }
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const closeCheckoutWarning = () => {
+    setCheckoutWarning("");
   };
 
   return {
@@ -77,6 +95,8 @@ export default function useAttendance() {
     loading,
     submitting,
     error,
+    checkoutWarning,
+    closeCheckoutWarning,
     handleCheckIn,
     handleCheckOut,
     refreshAttendance,
