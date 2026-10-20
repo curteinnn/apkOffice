@@ -5,18 +5,14 @@ export default function RiwayatAbsensi() {
     useRiwayatAbsensi();
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-400 to-white p-4 sm:p-8">
+    <main className="min-h-screen bg-linear-to-br from-blue-400 to-white p-4 sm:p-8">
       <section className="mx-auto min-h-[calc(100vh-4rem)] w-full max-w-5xl bg-white p-4 shadow-sm sm:p-6">
         <h1 className="mb-2 text-2xl font-bold text-gray-900 sm:text-3xl">
           RIWAYAT ABSENSI
         </h1>
 
-        <p className="mb-6 text-sm text-gray-500">
-          Riwayat check-in dan check-out kamu.
-        </p>
-
         <div className="w-full overflow-x-auto">
-          <table className="w-full min-w-[600px] text-left text-sm">
+          <table className="w-full min-w-150 text-left text-sm">
             <thead className="bg-gray-100 text-gray-700">
               <tr>
                 <th className="px-4 py-3">Tanggal</th>
