@@ -1,21 +1,25 @@
-
 package com.apoffice.backend.service;
 
 import com.apoffice.backend.entity.Attendance;
 import com.apoffice.backend.entity.User;
 import com.apoffice.backend.repository.AttendanceRepository;
 import com.apoffice.backend.repository.UserRepository;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AttendanceService {
+
+    private static final ZoneId ZONA_WIB =
+            ZoneId.of("Asia/Jakarta");
 
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
@@ -39,10 +43,15 @@ public class AttendanceService {
                         "User tidak ditemukan"
                 ));
 
+        LocalDateTime sekarang =
+                LocalDateTime.now(ZONA_WIB);
+
+        LocalDate hariIni = sekarang.toLocalDate();
+
         Optional<Attendance> existingAttendance =
                 attendanceRepository.findByUserAndTanggal(
                         user,
-                        LocalDate.now()
+                        hariIni
                 );
 
         if (existingAttendance.isPresent()) {
@@ -54,8 +63,8 @@ public class AttendanceService {
 
         Attendance attendance = new Attendance();
         attendance.setUser(user);
-        attendance.setTanggal(LocalDate.now());
-        attendance.setJamMasuk(LocalDateTime.now());
+        attendance.setTanggal(hariIni);
+        attendance.setJamMasuk(sekarang);
         attendance.setStatus("PRESENT");
 
         return attendanceRepository.save(attendance);
@@ -68,8 +77,11 @@ public class AttendanceService {
                         "User tidak ditemukan"
                 ));
 
+        LocalDate hariIni =
+                LocalDate.now(ZONA_WIB);
+
         Attendance attendance = attendanceRepository
-                .findByUserAndTanggal(user, LocalDate.now())
+                .findByUserAndTanggal(user, hariIni)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         "Anda belum melakukan check-in hari ini"
@@ -82,7 +94,10 @@ public class AttendanceService {
             );
         }
 
-        attendance.setJamKeluar(LocalDateTime.now());
+        LocalDateTime sekarang =
+                LocalDateTime.now(ZONA_WIB);
+
+        attendance.setJamKeluar(sekarang);
 
         return attendanceRepository.save(attendance);
     }
@@ -94,6 +109,7 @@ public class AttendanceService {
                         "User tidak ditemukan"
                 ));
 
-        return attendanceRepository.findByUserOrderByTanggalDesc(user);
-        }
+        return attendanceRepository
+                .findByUserOrderByTanggalDesc(user);
+    }
 }
