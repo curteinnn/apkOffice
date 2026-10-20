@@ -12,7 +12,7 @@ function getToday() {
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
 
-  return "${year}-${month}-${day}";
+  return `${year}-${month}-${day}`;
 }
 
 export default function useAttendance() {
@@ -25,9 +25,14 @@ export default function useAttendance() {
   const refreshAttendance = useCallback(async () => {
     const records = await getMyAttendance();
 
+    console.log("Data attendance:", records);
+    console.log("Tanggal hari ini:", getToday());
+
     const todayAttendance = Array.isArray(records)
       ? records.find((record) => record.tanggal === getToday())
       : null;
+
+    console.log("Attendance hari ini:", todayAttendance);
 
     setAttendance(todayAttendance ?? null);
   }, []);
