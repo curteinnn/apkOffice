@@ -13,7 +13,7 @@ const getTanggalWIB = () => {
     parts.map(({ type, value }) => [type, value]),
   );
 
-  return `${values.year}-${values.month}-${values.day}`;
+  return "${values.year}-${values.month}-${values.day}";
 };
 
 export default function useListVisit() {
@@ -22,6 +22,7 @@ export default function useListVisit() {
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [isCheckedOut, setIsCheckedOut] = useState(false);
 
   const fetchTugas = useCallback(async () => {
     setLoading(true);
@@ -30,21 +31,24 @@ export default function useListVisit() {
 
     try {
       const attendance = await apiRequest("/api/attendance/my");
-
       const hariIni = getTanggalWIB();
 
       const attendanceHariIni = Array.isArray(attendance)
         ? attendance.find((item) => item.tanggal === hariIni)
         : null;
 
+      // Belum check-in: tidak boleh membuka List Visit.
       if (!attendanceHariIni?.jamMasuk) {
         setTugas([]);
         setAccessDenied(true);
+        setIsCheckedOut(false);
         return;
       }
 
-      const data = await apiRequest("/api/tugas");
+      // Sudah check-out: tetap boleh melihat daftar dan status tugas.
+      setIsCheckedOut(Boolean(attendanceHariIni.jamKeluar));
 
+      const data = await apiRequest("/api/tugas");
       setTugas(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message || "Gagal memuat daftar tugas.");
@@ -58,6 +62,15 @@ export default function useListVisit() {
   }, [fetchTugas]);
 
   const updateStatus = async (id, action) => {
+    // Perlindungan di frontend; backend juga wajib memeriksa absensi.
+    if (isCheckedOut) {
+      const message =
+        "Anda sudah check-out. Tugas hanya bisa dilihat, tidak bisa diubah.";
+
+      setError(message);
+      throw new Error(message);
+    }
+
     setActionLoading(true);
     setError("");
 
@@ -85,6 +98,8 @@ export default function useListVisit() {
     error,
     actionLoading,
     accessDenied,
+    isCheckedOut,
     updateStatus,
+    refreshTugas: fetchTugas,
   };
 }

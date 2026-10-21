@@ -2,8 +2,15 @@ import { useState } from "react";
 import useListVisit from "../hooks/useListVisit";
 
 export default function ListVisit() {
-  const { tugas, loading, error, actionLoading, accessDenied, updateStatus } =
-    useListVisit();
+  const {
+    tugas,
+    loading,
+    error,
+    actionLoading,
+    accessDenied,
+    isCheckedOut,
+    updateStatus,
+  } = useListVisit();
 
   const [selectedTugas, setSelectedTugas] = useState(null);
   const [actionError, setActionError] = useState("");
@@ -11,7 +18,10 @@ export default function ListVisit() {
   const formatTanggal = (tanggal) => {
     if (!tanggal) return "-";
 
-    return new Date(`${tanggal}T00:00:00`).toLocaleDateString("id-ID", {
+    // Hindari tanggal bergeser akibat konversi zona waktu.
+    const [year, month, day] = tanggal.split("-").map(Number);
+
+    return new Date(year, month - 1, day).toLocaleDateString("id-ID", {
       day: "2-digit",
       month: "long",
       year: "numeric",
@@ -36,7 +46,7 @@ export default function ListVisit() {
   };
 
   const handleStatus = async (action) => {
-    if (!selectedTugas) return;
+    if (!selectedTugas || isCheckedOut) return;
 
     try {
       setActionError("");
@@ -102,6 +112,16 @@ export default function ListVisit() {
         <h1 className="px-1 text-2xl font-bold text-gray-900 sm:text-3xl">
           LIST CUSTOMER
         </h1>
+
+        {isCheckedOut && (
+          <div className="mt-5 rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-800">
+            <p className="font-semibold">Anda sudah check-out hari ini.</p>
+            <p className="mt-1">
+              Anda masih bisa melihat tugas dan statusnya, tetapi tidak bisa
+              memulai atau mengirim tugas lagi.
+            </p>
+          </div>
+        )}
 
         {error ? (
           <p className="flex min-h-[60vh] items-center justify-center text-center text-red-600">
@@ -234,13 +254,19 @@ export default function ListVisit() {
               </div>
             </div>
 
+            {isCheckedOut && (
+              <p className="mt-6 rounded-lg bg-orange-50 p-3 text-center text-sm text-orange-800">
+                Mode lihat saja: aksi tugas dikunci karena Anda sudah check-out.
+              </p>
+            )}
+
             {actionError && (
               <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
                 {actionError}
               </p>
             )}
 
-            {selectedTugas.status === "PENDING" && (
+            {!isCheckedOut && selectedTugas.status === "PENDING" && (
               <button
                 type="button"
                 disabled={actionLoading}
@@ -251,16 +277,17 @@ export default function ListVisit() {
               </button>
             )}
 
-            {["IN_PROGRESS", "REJECTED"].includes(selectedTugas.status) && (
-              <button
-                type="button"
-                disabled={actionLoading}
-                onClick={() => handleStatus("submit")}
-                className="mt-6 w-full rounded-lg bg-green-600 px-4 py-2.5 font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {actionLoading ? "Mengirim..." : "Selesaikan Tugas"}
-              </button>
-            )}
+            {!isCheckedOut &&
+              ["IN_PROGRESS", "REJECTED"].includes(selectedTugas.status) && (
+                <button
+                  type="button"
+                  disabled={actionLoading}
+                  onClick={() => handleStatus("submit")}
+                  className="mt-6 w-full rounded-lg bg-green-600 px-4 py-2.5 font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {actionLoading ? "Mengirim..." : "Selesaikan Tugas"}
+                </button>
+              )}
 
             {selectedTugas.status === "SUBMITTED" && (
               <p className="mt-6 rounded-lg bg-purple-50 p-3 text-center text-sm font-medium text-purple-800">
