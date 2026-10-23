@@ -13,7 +13,7 @@ const getTanggalWIB = () => {
     parts.map(({ type, value }) => [type, value]),
   );
 
-  return "${values.year}-${values.month}-${values.day}";
+  return `${values.year}-${values.month}-${values.day}`;
 };
 
 export default function useListVisit() {
