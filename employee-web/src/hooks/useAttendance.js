@@ -6,13 +6,18 @@ import {
 } from "../services/attendanceService";
 
 function getToday() {
-  const today = new Date();
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
 
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
+  const values = Object.fromEntries(
+    parts.map(({ type, value }) => [type, value]),
+  );
 
-  return `${year}-${month}-${day}`;
+  return `${values.year}-${values.month}-${values.day}`;
 }
 
 export default function useAttendance() {
@@ -25,14 +30,9 @@ export default function useAttendance() {
   const refreshAttendance = useCallback(async () => {
     const records = await getMyAttendance();
 
-    console.log("Data attendance:", records);
-    console.log("Tanggal hari ini:", getToday());
-
     const todayAttendance = Array.isArray(records)
       ? records.find((record) => record.tanggal === getToday())
       : null;
-
-    console.log("Attendance hari ini:", todayAttendance);
 
     setAttendance(todayAttendance ?? null);
   }, []);

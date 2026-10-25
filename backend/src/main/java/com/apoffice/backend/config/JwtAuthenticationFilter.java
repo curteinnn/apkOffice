@@ -3,6 +3,8 @@ package com.apoffice.backend.config;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import com.apoffice.backend.entity.User;
+import com.apoffice.backend.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,11 +27,14 @@ import java.util.Locale;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final String secretKey;
+    private final UserRepository userRepository;
 
     public JwtAuthenticationFilter(
-            @Value("${jwt.secret}") String secretKey
+            @Value("${jwt.secret}") String secretKey,
+            UserRepository userRepository
     ) {
         this.secretKey = secretKey;
+        this.userRepository = userRepository;
     }
 
     private SecretKey getKey() {
@@ -95,6 +100,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 response.sendError(
                         HttpServletResponse.SC_UNAUTHORIZED,
                         "Role pada token tidak valid"
+                );
+                return;
+            }
+
+            User user = userRepository.findByUsername(username).orElse(null);
+            if (user == null
+                    || user.getStatus() != User.Status.ACTIVE
+                    || user.getRole() == null
+                    || !user.getRole().name().equals(role)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(
+                        "{\"message\":\"Token tidak valid atau akses akun telah berubah\"}"
                 );
                 return;
             }
