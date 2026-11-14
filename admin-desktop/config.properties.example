@@ -1,0 +1,3 @@
+# Copy this file to config.properties in the Admin Desktop working directory.
+# Development example (backend on the same computer):
+API_BASE_URL=http://localhost:8080

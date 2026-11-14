@@ -4,6 +4,13 @@
  */
 package com.mycompany.admin.desktop;
 
+import com.mycompany.admin.desktop.api.ApiContext;
+import com.mycompany.admin.desktop.dto.AttendanceDto;
+import com.mycompany.admin.desktop.service.AttendanceApiService;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author nafan
@@ -17,6 +24,54 @@ public class RekapAbsensi extends javax.swing.JFrame {
      */
     public RekapAbsensi() {
         initComponents();
+        jLabel8.setText("Total data");
+        jLabel7.setText("Hadir (PRESENT)");
+        jLabel9.setText("Belum check-out");
+        jLabel6.setText("Tanggal terbaru");
+        jTable1.setModel(new DefaultTableModel(new Object[0][0],
+                new String[]{"Tanggal", "Nama", "Jabatan", "Status", "Check in", "Check out"}) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        });
+        loadSummary();
+    }
+
+    private void loadSummary() {
+        new javax.swing.SwingWorker<List<AttendanceDto>, Void>() {
+            @Override protected List<AttendanceDto> doInBackground() throws Exception {
+                return new AttendanceApiService(ApiContext.client()).getAll();
+            }
+            @Override protected void done() {
+                try {
+                    List<AttendanceDto> rows = get();
+                    long present = rows.stream().filter(a -> "PRESENT".equals(a.status())).count();
+                    long notCheckedOut = rows.stream().filter(a -> a.jamKeluar() == null).count();
+                    String latest = rows.stream().map(AttendanceDto::tanggal).filter(java.util.Objects::nonNull)
+                            .max(String::compareTo).orElse("-");
+                    jLabel13.setText(Long.toString(rows.size()));
+                    jLabel11.setText(Long.toString(present));
+                    jLabel12.setText(Long.toString(notCheckedOut));
+                    jLabel10.setText(latest);
+                    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                    for (AttendanceDto row : rows) {
+                        var user = row.user();
+                        model.addRow(new Object[]{row.tanggal(), user == null ? "-" : user.namaLengkap(),
+                                user == null ? "-" : user.jabatan(), row.status(),
+                                clock(row.jamMasuk()), clock(row.jamKeluar())});
+                    }
+                } catch (Exception ex) {
+                    jLabel13.setText("-"); jLabel11.setText("-"); jLabel12.setText("-"); jLabel10.setText("-");
+                    JOptionPane.showMessageDialog(RekapAbsensi.this, ex.getMessage(),
+                            "Gagal memuat rekap", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }.execute();
+    }
+
+    private String clock(String value) {
+        if (value == null || value.isBlank()) return "-";
+        int separator = value.indexOf('T');
+        return separator >= 0 && value.length() >= separator + 6
+                ? value.substring(separator + 1, separator + 6) : value;
     }
 
     /**

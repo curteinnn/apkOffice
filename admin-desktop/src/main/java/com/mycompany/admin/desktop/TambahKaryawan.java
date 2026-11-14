@@ -4,6 +4,24 @@
  */
 package com.mycompany.admin.desktop;
 
+import com.mycompany.admin.desktop.api.ApiContext;
+import com.mycompany.admin.desktop.dto.CreateUserRequest;
+import com.mycompany.admin.desktop.dto.UserDto;
+import com.mycompany.admin.desktop.service.UserApiService;
+import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingWorker;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author argag
@@ -11,12 +29,105 @@ package com.mycompany.admin.desktop;
 public class TambahKaryawan extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TambahKaryawan.class.getName());
+    private final JTextField usernameField = new JTextField();
+    private final JTextField nameField = new JTextField();
+    private final JTextField emailField = new JTextField();
+    private final JTextField positionField = new JTextField();
+    private final JPasswordField passwordField = new JPasswordField();
+    private final JComboBox<String> roleField = new JComboBox<>(new String[]{"EMPLOYEE"});
+    private final JButton saveButton = new JButton("Simpan karyawan");
+    private final DefaultTableModel employeeModel = new DefaultTableModel(
+            new String[]{"ID", "Username", "Nama", "Email", "Jabatan", "Status"}, 0) {
+        @Override public boolean isCellEditable(int row, int column) { return false; }
+    };
 
     /**
      * Creates new form TambahKaryawan
      */
     public TambahKaryawan() {
         initComponents();
+        buildConnectedUi();
+        loadEmployees();
+    }
+
+    private void buildConnectedUi() {
+        setTitle("Manajemen Karyawan");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        JPanel root = new JPanel(new java.awt.BorderLayout(12, 12));
+        JPanel form = new JPanel(new java.awt.GridLayout(0, 2, 8, 8));
+        form.setBorder(javax.swing.BorderFactory.createTitledBorder("Tambah karyawan"));
+        form.add(new JLabel("Username*")); form.add(usernameField);
+        form.add(new JLabel("Password awal*")); form.add(passwordField);
+        form.add(new JLabel("Nama lengkap*")); form.add(nameField);
+        form.add(new JLabel("Email*")); form.add(emailField);
+        form.add(new JLabel("Jabatan")); form.add(positionField);
+        form.add(new JLabel("Role")); form.add(roleField);
+        form.add(new JLabel()); form.add(saveButton);
+        JTable table = new JTable(employeeModel);
+        table.setAutoCreateRowSorter(true);
+        root.setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        root.add(form, java.awt.BorderLayout.NORTH);
+        root.add(new JScrollPane(table), java.awt.BorderLayout.CENTER);
+        setContentPane(root);
+        setSize(850, 580);
+        saveButton.addActionListener(evt -> createEmployee());
+    }
+
+    private void loadEmployees() {
+        new SwingWorker<List<UserDto>, Void>() {
+            @Override protected List<UserDto> doInBackground() throws Exception {
+                return new UserApiService(ApiContext.client()).getUsers();
+            }
+            @Override protected void done() {
+                try {
+                    employeeModel.setRowCount(0);
+                    for (UserDto user : get()) {
+                        if ("EMPLOYEE".equals(user.role())) {
+                            employeeModel.addRow(new Object[]{user.id(), user.username(), user.namaLengkap(),
+                                    user.email(), user.jabatan(), user.status()});
+                        }
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(TambahKaryawan.this, ex.getMessage(),
+                            "Gagal memuat karyawan", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }.execute();
+    }
+
+    private void createEmployee() {
+        String username = usernameField.getText().trim();
+        String password = new String(passwordField.getPassword());
+        String name = nameField.getText().trim();
+        String email = emailField.getText().trim();
+        String position = positionField.getText().trim();
+        if (username.isBlank() || password.isBlank() || name.isBlank() || email.isBlank()) {
+            JOptionPane.showMessageDialog(this, "Username, password, nama lengkap, dan email wajib diisi.",
+                    "Validasi", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        saveButton.setEnabled(false);
+        new SwingWorker<UserDto, Void>() {
+            @Override protected UserDto doInBackground() throws Exception {
+                return new UserApiService(ApiContext.client()).create(
+                        new CreateUserRequest(username, password, name, email, position,
+                                (String) roleField.getSelectedItem()));
+            }
+            @Override protected void done() {
+                saveButton.setEnabled(true);
+                try {
+                    UserDto created = get();
+                    passwordField.setText(""); usernameField.setText(""); nameField.setText("");
+                    emailField.setText(""); positionField.setText("");
+                    JOptionPane.showMessageDialog(TambahKaryawan.this,
+                            "Karyawan " + created.username() + " berhasil ditambahkan.");
+                    loadEmployees();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(TambahKaryawan.this, ex.getMessage(),
+                            "Gagal menambah karyawan", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }.execute();
     }
 
     /**

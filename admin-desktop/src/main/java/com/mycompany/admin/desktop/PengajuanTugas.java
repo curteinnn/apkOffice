@@ -3,6 +3,25 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.mycompany.admin.desktop;
+
+import com.mycompany.admin.desktop.api.ApiContext;
+import com.mycompany.admin.desktop.dto.CreateTaskRequest;
+import com.mycompany.admin.desktop.dto.UserDto;
+import com.mycompany.admin.desktop.service.TaskApiService;
+import com.mycompany.admin.desktop.service.UserApiService;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayDeque;
@@ -17,12 +36,120 @@ import javax.swing.table.DefaultTableModel;
 public class PengajuanTugas extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(PengajuanTugas.class.getName());
+    private final JComboBox<UserDto> employeeBox = new JComboBox<>();
+    private final JTextField titleField = new JTextField();
+    private final JTextField locationField = new JTextField();
+    private final JTextField dateField = new JTextField(LocalDate.now().toString());
+    private final JTextField mapsField = new JTextField();
+    private final JTextArea descriptionField = new JTextArea(4, 24);
 
     /**
      * Creates new form PengajuanTugas
      */
     public PengajuanTugas() {
         initComponents();
+        buildConnectedUi();
+        loadEmployees();
+    }
+
+    private void buildConnectedUi() {
+        setTitle("Buat Tugas");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        JPanel form = new JPanel(new java.awt.GridBagLayout());
+        form.setBorder(javax.swing.BorderFactory.createEmptyBorder(18, 18, 18, 18));
+        java.awt.GridBagConstraints c = new java.awt.GridBagConstraints();
+        c.insets = new java.awt.Insets(6, 6, 6, 6);
+        c.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        c.weightx = 0;
+        addField(form, c, 0, "Employee penerima*", employeeBox);
+        addField(form, c, 1, "Judul tugas*", titleField);
+        addField(form, c, 2, "Lokasi*", locationField);
+        addField(form, c, 3, "Tanggal (YYYY-MM-DD)*", dateField);
+        addField(form, c, 4, "Link Google Maps", mapsField);
+        descriptionField.setLineWrap(true);
+        descriptionField.setWrapStyleWord(true);
+        addField(form, c, 5, "Deskripsi", new JScrollPane(descriptionField));
+        jButton1.setText("Buat tugas");
+        c.gridx = 1; c.gridy = 6; c.weightx = 1;
+        form.add(jButton1, c);
+        setContentPane(form);
+        setSize(650, 520);
+        jButton1.addActionListener(evt -> createTask());
+        employeeBox.setRenderer((list, user, index, selected, focus) ->
+                new javax.swing.JLabel(user == null ? "Memuat employee..."
+                        : user.namaLengkap() + " (" + user.username() + ")"));
+    }
+
+    private void addField(JPanel panel, java.awt.GridBagConstraints c, int row, String label,
+            java.awt.Component component) {
+        c.gridx = 0; c.gridy = row; c.weightx = 0;
+        panel.add(new JLabel(label), c);
+        c.gridx = 1; c.weightx = 1;
+        panel.add(component, c);
+    }
+
+    private void loadEmployees() {
+        jButton1.setEnabled(false);
+        new SwingWorker<List<UserDto>, Void>() {
+            @Override protected List<UserDto> doInBackground() throws Exception {
+                return new UserApiService(ApiContext.client()).getUsers().stream()
+                        .filter(user -> "EMPLOYEE".equals(user.role()) && "ACTIVE".equals(user.status())).toList();
+            }
+            @Override protected void done() {
+                try {
+                    List<UserDto> employees = get();
+                    employeeBox.setModel(new DefaultComboBoxModel<>(employees.toArray(UserDto[]::new)));
+                    if (employees.isEmpty()) {
+                        JOptionPane.showMessageDialog(PengajuanTugas.this,
+                                "Belum ada employee aktif sebagai penerima tugas.",
+                                "Data employee", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(PengajuanTugas.this, ex.getMessage(),
+                            "Gagal memuat employee", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    jButton1.setEnabled(employeeBox.getItemCount() > 0);
+                }
+            }
+        }.execute();
+    }
+
+    private void createTask() {
+        UserDto employee = (UserDto) employeeBox.getSelectedItem();
+        if (employee == null || titleField.getText().isBlank() || locationField.getText().isBlank()) {
+            JOptionPane.showMessageDialog(this, "Employee, judul, dan lokasi wajib diisi.",
+                    "Validasi", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        final String date;
+        try {
+            date = LocalDate.parse(dateField.getText().trim()).toString();
+        } catch (DateTimeParseException ex) {
+            JOptionPane.showMessageDialog(this, "Tanggal harus menggunakan format YYYY-MM-DD.",
+                    "Validasi", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        jButton1.setEnabled(false);
+        CreateTaskRequest request = new CreateTaskRequest(employee.id(), titleField.getText().trim(),
+                locationField.getText().trim(), descriptionField.getText().trim(), date,
+                mapsField.getText().trim());
+        new SwingWorker<Void, Void>() {
+            @Override protected Void doInBackground() throws Exception {
+                new TaskApiService(ApiContext.client()).create(request);
+                return null;
+            }
+            @Override protected void done() {
+                jButton1.setEnabled(true);
+                try {
+                    get();
+                    JOptionPane.showMessageDialog(PengajuanTugas.this, "Tugas berhasil dibuat.");
+                    dispose();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(PengajuanTugas.this, ex.getMessage(),
+                            "Gagal membuat tugas", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }.execute();
     }
 
     /**

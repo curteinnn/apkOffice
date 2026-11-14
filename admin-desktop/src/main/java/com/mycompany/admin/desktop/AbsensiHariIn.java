@@ -1,5 +1,16 @@
 
 package com.mycompany.admin.desktop;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.mycompany.admin.desktop.api.ApiContext;
+import com.mycompany.admin.desktop.dto.AttendanceDto;
+import com.mycompany.admin.desktop.service.AttendanceApiService;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
@@ -19,16 +30,45 @@ public class AbsensiHariIn extends javax.swing.JFrame {
      */
 public AbsensiHariIn() {
     initComponents();
+    LocalDate tanggal = LocalDate.now(ZoneId.of("Asia/Jakarta"));
+    lblTanggal.setText("Tanggal: " + tanggal.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+    tblabsensi.setModel(new DefaultTableModel(new Object[0][0],
+            new String[]{"No", "Nama", "Jabatan", "Tanggal", "Status", "Check in", "Check out"}) {
+        @Override public boolean isCellEditable(int row, int column) { return false; }
+    });
+    loadAttendance(tanggal);
+}
 
-    java.time.LocalDate tanggal =
-            java.time.LocalDate.now();
+private void loadAttendance(LocalDate date) {
+    new javax.swing.SwingWorker<List<AttendanceDto>, Void>() {
+        @Override protected List<AttendanceDto> doInBackground() throws Exception {
+            return new AttendanceApiService(ApiContext.client()).getAll();
+        }
+        @Override protected void done() {
+            try {
+                List<AttendanceDto> records = get();
+                DefaultTableModel model = (DefaultTableModel) tblabsensi.getModel();
+                for (AttendanceDto row : records) {
+                    if (!date.toString().equals(row.tanggal())) continue;
+                    var user = row.user();
+                    model.addRow(new Object[]{model.getRowCount() + 1,
+                            user == null ? "-" : user.namaLengkap(),
+                            user == null ? "-" : user.jabatan(), row.tanggal(), row.status(),
+                            clock(row.jamMasuk()), clock(row.jamKeluar())});
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(AbsensiHariIn.this, ex.getMessage(),
+                        "Gagal memuat absensi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }.execute();
+}
 
-    java.time.format.DateTimeFormatter format =
-            java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-    lblTanggal.setText(
-            "Tanggal: " + tanggal.format(format)
-    );
+private String clock(String value) {
+    if (value == null || value.isBlank()) return "-";
+    int separator = value.indexOf('T');
+    return separator >= 0 && value.length() >= separator + 6
+            ? value.substring(separator + 1, separator + 6) : value;
 }
     /**
      * This method is called from within the constructor to initialize the form.

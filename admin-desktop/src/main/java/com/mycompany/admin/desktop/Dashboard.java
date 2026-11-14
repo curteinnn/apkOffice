@@ -4,6 +4,24 @@
  */
 package com.mycompany.admin.desktop;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.mycompany.admin.desktop.api.ApiContext;
+import com.mycompany.admin.desktop.dto.AttendanceDto;
+import com.mycompany.admin.desktop.dto.TaskDto;
+import com.mycompany.admin.desktop.dto.UserDto;
+import com.mycompany.admin.desktop.service.AttendanceApiService;
+import com.mycompany.admin.desktop.service.TaskApiService;
+import com.mycompany.admin.desktop.service.UserApiService;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Set;
+import javax.swing.JOptionPane;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author argag
@@ -17,6 +35,73 @@ public class Dashboard extends javax.swing.JFrame {
      */
     public Dashboard() {
         initComponents();
+        jButton3.addActionListener(evt -> open(new AbsensiHariIn()));
+        jButton4.addActionListener(evt -> open(new ListVisit()));
+        jButton5.addActionListener(evt -> open(new RekapAbsensi()));
+        JMenuBar menuBar = new JMenuBar();
+        JMenu account = new JMenu("Akun");
+        JMenuItem logout = new JMenuItem("Logout");
+        logout.addActionListener(evt -> {
+            AuthSession.clear();
+            new loginadmin().setVisible(true);
+            dispose();
+        });
+        account.add(logout); menuBar.add(account); setJMenuBar(menuBar);
+        loadDashboardData();
+    }
+
+    private void open(javax.swing.JFrame frame) {
+        frame.setLocationRelativeTo(this);
+        frame.setVisible(true);
+    }
+
+    private void loadDashboardData() {
+        jLabel20.setText("…");
+        jLabel21.setText("…");
+        jLabel22.setText("…");
+        jLabel23.setText("…");
+        jTable1.setModel(new DefaultTableModel(new Object[0][0],
+                new String[]{"Judul Tugas", "Employee", "Tanggal", "Lokasi", "Status"}) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        });
+        new javax.swing.SwingWorker<Object[], Void>() {
+            @Override protected Object[] doInBackground() throws Exception {
+                var api = ApiContext.client();
+                List<UserDto> users = new UserApiService(api).getUsers();
+                List<AttendanceDto> attendance = new AttendanceApiService(api).getAll();
+                List<TaskDto> tasks = new TaskApiService(api).getAll();
+                return new Object[]{users, attendance, tasks};
+            }
+            @Override protected void done() {
+                try {
+                    Object[] result = get();
+                    @SuppressWarnings("unchecked") List<UserDto> users = (List<UserDto>) result[0];
+                    @SuppressWarnings("unchecked") List<AttendanceDto> attendance = (List<AttendanceDto>) result[1];
+                    @SuppressWarnings("unchecked") List<TaskDto> tasks = (List<TaskDto>) result[2];
+                    LocalDate today = LocalDate.now(ZoneId.of("Asia/Jakarta"));
+                    long employees = users.stream().filter(u -> "EMPLOYEE".equals(u.role())).count();
+                    long present = attendance.stream().filter(a -> today.toString().equals(a.tanggal())
+                            && "PRESENT".equals(a.status())).count();
+                    long active = tasks.stream().filter(t -> Set.of("PENDING", "IN_PROGRESS", "SUBMITTED", "REJECTED")
+                            .contains(t.status())).count();
+                    long approved = tasks.stream().filter(t -> "APPROVED".equals(t.status())).count();
+                    jLabel20.setText(Long.toString(employees));
+                    jLabel21.setText(Long.toString(present));
+                    jLabel22.setText(Long.toString(active));
+                    jLabel23.setText(Long.toString(approved));
+                    tasks.sort((a, b) -> String.valueOf(b.createdAt()).compareTo(String.valueOf(a.createdAt())));
+                    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                    for (TaskDto task : tasks.stream().limit(5).toList()) {
+                        model.addRow(new Object[]{task.judul(), task.user() == null ? "-" : task.user().username(),
+                                task.tanggal(), task.lokasi(), task.status()});
+                    }
+                } catch (Exception ex) {
+                    jLabel20.setText("-"); jLabel21.setText("-"); jLabel22.setText("-"); jLabel23.setText("-");
+                    JOptionPane.showMessageDialog(Dashboard.this, ex.getMessage(),
+                            "Gagal memuat dashboard", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }.execute();
     }
 
     /**
@@ -285,7 +370,7 @@ public class Dashboard extends javax.swing.JFrame {
 
         jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Gambar/task2.png"))); // NOI18N
 
-        jLabel16.setText("Tugas selesai");
+        jLabel16.setText("Disetujui");
 
         jLabel23.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel23.setText("2");
@@ -390,7 +475,7 @@ public class Dashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        open(new TambahKaryawan());
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**

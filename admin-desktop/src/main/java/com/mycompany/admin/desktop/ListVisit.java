@@ -4,6 +4,20 @@
  */
 package com.mycompany.admin.desktop;
 
+import com.mycompany.admin.desktop.api.ApiContext;
+import com.mycompany.admin.desktop.dto.TaskDto;
+import com.mycompany.admin.desktop.dto.VerifyTaskRequest;
+import com.mycompany.admin.desktop.service.TaskApiService;
+import java.math.BigDecimal;
+import java.util.List;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author argag
@@ -11,12 +25,148 @@ package com.mycompany.admin.desktop;
 public class ListVisit extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ListVisit.class.getName());
+    private List<TaskDto> loadedTasks = List.of();
 
     /**
      * Creates new form ListVisit
      */
     public ListVisit() {
         initComponents();
+        buildTaskActions();
+        loadTasks();
+    }
+
+    private final DefaultTableModel taskModel = new DefaultTableModel(
+            new String[]{"ID", "Employee", "Judul Tugas", "Lokasi", "Tanggal", "Status", "Nominal"}, 0) {
+        @Override public boolean isCellEditable(int row, int column) { return false; }
+    };
+
+    private void buildTaskActions() {
+        setTitle("Daftar Tugas");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        jTable1.setModel(taskModel);
+        jTable1.setAutoCreateRowSorter(true);
+        jTextField1.setText("");
+        jTextField1.setToolTipText("Cari employee, tugas, lokasi, atau status");
+        jTextField1.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            private void filter() {
+                javax.swing.RowFilter<DefaultTableModel, Integer> rowFilter =
+                        jTextField1.getText().isBlank() ? null
+                        : javax.swing.RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(jTextField1.getText()));
+                if (!(jTable1.getRowSorter() instanceof javax.swing.table.TableRowSorter<?>)) {
+                    jTable1.setRowSorter(new javax.swing.table.TableRowSorter<>(taskModel));
+                }
+                @SuppressWarnings("unchecked") javax.swing.table.TableRowSorter<DefaultTableModel> sorter =
+                        (javax.swing.table.TableRowSorter<DefaultTableModel>) jTable1.getRowSorter();
+                sorter.setRowFilter(rowFilter);
+            }
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+        });
+        JMenuBar bar = new JMenuBar();
+        JMenu menu = new JMenu("Tugas");
+        JMenuItem create = new JMenuItem("Buat tugas");
+        create.addActionListener(evt -> {
+            PengajuanTugas form = new PengajuanTugas();
+            form.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override public void windowClosed(java.awt.event.WindowEvent e) { loadTasks(); }
+            });
+            form.setLocationRelativeTo(this);
+            form.setVisible(true);
+        });
+        JMenuItem refresh = new JMenuItem("Muat ulang");
+        refresh.addActionListener(evt -> loadTasks());
+        JMenuItem verify = new JMenuItem("Verifikasi tugas terpilih");
+        verify.addActionListener(evt -> verifySelected());
+        menu.add(create); menu.add(refresh); menu.add(verify); bar.add(menu); setJMenuBar(bar);
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) showSelectedTask();
+            }
+        });
+    }
+
+    private void loadTasks() {
+        taskModel.setRowCount(0);
+        new SwingWorker<List<TaskDto>, Void>() {
+            @Override protected List<TaskDto> doInBackground() throws Exception {
+                return new TaskApiService(ApiContext.client()).getAll();
+            }
+            @Override protected void done() {
+                try {
+                    loadedTasks = get();
+                    for (TaskDto task : loadedTasks) {
+                        taskModel.addRow(new Object[]{task.id(), task.user() == null ? "-" : task.user().namaLengkap(),
+                                task.judul(), task.lokasi(), task.tanggal(), task.status(), task.nominal()});
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(ListVisit.this, ex.getMessage(),
+                            "Gagal memuat tugas", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }.execute();
+    }
+
+    private TaskDto selectedTask() {
+        int viewRow = jTable1.getSelectedRow();
+        if (viewRow < 0) return null;
+        int row = jTable1.convertRowIndexToModel(viewRow);
+        long id = ((Number) taskModel.getValueAt(row, 0)).longValue();
+        return loadedTasks.stream().filter(task -> task.id() == id).findFirst().orElse(null);
+    }
+
+    private void showSelectedTask() {
+        TaskDto task = selectedTask();
+        if (task == null) return;
+        String employee = task.user() == null ? "-" : task.user().namaLengkap();
+        JOptionPane.showMessageDialog(this,
+                "Employee: " + employee + "\nJudul: " + task.judul() + "\nTanggal: " + task.tanggal()
+                        + "\nLokasi: " + task.lokasi() + "\nStatus: " + task.status()
+                        + "\nDeskripsi: " + (task.deskripsi() == null ? "-" : task.deskripsi()),
+                "Detail Tugas", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void verifySelected() {
+        TaskDto task = selectedTask();
+        if (task == null) {
+            JOptionPane.showMessageDialog(this, "Pilih tugas terlebih dahulu.", "Verifikasi", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (!"SUBMITTED".equals(task.status())) {
+            JOptionPane.showMessageDialog(this, "Hanya tugas berstatus SUBMITTED yang dapat diverifikasi.",
+                    "Verifikasi", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Object[] choices = {"APPROVED", "REJECTED", "Batal"};
+        int choice = JOptionPane.showOptionDialog(this, "Pilih hasil verifikasi tugas.", "Verifikasi Tugas",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, choices[2]);
+        if (choice < 0 || choice == 2) return;
+        BigDecimal nominal = null;
+        if (choice == 0) {
+            String value = JOptionPane.showInputDialog(this, "Nominal (angka >= 0):", "0");
+            if (value == null) return;
+            try {
+                nominal = new BigDecimal(value.trim());
+                if (nominal.signum() < 0) throw new NumberFormatException();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Nominal harus angka dan tidak boleh negatif.",
+                        "Validasi", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
+        VerifyTaskRequest request = new VerifyTaskRequest(choice == 0 ? "APPROVED" : "REJECTED", nominal);
+        new SwingWorker<Void, Void>() {
+            @Override protected Void doInBackground() throws Exception {
+                new TaskApiService(ApiContext.client()).verify(task.id(), request);
+                return null;
+            }
+            @Override protected void done() {
+                try { get(); loadTasks(); }
+                catch (Exception ex) { JOptionPane.showMessageDialog(ListVisit.this, ex.getMessage(),
+                        "Gagal memverifikasi tugas", JOptionPane.ERROR_MESSAGE); }
+            }
+        }.execute();
     }
 
     /**

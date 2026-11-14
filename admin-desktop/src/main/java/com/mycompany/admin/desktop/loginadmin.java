@@ -4,13 +4,9 @@
  */
 package com.mycompany.admin.desktop;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
+import com.mycompany.admin.desktop.api.ApiContext;
+import com.mycompany.admin.desktop.dto.LoginResponse;
+import com.mycompany.admin.desktop.service.AuthApiService;
 import java.io.IOException;
 /**
  *
@@ -38,7 +34,7 @@ public class loginadmin extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         blogin = new javax.swing.JButton();
-        tpass = new javax.swing.JTextField();
+        tpass = new javax.swing.JPasswordField();
         pass = new javax.swing.JLabel();
         tuser = new javax.swing.JTextField();
         user = new javax.swing.JLabel();
@@ -98,7 +94,7 @@ public class loginadmin extends javax.swing.JFrame {
 
     private void bloginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bloginActionPerformed
         String username = tuser.getText().trim();
-        String password = tpass.getText();
+        String password = new String(tpass.getPassword());
 
         if (username.isEmpty() || password.isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(
@@ -115,48 +111,15 @@ public class loginadmin extends javax.swing.JFrame {
         new javax.swing.SwingWorker<AuthResult, Void>() {
             @Override
             protected AuthResult doInBackground() throws Exception {
-                ObjectMapper mapper = new ObjectMapper();
-                String requestJson = mapper.createObjectNode()
-                    .put("username", username)
-                    .put("password", password)
-                    .toString();
-
-                HttpClient client = HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofSeconds(10))
-                    .build();
-
-                HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8080/api/auth/login"))
-                    .timeout(Duration.ofSeconds(15))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestJson))
-                    .build();
-
-                HttpResponse<String> response = client.send(
-                    request, HttpResponse.BodyHandlers.ofString()
-                );
-
-                JsonNode body = mapper.readTree(response.body());
-                if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                    String message = body.hasNonNull("message")
-                        ? body.get("message").asText()
-                        : "Login gagal. Periksa username dan password.";
-                    throw new IOException(message);
-                }
-
-                String token = body.path("token").asText("");
-                String role = body.path("role").asText("");
-                String nama = body.path("namaLengkap").asText(username);
-                long id = body.path("id").asLong(-1);
-
-                if (token.isBlank()) {
+                LoginResponse response = new AuthApiService(ApiContext.client()).login(username, password);
+                if (response == null || response.token() == null || response.token().isBlank()) {
                     throw new IOException("Token tidak ditemukan dari server.");
                 }
-                if (!"ADMIN".equalsIgnoreCase(role)) {
-                    throw new IOException("Akun ini bukan Admin. Role: " + role);
+                if (!"ADMIN".equalsIgnoreCase(response.role())) {
+                    throw new IOException("Akun ini bukan Admin. Role: " + response.role());
                 }
-
-                return new AuthResult(id, username, nama, role, token);
+                return new AuthResult(response.id(), response.username(), response.namaLengkap(),
+                        response.role(), response.token());
             }
 
             @Override
@@ -222,7 +185,7 @@ public class loginadmin extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel loginadmin;
     private javax.swing.JLabel pass;
-    private javax.swing.JTextField tpass;
+    private javax.swing.JPasswordField tpass;
     private javax.swing.JTextField tuser;
     private javax.swing.JLabel user;
     // End of variables declaration//GEN-END:variables

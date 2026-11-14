@@ -38,6 +38,9 @@ node_modules/
 employee-web/dist/
 employee-web/.vite/
 
+# Admin Desktop external API configuration
+admin-desktop/config.properties
+
 ### Environment Variables / Secrets ###
 .env
 .env.*
