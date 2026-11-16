@@ -37,7 +37,7 @@ public class ListVisit extends javax.swing.JFrame {
     }
 
     private final DefaultTableModel taskModel = new DefaultTableModel(
-            new String[]{"ID", "Employee", "Judul Tugas", "Lokasi", "Tanggal", "Status", "Nominal"}, 0) {
+            new String[]{"ID", "Employee", "Pelanggan", "Jenis Tugas", "Judul Tugas", "Lokasi", "Tanggal", "Status", "Nominal"}, 0) {
         @Override public boolean isCellEditable(int row, int column) { return false; }
     };
 
@@ -98,6 +98,9 @@ public class ListVisit extends javax.swing.JFrame {
                     loadedTasks = get();
                     for (TaskDto task : loadedTasks) {
                         taskModel.addRow(new Object[]{task.id(), task.user() == null ? "-" : task.user().namaLengkap(),
+                                task.pelanggan() == null ? "Belum ditentukan" : task.pelanggan().nama(),
+                                task.jenisTugas() == null ? "Belum dikategorikan"
+                                        : task.jenisTugas().id() + " - " + task.jenisTugas().nama(),
                                 task.judul(), task.lokasi(), task.tanggal(), task.status(), task.nominal()});
                     }
                 } catch (Exception ex) {
@@ -121,7 +124,10 @@ public class ListVisit extends javax.swing.JFrame {
         if (task == null) return;
         String employee = task.user() == null ? "-" : task.user().namaLengkap();
         JOptionPane.showMessageDialog(this,
-                "Employee: " + employee + "\nJudul: " + task.judul() + "\nTanggal: " + task.tanggal()
+                "Employee: " + employee + "\nPelanggan: " + (task.pelanggan() == null ? "Belum ditentukan" : task.pelanggan().nama())
+                        + "\nJenis tugas: " + (task.jenisTugas() == null ? "Belum dikategorikan"
+                                : task.jenisTugas().id() + " - " + task.jenisTugas().nama())
+                        + "\nJudul: " + task.judul() + "\nTanggal: " + task.tanggal()
                         + "\nLokasi: " + task.lokasi() + "\nStatus: " + task.status()
                         + "\nDeskripsi: " + (task.deskripsi() == null ? "-" : task.deskripsi()),
                 "Detail Tugas", JOptionPane.INFORMATION_MESSAGE);

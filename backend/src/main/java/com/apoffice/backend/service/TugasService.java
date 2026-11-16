@@ -3,8 +3,12 @@ package com.apoffice.backend.service;
 import com.apoffice.backend.dto.CreateTugasRequest;
 import com.apoffice.backend.dto.VerifyTugasRequest;
 import com.apoffice.backend.entity.Tugas;
+import com.apoffice.backend.entity.JenisTugas;
+import com.apoffice.backend.entity.Pelanggan;
 import com.apoffice.backend.entity.User;
 import com.apoffice.backend.repository.TugasRepository;
+import com.apoffice.backend.repository.JenisTugasRepository;
+import com.apoffice.backend.repository.PelangganRepository;
 import com.apoffice.backend.repository.UserRepository;
 
 import org.springframework.http.HttpStatus;
@@ -20,13 +24,19 @@ public class TugasService {
 
     private final TugasRepository tugasRepository;
     private final UserRepository userRepository;
+    private final JenisTugasRepository jenisTugasRepository;
+    private final PelangganRepository pelangganRepository;
 
     public TugasService(
             TugasRepository tugasRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            JenisTugasRepository jenisTugasRepository,
+            PelangganRepository pelangganRepository
     ) {
         this.tugasRepository = tugasRepository;
         this.userRepository = userRepository;
+        this.jenisTugasRepository = jenisTugasRepository;
+        this.pelangganRepository = pelangganRepository;
     }
 
     public List<Tugas> getAllTugas(String username, String role) {
@@ -50,10 +60,12 @@ public class TugasService {
                 || request.getJudul().isBlank()
                 || request.getLokasi() == null
                 || request.getLokasi().isBlank()
-                || request.getTanggal() == null) {
+                || request.getTanggal() == null
+                || request.getJenisTugasId() == null
+                || request.getPelangganId() == null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Karyawan, judul, lokasi, dan tanggal wajib diisi"
+                    "Karyawan, pelanggan, jenis tugas, judul, lokasi, dan tanggal wajib diisi"
             );
         }
 
@@ -61,6 +73,18 @@ public class TugasService {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Karyawan tidak ditemukan"
+                ));
+
+        JenisTugas jenisTugas = jenisTugasRepository.findById(request.getJenisTugasId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Jenis tugas tidak valid"
+                ));
+
+        Pelanggan pelanggan = pelangganRepository.findById(request.getPelangganId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Pelanggan tidak valid"
                 ));
 
         if (user.getRole() != User.Role.EMPLOYEE) {
@@ -72,6 +96,8 @@ public class TugasService {
 
         Tugas tugas = new Tugas();
         tugas.setUser(user);
+        tugas.setJenisTugas(jenisTugas);
+        tugas.setPelanggan(pelanggan);
         tugas.setJudul(request.getJudul().trim());
         tugas.setLokasi(request.getLokasi().trim());
         tugas.setLinkGmaps(request.getLinkGmaps());

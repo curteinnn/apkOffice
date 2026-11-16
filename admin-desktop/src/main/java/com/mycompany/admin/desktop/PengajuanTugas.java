@@ -7,6 +7,10 @@ package com.mycompany.admin.desktop;
 import com.mycompany.admin.desktop.api.ApiContext;
 import com.mycompany.admin.desktop.dto.CreateTaskRequest;
 import com.mycompany.admin.desktop.dto.UserDto;
+import com.mycompany.admin.desktop.dto.JenisTugasDto;
+import com.mycompany.admin.desktop.dto.PelangganDto;
+import com.mycompany.admin.desktop.service.JenisTugasApiService;
+import com.mycompany.admin.desktop.service.PelangganApiService;
 import com.mycompany.admin.desktop.service.TaskApiService;
 import com.mycompany.admin.desktop.service.UserApiService;
 import java.time.LocalDate;
@@ -37,6 +41,11 @@ public class PengajuanTugas extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(PengajuanTugas.class.getName());
     private final JComboBox<UserDto> employeeBox = new JComboBox<>();
+    private final JComboBox<JenisTugasDto> jenisTugasBox = new JComboBox<>();
+    private final JComboBox<PelangganDto> pelangganBox = new JComboBox<>();
+    private boolean employeesLoaded;
+    private boolean jenisTugasLoaded;
+    private boolean pelangganLoaded;
     private final JTextField titleField = new JTextField();
     private final JTextField locationField = new JTextField();
     private final JTextField dateField = new JTextField(LocalDate.now().toString());
@@ -50,6 +59,8 @@ public class PengajuanTugas extends javax.swing.JFrame {
         initComponents();
         buildConnectedUi();
         loadEmployees();
+        loadJenisTugas();
+        loadPelanggan();
     }
 
     private void buildConnectedUi() {
@@ -62,15 +73,17 @@ public class PengajuanTugas extends javax.swing.JFrame {
         c.fill = java.awt.GridBagConstraints.HORIZONTAL;
         c.weightx = 0;
         addField(form, c, 0, "Employee penerima*", employeeBox);
-        addField(form, c, 1, "Judul tugas*", titleField);
-        addField(form, c, 2, "Lokasi*", locationField);
-        addField(form, c, 3, "Tanggal (YYYY-MM-DD)*", dateField);
-        addField(form, c, 4, "Link Google Maps", mapsField);
+        addField(form, c, 1, "Jenis tugas*", jenisTugasBox);
+        addField(form, c, 2, "Pelanggan*", pelangganBox);
+        addField(form, c, 3, "Judul tugas*", titleField);
+        addField(form, c, 4, "Lokasi*", locationField);
+        addField(form, c, 5, "Tanggal (YYYY-MM-DD)*", dateField);
+        addField(form, c, 6, "Link Google Maps", mapsField);
         descriptionField.setLineWrap(true);
         descriptionField.setWrapStyleWord(true);
-        addField(form, c, 5, "Deskripsi", new JScrollPane(descriptionField));
+        addField(form, c, 7, "Deskripsi", new JScrollPane(descriptionField));
         jButton1.setText("Buat tugas");
-        c.gridx = 1; c.gridy = 6; c.weightx = 1;
+        c.gridx = 1; c.gridy = 8; c.weightx = 1;
         form.add(jButton1, c);
         setContentPane(form);
         setSize(650, 520);
@@ -78,6 +91,10 @@ public class PengajuanTugas extends javax.swing.JFrame {
         employeeBox.setRenderer((list, user, index, selected, focus) ->
                 new javax.swing.JLabel(user == null ? "Memuat employee..."
                         : user.namaLengkap() + " (" + user.username() + ")"));
+        jenisTugasBox.setRenderer((list, jenis, index, selected, focus) ->
+                new javax.swing.JLabel(jenis == null ? "Memuat jenis tugas..." : jenis.id() + " - " + jenis.nama()));
+        pelangganBox.setRenderer((list, pelanggan, index, selected, focus) ->
+                new javax.swing.JLabel(pelanggan == null ? "Memuat pelanggan..." : pelanggan.nama()));
     }
 
     private void addField(JPanel panel, java.awt.GridBagConstraints c, int row, String label,
@@ -108,7 +125,64 @@ public class PengajuanTugas extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(PengajuanTugas.this, ex.getMessage(),
                             "Gagal memuat employee", JOptionPane.ERROR_MESSAGE);
                 } finally {
-                    jButton1.setEnabled(employeeBox.getItemCount() > 0);
+                    employeesLoaded = employeeBox.getItemCount() > 0;
+                    updateSubmitEnabled();
+                }
+            }
+        }.execute();
+    }
+
+    private void loadJenisTugas() {
+        jButton1.setEnabled(false);
+        new SwingWorker<List<JenisTugasDto>, Void>() {
+            @Override protected List<JenisTugasDto> doInBackground() throws Exception {
+                return new JenisTugasApiService(ApiContext.client()).getAll();
+            }
+            @Override protected void done() {
+                try {
+                    List<JenisTugasDto> rows = get();
+                    jenisTugasBox.setModel(new DefaultComboBoxModel<>(rows.toArray(JenisTugasDto[]::new)));
+                    jenisTugasLoaded = !rows.isEmpty();
+                    if (!jenisTugasLoaded) {
+                        JOptionPane.showMessageDialog(PengajuanTugas.this,
+                                "Jenis tugas belum tersedia. Terapkan migrasi database terlebih dahulu.",
+                                "Data jenis tugas", JOptionPane.WARNING_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(PengajuanTugas.this, ex.getMessage(),
+                            "Gagal memuat jenis tugas", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    updateSubmitEnabled();
+                }
+            }
+        }.execute();
+    }
+
+    private void updateSubmitEnabled() {
+        jButton1.setEnabled(employeesLoaded && jenisTugasLoaded && pelangganLoaded);
+    }
+
+    private void loadPelanggan() {
+        jButton1.setEnabled(false);
+        new SwingWorker<List<PelangganDto>, Void>() {
+            @Override protected List<PelangganDto> doInBackground() throws Exception {
+                return new PelangganApiService(ApiContext.client()).getAll();
+            }
+            @Override protected void done() {
+                try {
+                    List<PelangganDto> rows = get();
+                    pelangganBox.setModel(new DefaultComboBoxModel<>(rows.toArray(PelangganDto[]::new)));
+                    pelangganLoaded = !rows.isEmpty();
+                    if (!pelangganLoaded) {
+                        JOptionPane.showMessageDialog(PengajuanTugas.this,
+                                "Tambahkan data pelanggan terlebih dahulu melalui menu Data Master.",
+                                "Data pelanggan", JOptionPane.WARNING_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(PengajuanTugas.this, ex.getMessage(),
+                            "Gagal memuat pelanggan", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    updateSubmitEnabled();
                 }
             }
         }.execute();
@@ -116,8 +190,10 @@ public class PengajuanTugas extends javax.swing.JFrame {
 
     private void createTask() {
         UserDto employee = (UserDto) employeeBox.getSelectedItem();
-        if (employee == null || titleField.getText().isBlank() || locationField.getText().isBlank()) {
-            JOptionPane.showMessageDialog(this, "Employee, judul, dan lokasi wajib diisi.",
+        JenisTugasDto jenisTugas = (JenisTugasDto) jenisTugasBox.getSelectedItem();
+        PelangganDto pelanggan = (PelangganDto) pelangganBox.getSelectedItem();
+        if (employee == null || jenisTugas == null || pelanggan == null || titleField.getText().isBlank() || locationField.getText().isBlank()) {
+            JOptionPane.showMessageDialog(this, "Employee, jenis tugas, pelanggan, judul, dan lokasi wajib diisi.",
                     "Validasi", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -130,7 +206,7 @@ public class PengajuanTugas extends javax.swing.JFrame {
             return;
         }
         jButton1.setEnabled(false);
-        CreateTaskRequest request = new CreateTaskRequest(employee.id(), titleField.getText().trim(),
+        CreateTaskRequest request = new CreateTaskRequest(employee.id(), jenisTugas.id(), pelanggan.id(), titleField.getText().trim(),
                 locationField.getText().trim(), descriptionField.getText().trim(), date,
                 mapsField.getText().trim());
         new SwingWorker<Void, Void>() {

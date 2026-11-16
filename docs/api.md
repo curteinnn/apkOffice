@@ -174,6 +174,44 @@ Bearer Token
 
 ---
 
+# Jenis Tugas
+
+## Get Jenis Tugas
+
+Mengambil kategori tugas yang tersedia. Endpoint memerlukan Bearer Token.
+
+```http
+GET /api/jenis-tugas
+```
+
+Data awal: `INT-001` (Instalasi), `MNT-001` (Maintenance), dan `TRB-001`
+(Perbaikan/Troubleshooting). Nilai `id` jenis tugas adalah string tetap dan
+menjadi primary key yang direferensikan `tugas.jenis_tugas_id`.
+Migrasi skema dijalankan manual melalui Navicat dari file SQL pada
+`backend/src/main/resources/db/migration`. Untuk perubahan ID jenis tugas,
+jalankan `V003__jenis_tugas_string_id.sql` setelah V001. Backend tidak
+menjalankan migrasi otomatis; Hibernate tetap menggunakan `ddl-auto=none`.
+
+Saat membuat tugas melalui `POST /api/tugas`, sertakan `jenisTugasId` dari
+respons endpoint ini. Respons tugas menyertakan objek `jenisTugas`.
+
+---
+
+# Pelanggan
+
+Endpoint `/api/pelanggan` hanya dapat diakses role `ADMIN`.
+
+- `GET /api/pelanggan`: daftar pelanggan.
+- `POST /api/pelanggan`: tambah pelanggan (`nama`, `alamat`, opsional `namaKontak`, `telepon`, `linkGmaps`).
+- `PUT /api/pelanggan/{id}`: ubah data pelanggan.
+- `DELETE /api/pelanggan/{id}`: hapus pelanggan yang belum dipakai tugas; pelanggan yang sudah direferensikan mengembalikan `409 Conflict`.
+
+Saat membuat tugas, sertakan `pelangganId` bersama `jenisTugasId`. Data pelanggan
+dikirim pada objek `pelanggan` di respons tugas. Migrasi skema dilakukan oleh
+Migrasi `V002__pelanggan.sql` dijalankan manual setelah `V001__jenis_tugas.sql`.
+
+---
+
 # Attendance
 
 Base endpoint:

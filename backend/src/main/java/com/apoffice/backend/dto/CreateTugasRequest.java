@@ -5,6 +5,8 @@ import java.time.LocalDate;
 public class CreateTugasRequest {
 
     private Long userId;
+    private String jenisTugasId;
+    private Long pelangganId;
     private String judul;
     private String lokasi;
     private String deskripsi;
@@ -14,6 +16,14 @@ public class CreateTugasRequest {
     public Long getUserId() {
         return userId;
     }
+
+    public String getJenisTugasId() { return jenisTugasId; }
+
+    public void setJenisTugasId(String jenisTugasId) { this.jenisTugasId = jenisTugasId; }
+
+    public Long getPelangganId() { return pelangganId; }
+
+    public void setPelangganId(Long pelangganId) { this.pelangganId = pelangganId; }
 
     public void setUserId(Long userId) {
         this.userId = userId;

@@ -17,6 +17,14 @@ public class Tugas {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "jenis_tugas_id")
+    private JenisTugas jenisTugas;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "pelanggan_id")
+    private Pelanggan pelanggan;
+
     @Column(nullable = false, length = 150)
     private String judul;
 
@@ -51,6 +59,14 @@ public class Tugas {
     public User getUser() {
         return user;
     }
+
+    public JenisTugas getJenisTugas() { return jenisTugas; }
+
+    public void setJenisTugas(JenisTugas jenisTugas) { this.jenisTugas = jenisTugas; }
+
+    public Pelanggan getPelanggan() { return pelanggan; }
+
+    public void setPelanggan(Pelanggan pelanggan) { this.pelanggan = pelanggan; }
 
     public void setUser(User user) {
         this.user = user;

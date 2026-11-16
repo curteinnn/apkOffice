@@ -47,6 +47,11 @@ public class Dashboard extends javax.swing.JFrame {
             dispose();
         });
         account.add(logout); menuBar.add(account); setJMenuBar(menuBar);
+        JMenu master = new JMenu("Data Master");
+        JMenuItem pelanggan = new JMenuItem("Pelanggan");
+        pelanggan.addActionListener(evt -> open(new MasterPelanggan()));
+        master.add(pelanggan);
+        menuBar.add(master);
         loadDashboardData();
     }
 
@@ -61,7 +66,7 @@ public class Dashboard extends javax.swing.JFrame {
         jLabel22.setText("…");
         jLabel23.setText("…");
         jTable1.setModel(new DefaultTableModel(new Object[0][0],
-                new String[]{"Judul Tugas", "Employee", "Tanggal", "Lokasi", "Status"}) {
+                new String[]{"Judul Tugas", "Jenis Tugas", "Employee", "Tanggal", "Lokasi", "Status"}) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         });
         new javax.swing.SwingWorker<Object[], Void>() {
@@ -92,7 +97,9 @@ public class Dashboard extends javax.swing.JFrame {
                     tasks.sort((a, b) -> String.valueOf(b.createdAt()).compareTo(String.valueOf(a.createdAt())));
                     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
                     for (TaskDto task : tasks.stream().limit(5).toList()) {
-                        model.addRow(new Object[]{task.judul(), task.user() == null ? "-" : task.user().username(),
+                        model.addRow(new Object[]{task.judul(), task.jenisTugas() == null ? "Belum dikategorikan"
+                                : task.jenisTugas().id() + " - " + task.jenisTugas().nama(),
+                                task.user() == null ? "-" : task.user().username(),
                                 task.tanggal(), task.lokasi(), task.status()});
                     }
                 } catch (Exception ex) {
