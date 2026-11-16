@@ -38,7 +38,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/users/change-password").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/users/*").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/users/*").hasRole("ADMIN")
-                .requestMatchers("/api/pelanggan", "/api/pelanggan/**").hasRole("ADMIN")
                         
                 //absen
                 .requestMatchers(HttpMethod.GET, "/api/attendance").hasRole("ADMIN") 
@@ -48,6 +47,7 @@ public class SecurityConfig {
               // Task management
                 .requestMatchers(HttpMethod.GET, "/api/tugas").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/tugas").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/tugas/bulk").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/tugas/*/start").hasRole("EMPLOYEE")
                 .requestMatchers(HttpMethod.PUT, "/api/tugas/*/submit").hasRole("EMPLOYEE")
                 .requestMatchers(HttpMethod.PUT, "/api/tugas/*/verify").hasRole("ADMIN")

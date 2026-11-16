@@ -47,11 +47,6 @@ public class Dashboard extends javax.swing.JFrame {
             dispose();
         });
         account.add(logout); menuBar.add(account); setJMenuBar(menuBar);
-        JMenu master = new JMenu("Data Master");
-        JMenuItem pelanggan = new JMenuItem("Pelanggan");
-        pelanggan.addActionListener(evt -> open(new MasterPelanggan()));
-        master.add(pelanggan);
-        menuBar.add(master);
         loadDashboardData();
     }
 
@@ -97,9 +92,12 @@ public class Dashboard extends javax.swing.JFrame {
                     tasks.sort((a, b) -> String.valueOf(b.createdAt()).compareTo(String.valueOf(a.createdAt())));
                     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
                     for (TaskDto task : tasks.stream().limit(5).toList()) {
+                        String assignees = task.assignees() == null || task.assignees().isEmpty()
+                                ? "-" : task.assignees().stream().map(UserDto::username)
+                                        .collect(java.util.stream.Collectors.joining(", "));
                         model.addRow(new Object[]{task.judul(), task.jenisTugas() == null ? "Belum dikategorikan"
-                                : task.jenisTugas().id() + " - " + task.jenisTugas().nama(),
-                                task.user() == null ? "-" : task.user().username(),
+                                : task.jenisTugas().nama(),
+                                assignees,
                                 task.tanggal(), task.lokasi(), task.status()});
                     }
                 } catch (Exception ex) {

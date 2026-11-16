@@ -100,7 +100,7 @@ public class AttendanceService {
 
         // Karyawan harus menyelesaikan minimal satu tugas.
         List<Tugas> daftarTugas =
-                tugasRepository.findByUser(user);
+                tugasRepository.findAssignedTo(user);
 
         boolean adaTugasSelesai = daftarTugas.stream()
                 .anyMatch(tugas ->

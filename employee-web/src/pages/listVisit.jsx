@@ -149,12 +149,12 @@ export default function ListVisit() {
 
                 <span className="mt-1 w-fit rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800">
                   {item.jenisTugas
-                    ? `${item.jenisTugas.id} - ${item.jenisTugas.nama}`
+                    ? item.jenisTugas.nama
                     : "Belum dikategorikan"}
                 </span>
 
                 <p className="mt-2 text-sm font-medium text-blue-900">
-                  Pelanggan: {item.pelanggan?.nama || "Belum ditentukan"}
+                  Pelanggan: {item.namaPelanggan || "Belum ditentukan"}
                 </p>
 
                 <p className="mt-2 line-clamp-2 text-sm text-blue-800">
@@ -222,7 +222,7 @@ export default function ListVisit() {
                 <p className="text-sm text-gray-500">Jenis tugas</p>
                 <p className="text-gray-800">
                   {selectedTugas.jenisTugas
-                    ? `${selectedTugas.jenisTugas.id} - ${selectedTugas.jenisTugas.nama}`
+                    ? selectedTugas.jenisTugas.nama
                     : "Belum dikategorikan"}
                 </p>
               </div>
@@ -230,13 +230,8 @@ export default function ListVisit() {
               <div>
                 <p className="text-sm text-gray-500">Pelanggan</p>
                 <p className="font-medium text-gray-900">
-                  {selectedTugas.pelanggan?.nama || "Belum ditentukan"}
+                  {selectedTugas.namaPelanggan || "Belum ditentukan"}
                 </p>
-                {selectedTugas.pelanggan?.alamat && (
-                  <p className="mt-1 text-sm text-gray-600">
-                    {selectedTugas.pelanggan.alamat}
-                  </p>
-                )}
               </div>
 
               <div>

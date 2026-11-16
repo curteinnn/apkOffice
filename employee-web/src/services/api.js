@@ -1,6 +1,10 @@
 const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
 export async function login(username, password) {
+  if (!API_URL) {
+    throw new Error("URL backend belum dikonfigurasi.");
+  }
+
   const response = await fetch(`${API_URL}/api/auth/login`, {
     method: "POST",
     headers: {

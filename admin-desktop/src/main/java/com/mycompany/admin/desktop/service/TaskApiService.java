@@ -3,6 +3,7 @@ package com.mycompany.admin.desktop.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mycompany.admin.desktop.api.ApiClient;
 import com.mycompany.admin.desktop.dto.CreateTaskRequest;
+import com.mycompany.admin.desktop.dto.CreateBulkTaskRequest;
 import com.mycompany.admin.desktop.dto.TaskDto;
 import com.mycompany.admin.desktop.dto.VerifyTaskRequest;
 import java.io.IOException;
@@ -18,7 +19,10 @@ public final class TaskApiService {
     public TaskDto create(CreateTaskRequest request) throws IOException, InterruptedException {
         return api.post("/api/tugas", request, TaskDto.class);
     }
-    public TaskDto verify(long id, VerifyTaskRequest request) throws IOException, InterruptedException {
+    public TaskDto createBulk(CreateBulkTaskRequest request) throws IOException, InterruptedException {
+        return api.post("/api/tugas/bulk", request, TaskDto.class);
+    }
+    public TaskDto verify(String id, VerifyTaskRequest request) throws IOException, InterruptedException {
         return api.put("/api/tugas/" + id + "/verify", request, TaskDto.class);
     }
 }

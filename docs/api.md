@@ -195,20 +195,29 @@ menjalankan migrasi otomatis; Hibernate tetap menggunakan `ddl-auto=none`.
 Saat membuat tugas melalui `POST /api/tugas`, sertakan `jenisTugasId` dari
 respons endpoint ini. Respons tugas menyertakan objek `jenisTugas`.
 
+Admin dapat membuat satu tugas untuk beberapa karyawan melalui
+`POST /api/tugas/bulk` dengan `userIds` berupa daftar ID karyawan. Semua assignee
+mengacu pada ID tugas yang sama dan berbagi status serta hasil verifikasinya.
+Daftar assignee disimpan pada tabel relasi `penugasan_karyawan`; terapkan manual
+`V005__shared_tugas_assignees.sql` sebelum `V006__move_nominal_to_assignment.sql`.
+Nominal disimpan per karyawan pada tabel relasi tersebut.
+
+Primary key tugas berbentuk string `TASK-<tahun tanggal>-<nomor 4 digit>` dan
+dibuat backend saat tugas disimpan. Nomornya berurutan per tahun tanggal tugas;
+ID tersebut juga dipakai oleh `penugasan_karyawan.tugas_id` dan endpoint aksi
+tugas. Terapkan manual `V008__string_task_ids.sql` setelah V007 agar tipe PK dan
+FK sesuai serta tabel sequence tersedia.
+
 ---
 
-# Pelanggan
+# Data pelanggan pada tugas
 
-Endpoint `/api/pelanggan` hanya dapat diakses role `ADMIN`.
-
-- `GET /api/pelanggan`: daftar pelanggan.
-- `POST /api/pelanggan`: tambah pelanggan (`nama`, `alamat`, opsional `namaKontak`, `telepon`, `linkGmaps`).
-- `PUT /api/pelanggan/{id}`: ubah data pelanggan.
-- `DELETE /api/pelanggan/{id}`: hapus pelanggan yang belum dipakai tugas; pelanggan yang sudah direferensikan mengembalikan `409 Conflict`.
-
-Saat membuat tugas, sertakan `pelangganId` bersama `jenisTugasId`. Data pelanggan
-dikirim pada objek `pelanggan` di respons tugas. Migrasi skema dilakukan oleh
-Migrasi `V002__pelanggan.sql` dijalankan manual setelah `V001__jenis_tugas.sql`.
+Tidak ada master pelanggan atau endpoint `/api/pelanggan`. Admin mengisi
+`namaPelanggan`, `lokasi`, dan `linkGmaps` langsung saat membuat tugas. Nilai
+tersebut disimpan pada tugas dan ditampilkan di Employee Web. Migrasi manual
+`V007__task_customer_inline.sql` menyalin nama serta lokasi lama dari tabel
+pelanggan ke tugas, lalu menghapus relasi dan tabel lama. Jalankan setelah V006
+dan setelah migrasi lama untuk tabel pelanggan (termasuk V004 jika digunakan).
 
 ---
 
@@ -284,6 +293,8 @@ Status tugas:
 
 ```text
 PENDING
+IN_PROGRESS
+SUBMITTED
 APPROVED
 REJECTED
 ```
@@ -314,7 +325,8 @@ Response berisi seluruh tugas.
 
 ## Create Tugas
 
-Membuat tugas baru.
+Admin dapat membuat tugas untuk satu karyawan melalui endpoint ini. Untuk tugas
+yang diberikan ke beberapa karyawan sekaligus, gunakan `POST /api/tugas/bulk`.
 
 **Method**
 
@@ -325,7 +337,7 @@ POST /api/tugas
 **Role**
 
 ```text
-EMPLOYEE
+ADMIN
 ```
 
 **Authentication**
@@ -336,18 +348,25 @@ Bearer Token
 
 ```json
 {
+  "userId": 12345681,
+  "jenisTugasId": "INT-001",
+  "namaPelanggan": "Pelanggan Rumah 1",
   "judul": "Membuat laporan",
+  "lokasi": "Alamat lokasi pekerjaan",
+  "linkGmaps": "https://maps.google.com/...",
   "deskripsi": "Membuat laporan kegiatan hari ini",
-  "fotoBukti": "foto/laporan.jpg"
+  "tanggal": "2026-11-16"
 }
 ```
+
+`namaPelanggan`, alamat `lokasi`, dan `linkGmaps` tersimpan langsung pada record
+tugas. Untuk penugasan bersama, request bulk memakai `userIds` dan field tugas
+yang sama.
 
 Tugas baru otomatis memiliki:
 
 ```text
-status  = PENDING
-nominal = null
-tanggal = tanggal saat tugas dibuat
+status = PENDING
 ```
 
 ## Verify Tugas
@@ -370,12 +389,15 @@ ADMIN
 
 Bearer Token
 
-Untuk menyetujui tugas:
+Untuk menyetujui tugas, kirim nominal untuk setiap ID karyawan yang ditugaskan:
 
 ```json
 {
   "status": "APPROVED",
-  "nominal": 50000
+  "nominalByAssignee": {
+    "12345681": 50000,
+    "12345682": 45000
+  }
 }
 ```
 
@@ -384,13 +406,14 @@ Untuk menolak tugas:
 ```json
 {
   "status": "REJECTED",
-  "nominal": null
+  "nominalByAssignee": null
 }
 ```
 
-Jika status `APPROVED`, nominal wajib diisi.
+Jika status `APPROVED`, nominal wajib diisi untuk seluruh assignee dan nilainya
+tidak boleh negatif.
 
-Jika status `REJECTED`, nominal akan menjadi `null`.
+Jika status `REJECTED`, nominal seluruh assignee akan dikosongkan.
 
 **Contoh Response**
 

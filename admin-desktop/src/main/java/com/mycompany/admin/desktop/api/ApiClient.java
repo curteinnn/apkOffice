@@ -30,6 +30,10 @@ public final class ApiClient {
         return request("POST", path, body, responseType, false);
     }
 
+    public <T> T post(String path, Object body, TypeReference<T> responseType) throws IOException, InterruptedException {
+        return request("POST", path, body, responseType, false);
+    }
+
     public <T> T put(String path, Object body, Class<T> responseType) throws IOException, InterruptedException {
         return request("PUT", path, body, responseType, false);
     }

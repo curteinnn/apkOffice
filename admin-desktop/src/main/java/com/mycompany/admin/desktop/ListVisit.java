@@ -10,6 +10,8 @@ import com.mycompany.admin.desktop.dto.VerifyTaskRequest;
 import com.mycompany.admin.desktop.service.TaskApiService;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -97,11 +99,10 @@ public class ListVisit extends javax.swing.JFrame {
                 try {
                     loadedTasks = get();
                     for (TaskDto task : loadedTasks) {
-                        taskModel.addRow(new Object[]{task.id(), task.user() == null ? "-" : task.user().namaLengkap(),
-                                task.pelanggan() == null ? "Belum ditentukan" : task.pelanggan().nama(),
-                                task.jenisTugas() == null ? "Belum dikategorikan"
-                                        : task.jenisTugas().id() + " - " + task.jenisTugas().nama(),
-                                task.judul(), task.lokasi(), task.tanggal(), task.status(), task.nominal()});
+                        taskModel.addRow(new Object[]{task.id(), assignedEmployees(task),
+                                task.namaPelanggan() == null ? "Belum ditentukan" : task.namaPelanggan(),
+                                task.jenisTugas() == null ? "Belum dikategorikan" : task.jenisTugas().nama(),
+                                task.judul(), task.lokasi(), task.tanggal(), task.status(), nominalSummary(task)});
                     }
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(ListVisit.this, ex.getMessage(),
@@ -115,18 +116,37 @@ public class ListVisit extends javax.swing.JFrame {
         int viewRow = jTable1.getSelectedRow();
         if (viewRow < 0) return null;
         int row = jTable1.convertRowIndexToModel(viewRow);
-        long id = ((Number) taskModel.getValueAt(row, 0)).longValue();
-        return loadedTasks.stream().filter(task -> task.id() == id).findFirst().orElse(null);
+        String id = String.valueOf(taskModel.getValueAt(row, 0));
+        return loadedTasks.stream().filter(task -> task.id().equals(id)).findFirst().orElse(null);
+    }
+
+    private String assignedEmployees(TaskDto task) {
+        if (task.assignees() != null && !task.assignees().isEmpty()) {
+            return task.assignees().stream().map(com.mycompany.admin.desktop.dto.UserDto::namaLengkap)
+                    .collect(java.util.stream.Collectors.joining(", "));
+        }
+        return "-";
+    }
+
+    private String nominalSummary(TaskDto task) {
+        if (task.nominalByAssignee() == null || task.nominalByAssignee().isEmpty()) return "-";
+        Map<Long, String> names = task.assignees() == null ? Map.of() : task.assignees().stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        com.mycompany.admin.desktop.dto.UserDto::id,
+                        com.mycompany.admin.desktop.dto.UserDto::namaLengkap));
+        return task.nominalByAssignee().entrySet().stream()
+                .map(entry -> names.getOrDefault(entry.getKey(), "Karyawan " + entry.getKey()) + ": "
+                        + (entry.getValue() == null ? "belum diisi" : entry.getValue().toPlainString()))
+                .collect(java.util.stream.Collectors.joining(", "));
     }
 
     private void showSelectedTask() {
         TaskDto task = selectedTask();
         if (task == null) return;
-        String employee = task.user() == null ? "-" : task.user().namaLengkap();
+        String employee = assignedEmployees(task);
         JOptionPane.showMessageDialog(this,
-                "Employee: " + employee + "\nPelanggan: " + (task.pelanggan() == null ? "Belum ditentukan" : task.pelanggan().nama())
-                        + "\nJenis tugas: " + (task.jenisTugas() == null ? "Belum dikategorikan"
-                                : task.jenisTugas().id() + " - " + task.jenisTugas().nama())
+                "Employee: " + employee + "\nPelanggan: " + (task.namaPelanggan() == null ? "Belum ditentukan" : task.namaPelanggan())
+                        + "\nJenis tugas: " + (task.jenisTugas() == null ? "Belum dikategorikan" : task.jenisTugas().nama())
                         + "\nJudul: " + task.judul() + "\nTanggal: " + task.tanggal()
                         + "\nLokasi: " + task.lokasi() + "\nStatus: " + task.status()
                         + "\nDeskripsi: " + (task.deskripsi() == null ? "-" : task.deskripsi()),
@@ -148,20 +168,30 @@ public class ListVisit extends javax.swing.JFrame {
         int choice = JOptionPane.showOptionDialog(this, "Pilih hasil verifikasi tugas.", "Verifikasi Tugas",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, choices[2]);
         if (choice < 0 || choice == 2) return;
-        BigDecimal nominal = null;
+        Map<Long, BigDecimal> nominalByAssignee = null;
         if (choice == 0) {
-            String value = JOptionPane.showInputDialog(this, "Nominal (angka >= 0):", "0");
-            if (value == null) return;
-            try {
-                nominal = new BigDecimal(value.trim());
-                if (nominal.signum() < 0) throw new NumberFormatException();
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Nominal harus angka dan tidak boleh negatif.",
+            nominalByAssignee = new LinkedHashMap<>();
+            if (task.assignees() == null || task.assignees().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Data karyawan yang ditugaskan tidak tersedia.",
                         "Validasi", JOptionPane.WARNING_MESSAGE);
                 return;
             }
+            for (var employee : task.assignees()) {
+                String value = JOptionPane.showInputDialog(this,
+                        "Nominal untuk " + employee.namaLengkap() + " (angka >= 0):", "0");
+                if (value == null) return;
+                try {
+                    BigDecimal nominal = new BigDecimal(value.trim());
+                    if (nominal.signum() < 0) throw new NumberFormatException();
+                    nominalByAssignee.put(employee.id(), nominal);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Nominal harus angka dan tidak boleh negatif.",
+                            "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
         }
-        VerifyTaskRequest request = new VerifyTaskRequest(choice == 0 ? "APPROVED" : "REJECTED", nominal);
+        VerifyTaskRequest request = new VerifyTaskRequest(choice == 0 ? "APPROVED" : "REJECTED", nominalByAssignee);
         new SwingWorker<Void, Void>() {
             @Override protected Void doInBackground() throws Exception {
                 new TaskApiService(ApiContext.client()).verify(task.id(), request);

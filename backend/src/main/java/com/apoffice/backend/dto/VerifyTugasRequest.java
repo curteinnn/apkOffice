@@ -1,11 +1,12 @@
 package com.apoffice.backend.dto;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 public class VerifyTugasRequest {
 
     private String status;
-    private BigDecimal nominal;
+    private Map<Long, BigDecimal> nominalByAssignee;
 
     public String getStatus() {
         return status;
@@ -15,11 +16,11 @@ public class VerifyTugasRequest {
         this.status = status;
     }
 
-    public BigDecimal getNominal() {
-        return nominal;
+    public Map<Long, BigDecimal> getNominalByAssignee() {
+        return nominalByAssignee;
     }
 
-    public void setNominal(BigDecimal nominal) {
-        this.nominal = nominal;
+    public void setNominalByAssignee(Map<Long, BigDecimal> nominalByAssignee) {
+        this.nominalByAssignee = nominalByAssignee;
     }
 }

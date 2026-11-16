@@ -5,18 +5,15 @@
 package com.mycompany.admin.desktop;
 
 import com.mycompany.admin.desktop.api.ApiContext;
-import com.mycompany.admin.desktop.dto.CreateTaskRequest;
+import com.mycompany.admin.desktop.dto.CreateBulkTaskRequest;
 import com.mycompany.admin.desktop.dto.UserDto;
 import com.mycompany.admin.desktop.dto.JenisTugasDto;
-import com.mycompany.admin.desktop.dto.PelangganDto;
 import com.mycompany.admin.desktop.service.JenisTugasApiService;
-import com.mycompany.admin.desktop.service.PelangganApiService;
 import com.mycompany.admin.desktop.service.TaskApiService;
 import com.mycompany.admin.desktop.service.UserApiService;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -40,13 +37,12 @@ import javax.swing.table.DefaultTableModel;
 public class PengajuanTugas extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(PengajuanTugas.class.getName());
-    private final JComboBox<UserDto> employeeBox = new JComboBox<>();
+    private final JList<UserDto> employeeList = new JList<>();
     private final JComboBox<JenisTugasDto> jenisTugasBox = new JComboBox<>();
-    private final JComboBox<PelangganDto> pelangganBox = new JComboBox<>();
     private boolean employeesLoaded;
     private boolean jenisTugasLoaded;
-    private boolean pelangganLoaded;
     private final JTextField titleField = new JTextField();
+    private final JTextField customerNameField = new JTextField();
     private final JTextField locationField = new JTextField();
     private final JTextField dateField = new JTextField(LocalDate.now().toString());
     private final JTextField mapsField = new JTextField();
@@ -60,7 +56,6 @@ public class PengajuanTugas extends javax.swing.JFrame {
         buildConnectedUi();
         loadEmployees();
         loadJenisTugas();
-        loadPelanggan();
     }
 
     private void buildConnectedUi() {
@@ -72,9 +67,11 @@ public class PengajuanTugas extends javax.swing.JFrame {
         c.insets = new java.awt.Insets(6, 6, 6, 6);
         c.fill = java.awt.GridBagConstraints.HORIZONTAL;
         c.weightx = 0;
-        addField(form, c, 0, "Employee penerima*", employeeBox);
+        employeeList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        employeeList.setVisibleRowCount(4);
+        addField(form, c, 0, "Employee penerima* (pilih satu atau beberapa)", new JScrollPane(employeeList));
         addField(form, c, 1, "Jenis tugas*", jenisTugasBox);
-        addField(form, c, 2, "Pelanggan*", pelangganBox);
+        addField(form, c, 2, "Nama pelanggan*", customerNameField);
         addField(form, c, 3, "Judul tugas*", titleField);
         addField(form, c, 4, "Lokasi*", locationField);
         addField(form, c, 5, "Tanggal (YYYY-MM-DD)*", dateField);
@@ -88,13 +85,11 @@ public class PengajuanTugas extends javax.swing.JFrame {
         setContentPane(form);
         setSize(650, 520);
         jButton1.addActionListener(evt -> createTask());
-        employeeBox.setRenderer((list, user, index, selected, focus) ->
+        employeeList.setCellRenderer((list, user, index, selected, focus) ->
                 new javax.swing.JLabel(user == null ? "Memuat employee..."
                         : user.namaLengkap() + " (" + user.username() + ")"));
         jenisTugasBox.setRenderer((list, jenis, index, selected, focus) ->
-                new javax.swing.JLabel(jenis == null ? "Memuat jenis tugas..." : jenis.id() + " - " + jenis.nama()));
-        pelangganBox.setRenderer((list, pelanggan, index, selected, focus) ->
-                new javax.swing.JLabel(pelanggan == null ? "Memuat pelanggan..." : pelanggan.nama()));
+                new javax.swing.JLabel(jenis == null ? "Memuat jenis tugas..." : jenis.nama()));
     }
 
     private void addField(JPanel panel, java.awt.GridBagConstraints c, int row, String label,
@@ -115,7 +110,7 @@ public class PengajuanTugas extends javax.swing.JFrame {
             @Override protected void done() {
                 try {
                     List<UserDto> employees = get();
-                    employeeBox.setModel(new DefaultComboBoxModel<>(employees.toArray(UserDto[]::new)));
+                    employeeList.setListData(employees.toArray(UserDto[]::new));
                     if (employees.isEmpty()) {
                         JOptionPane.showMessageDialog(PengajuanTugas.this,
                                 "Belum ada employee aktif sebagai penerima tugas.",
@@ -125,7 +120,7 @@ public class PengajuanTugas extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(PengajuanTugas.this, ex.getMessage(),
                             "Gagal memuat employee", JOptionPane.ERROR_MESSAGE);
                 } finally {
-                    employeesLoaded = employeeBox.getItemCount() > 0;
+                    employeesLoaded = employeeList.getModel().getSize() > 0;
                     updateSubmitEnabled();
                 }
             }
@@ -159,41 +154,15 @@ public class PengajuanTugas extends javax.swing.JFrame {
     }
 
     private void updateSubmitEnabled() {
-        jButton1.setEnabled(employeesLoaded && jenisTugasLoaded && pelangganLoaded);
-    }
-
-    private void loadPelanggan() {
-        jButton1.setEnabled(false);
-        new SwingWorker<List<PelangganDto>, Void>() {
-            @Override protected List<PelangganDto> doInBackground() throws Exception {
-                return new PelangganApiService(ApiContext.client()).getAll();
-            }
-            @Override protected void done() {
-                try {
-                    List<PelangganDto> rows = get();
-                    pelangganBox.setModel(new DefaultComboBoxModel<>(rows.toArray(PelangganDto[]::new)));
-                    pelangganLoaded = !rows.isEmpty();
-                    if (!pelangganLoaded) {
-                        JOptionPane.showMessageDialog(PengajuanTugas.this,
-                                "Tambahkan data pelanggan terlebih dahulu melalui menu Data Master.",
-                                "Data pelanggan", JOptionPane.WARNING_MESSAGE);
-                    }
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(PengajuanTugas.this, ex.getMessage(),
-                            "Gagal memuat pelanggan", JOptionPane.ERROR_MESSAGE);
-                } finally {
-                    updateSubmitEnabled();
-                }
-            }
-        }.execute();
+        jButton1.setEnabled(employeesLoaded && jenisTugasLoaded);
     }
 
     private void createTask() {
-        UserDto employee = (UserDto) employeeBox.getSelectedItem();
+        List<UserDto> employees = employeeList.getSelectedValuesList();
         JenisTugasDto jenisTugas = (JenisTugasDto) jenisTugasBox.getSelectedItem();
-        PelangganDto pelanggan = (PelangganDto) pelangganBox.getSelectedItem();
-        if (employee == null || jenisTugas == null || pelanggan == null || titleField.getText().isBlank() || locationField.getText().isBlank()) {
-            JOptionPane.showMessageDialog(this, "Employee, jenis tugas, pelanggan, judul, dan lokasi wajib diisi.",
+        if (employees.isEmpty() || jenisTugas == null || customerNameField.getText().isBlank()
+                || titleField.getText().isBlank() || locationField.getText().isBlank()) {
+            JOptionPane.showMessageDialog(this, "Pilih minimal satu employee; jenis tugas, nama pelanggan, judul, dan lokasi wajib diisi.",
                     "Validasi", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -206,19 +175,21 @@ public class PengajuanTugas extends javax.swing.JFrame {
             return;
         }
         jButton1.setEnabled(false);
-        CreateTaskRequest request = new CreateTaskRequest(employee.id(), jenisTugas.id(), pelanggan.id(), titleField.getText().trim(),
+        CreateBulkTaskRequest request = new CreateBulkTaskRequest(
+                employees.stream().map(UserDto::id).toList(), jenisTugas.id(), customerNameField.getText().trim(), titleField.getText().trim(),
                 locationField.getText().trim(), descriptionField.getText().trim(), date,
                 mapsField.getText().trim());
         new SwingWorker<Void, Void>() {
             @Override protected Void doInBackground() throws Exception {
-                new TaskApiService(ApiContext.client()).create(request);
+                new TaskApiService(ApiContext.client()).createBulk(request);
                 return null;
             }
             @Override protected void done() {
                 jButton1.setEnabled(true);
                 try {
                     get();
-                    JOptionPane.showMessageDialog(PengajuanTugas.this, "Tugas berhasil dibuat.");
+                    JOptionPane.showMessageDialog(PengajuanTugas.this,
+                            "Tugas berhasil dibuat untuk " + employees.size() + " karyawan.");
                     dispose();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(PengajuanTugas.this, ex.getMessage(),

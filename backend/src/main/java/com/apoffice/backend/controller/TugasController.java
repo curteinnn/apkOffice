@@ -1,6 +1,7 @@
 package com.apoffice.backend.controller;
 
 import com.apoffice.backend.dto.CreateTugasRequest;
+import com.apoffice.backend.dto.CreateBulkTugasRequest;
 import com.apoffice.backend.dto.VerifyTugasRequest;
 import com.apoffice.backend.entity.Attendance;
 import com.apoffice.backend.entity.Tugas;
@@ -83,9 +84,22 @@ public Tugas createTugas(
     return tugasService.createTugas(request);
 }
 
+@PostMapping("/bulk")
+public Tugas createTugasForEmployees(
+        @RequestBody CreateBulkTugasRequest request,
+        HttpServletRequest httpRequest
+) {
+    String role = (String) httpRequest.getAttribute("role");
+    if (!"ADMIN".equals(role)) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Hanya admin yang dapat membuat tugas");
+    }
+    return tugasService.createTugasForEmployees(request);
+}
+
 @PutMapping("/{id}/submit")
 public Tugas submitTugas(
-        @PathVariable Long id,
+        @PathVariable String id,
         HttpServletRequest httpRequest
 ) {
     String username =
@@ -101,7 +115,7 @@ public Tugas submitTugas(
 
 @PutMapping("/{id}/verify")
 public Tugas verifyTugas(
-        @PathVariable Long id,
+        @PathVariable String id,
         @RequestBody VerifyTugasRequest request,
         HttpServletRequest httpRequest
 ) {
@@ -120,7 +134,7 @@ public Tugas verifyTugas(
 
 @PutMapping("/{id}/start")
 public Tugas startTugas(
-        @PathVariable Long id,
+        @PathVariable String id,
         HttpServletRequest httpRequest
 ) {
     String username =

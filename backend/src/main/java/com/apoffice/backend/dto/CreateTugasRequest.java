@@ -6,7 +6,7 @@ public class CreateTugasRequest {
 
     private Long userId;
     private String jenisTugasId;
-    private Long pelangganId;
+    private String namaPelanggan;
     private String judul;
     private String lokasi;
     private String deskripsi;
@@ -21,9 +21,9 @@ public class CreateTugasRequest {
 
     public void setJenisTugasId(String jenisTugasId) { this.jenisTugasId = jenisTugasId; }
 
-    public Long getPelangganId() { return pelangganId; }
+    public String getNamaPelanggan() { return namaPelanggan; }
 
-    public void setPelangganId(Long pelangganId) { this.pelangganId = pelangganId; }
+    public void setNamaPelanggan(String namaPelanggan) { this.namaPelanggan = namaPelanggan; }
 
     public void setUserId(Long userId) {
         this.userId = userId;
@@ -37,21 +37,10 @@ public class CreateTugasRequest {
         this.judul = judul;
     }
 
-    public String getLokasi() {
-        return lokasi;
-    }
-
-    public void setLokasi(String lokasi) {
-        this.lokasi = lokasi;
-    }
-
-    public String getLinkGmaps(){
-        return linkGmaps;
-    }
-
-    public void setLinkGmaps(String linkGmaps){
-        this.linkGmaps = linkGmaps;
-    }
+    public String getLokasi() { return lokasi; }
+    public void setLokasi(String lokasi) { this.lokasi = lokasi; }
+    public String getLinkGmaps() { return linkGmaps; }
+    public void setLinkGmaps(String linkGmaps) { this.linkGmaps = linkGmaps; }
 
     public String getDeskripsi() {
         return deskripsi;

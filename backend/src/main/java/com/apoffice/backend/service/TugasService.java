@@ -1,14 +1,13 @@
 package com.apoffice.backend.service;
 
 import com.apoffice.backend.dto.CreateTugasRequest;
+import com.apoffice.backend.dto.CreateBulkTugasRequest;
 import com.apoffice.backend.dto.VerifyTugasRequest;
 import com.apoffice.backend.entity.Tugas;
 import com.apoffice.backend.entity.JenisTugas;
-import com.apoffice.backend.entity.Pelanggan;
 import com.apoffice.backend.entity.User;
 import com.apoffice.backend.repository.TugasRepository;
 import com.apoffice.backend.repository.JenisTugasRepository;
-import com.apoffice.backend.repository.PelangganRepository;
 import com.apoffice.backend.repository.UserRepository;
 
 import org.springframework.http.HttpStatus;
@@ -18,6 +17,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class TugasService {
@@ -25,18 +29,18 @@ public class TugasService {
     private final TugasRepository tugasRepository;
     private final UserRepository userRepository;
     private final JenisTugasRepository jenisTugasRepository;
-    private final PelangganRepository pelangganRepository;
+    private final TugasIdGenerator tugasIdGenerator;
 
     public TugasService(
             TugasRepository tugasRepository,
             UserRepository userRepository,
             JenisTugasRepository jenisTugasRepository,
-            PelangganRepository pelangganRepository
+            TugasIdGenerator tugasIdGenerator
     ) {
         this.tugasRepository = tugasRepository;
         this.userRepository = userRepository;
         this.jenisTugasRepository = jenisTugasRepository;
-        this.pelangganRepository = pelangganRepository;
+        this.tugasIdGenerator = tugasIdGenerator;
     }
 
     public List<Tugas> getAllTugas(String username, String role) {
@@ -50,7 +54,7 @@ public class TugasService {
                         "User tidak ditemukan"
                 ));
 
-        return tugasRepository.findByUser(user);
+        return tugasRepository.findAssignedTo(user);
     }
 
     @Transactional
@@ -62,10 +66,11 @@ public class TugasService {
                 || request.getLokasi().isBlank()
                 || request.getTanggal() == null
                 || request.getJenisTugasId() == null
-                || request.getPelangganId() == null) {
+                || request.getNamaPelanggan() == null
+                || request.getNamaPelanggan().isBlank()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Karyawan, pelanggan, jenis tugas, judul, lokasi, dan tanggal wajib diisi"
+                    "Karyawan, nama pelanggan, jenis tugas, judul, lokasi, dan tanggal wajib diisi"
             );
         }
 
@@ -81,12 +86,6 @@ public class TugasService {
                         "Jenis tugas tidak valid"
                 ));
 
-        Pelanggan pelanggan = pelangganRepository.findById(request.getPelangganId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Pelanggan tidak valid"
-                ));
-
         if (user.getRole() != User.Role.EMPLOYEE) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -95,16 +94,16 @@ public class TugasService {
         }
 
         Tugas tugas = new Tugas();
-        tugas.setUser(user);
+        tugas.setId(tugasIdGenerator.nextId(request.getTanggal()));
+        tugas.setAssignees(new LinkedHashSet<>(List.of(user)));
         tugas.setJenisTugas(jenisTugas);
-        tugas.setPelanggan(pelanggan);
+        tugas.setNamaPelanggan(request.getNamaPelanggan().trim());
         tugas.setJudul(request.getJudul().trim());
         tugas.setLokasi(request.getLokasi().trim());
         tugas.setLinkGmaps(request.getLinkGmaps());
         tugas.setDeskripsi(request.getDeskripsi());
         tugas.setTanggal(request.getTanggal());
         tugas.setStatus("PENDING");
-        tugas.setNominal(null);
 
         LocalDateTime now = LocalDateTime.now();
         tugas.setCreatedAt(now);
@@ -114,14 +113,54 @@ public class TugasService {
     }
 
     @Transactional
-    public Tugas startTugas(Long id, String username) {
+    public Tugas createTugasForEmployees(CreateBulkTugasRequest request) {
+        if (request.getUserIds() == null || request.getUserIds().isEmpty()
+                || request.getUserIds().stream().anyMatch(id -> id == null)
+                || new HashSet<>(request.getUserIds()).size() != request.getUserIds().size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Pilih minimal satu karyawan dan hindari pilihan karyawan ganda");
+        }
+
+        List<User> users = userRepository.findAllById(request.getUserIds());
+        Map<Long, User> usersById = users.stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+        if (usersById.size() != request.getUserIds().size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Satu atau beberapa karyawan tidak ditemukan");
+        }
+        for (User user : users) {
+            if (user.getRole() != User.Role.EMPLOYEE) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Tugas hanya bisa diberikan kepada employee");
+            }
+        }
+
+        CreateTugasRequest single = new CreateTugasRequest();
+        single.setUserId(request.getUserIds().get(0));
+        single.setJenisTugasId(request.getJenisTugasId());
+        single.setNamaPelanggan(request.getNamaPelanggan());
+        single.setJudul(request.getJudul());
+        single.setLokasi(request.getLokasi());
+        single.setDeskripsi(request.getDeskripsi());
+        single.setTanggal(request.getTanggal());
+        single.setLinkGmaps(request.getLinkGmaps());
+
+        Tugas tugas = createTugas(single);
+        LinkedHashSet<User> assignees = request.getUserIds().stream()
+                .map(usersById::get)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        tugas.setAssignees(assignees);
+        return tugasRepository.save(tugas);
+    }
+
+    @Transactional
+    public Tugas startTugas(String id, String username) {
         Tugas tugas = tugasRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Tugas tidak ditemukan"
                 ));
 
-        if (!tugas.getUser().getUsername().equals(username)) {
+        if (tugas.getAssignees().stream().noneMatch(user -> user.getUsername().equals(username))) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "Kamu tidak memiliki akses ke tugas ini"
@@ -143,14 +182,14 @@ public class TugasService {
     }
 
     @Transactional
-    public Tugas submitTugas(Long id, String username) {
+    public Tugas submitTugas(String id, String username) {
         Tugas tugas = tugasRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Tugas tidak ditemukan"
                 ));
 
-        if (!tugas.getUser().getUsername().equals(username)) {
+        if (tugas.getAssignees().stream().noneMatch(user -> user.getUsername().equals(username))) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "Kamu tidak memiliki akses ke tugas ini"
@@ -172,7 +211,7 @@ public class TugasService {
     }
 
     @Transactional
-    public Tugas verifyTugas(Long id, VerifyTugasRequest request) {
+    public Tugas verifyTugas(String id, VerifyTugasRequest request) {
         Tugas tugas = tugasRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -196,17 +235,20 @@ public class TugasService {
         }
 
         if ("APPROVED".equals(status)) {
-            if (request.getNominal() == null
-                    || request.getNominal().signum() < 0) {
+            Map<Long, java.math.BigDecimal> nominals = request.getNominalByAssignee();
+            java.util.Set<Long> assignedIds = tugas.getAssignees().stream()
+                    .map(User::getId).collect(Collectors.toSet());
+            if (nominals == null || !nominals.keySet().equals(assignedIds)
+                    || nominals.values().stream().anyMatch(value -> value == null || value.signum() < 0)) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
-                        "Nominal wajib diisi dan tidak boleh negatif"
+                        "Nominal wajib diisi untuk setiap karyawan dan tidak boleh negatif"
                 );
             }
-
-            tugas.setNominal(request.getNominal());
+            tugas.getPenugasanKaryawan().forEach(assignment ->
+                    assignment.setNominal(nominals.get(assignment.getKaryawan().getId())));
         } else {
-            tugas.setNominal(null);
+            tugas.getPenugasanKaryawan().forEach(assignment -> assignment.setNominal(null));
         }
 
         tugas.setStatus(status);
