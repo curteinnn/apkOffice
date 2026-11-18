@@ -38,7 +38,6 @@ public class TambahKaryawan extends javax.swing.JFrame {
     private final JTextField emailField = new JTextField();
     private final JComboBox<JabatanDto> positionField = new JComboBox<>();
     private final JPasswordField passwordField = new JPasswordField();
-    private final JComboBox<String> roleField = new JComboBox<>(new String[]{"EMPLOYEE"});
     private final JButton saveButton = new JButton("Simpan karyawan");
     private final JButton editButton = new JButton("Ubah terpilih");
     private final JButton deleteButton = new JButton("Hapus terpilih");
@@ -71,7 +70,7 @@ public class TambahKaryawan extends javax.swing.JFrame {
         form.add(new JLabel("Nama lengkap*")); form.add(nameField);
         form.add(new JLabel("Email*")); form.add(emailField);
         form.add(new JLabel("Jabatan*")); form.add(positionField);
-        form.add(new JLabel("Role")); form.add(roleField);
+        form.add(new JLabel("Role")); form.add(new JLabel("EMPLOYEE (tetap)"));
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         actions.add(saveButton);
         actions.add(editButton);
@@ -287,7 +286,7 @@ public class TambahKaryawan extends javax.swing.JFrame {
             @Override protected UserDto doInBackground() throws Exception {
                 return new UserApiService(ApiContext.client()).create(
                         new CreateUserRequest(username, password, name, email, selectedPosition.id(),
-                                (String) roleField.getSelectedItem()));
+                                "EMPLOYEE"));
             }
             @Override protected void done() {
                 saveButton.setEnabled(true);

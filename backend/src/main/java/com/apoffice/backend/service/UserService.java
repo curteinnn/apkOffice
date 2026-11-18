@@ -48,6 +48,7 @@ public class UserService {
         requireText(request.getNamaLengkap(), "Nama lengkap");
         requireText(request.getEmail(), "Email");
         User.Role role = parseRole(request.getRole());
+        requireEmployeeManagementRole(role);
         Jabatan jabatan = resolveJabatan(request.getJabatanId(), role == User.Role.EMPLOYEE, null);
 
         User user = new User();
@@ -72,18 +73,18 @@ public class UserService {
         if (request == null) {
             throw badRequest("Data pengguna wajib diisi");
         }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User tidak ditemukan"));
+        if (user.getRole() != User.Role.EMPLOYEE) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Akun ADMIN tidak dapat dikelola melalui modul karyawan");
+        }
         requireText(request.getUsername(), "Username");
         requireText(request.getNamaLengkap(), "Nama lengkap");
         requireText(request.getEmail(), "Email");
         User.Role role = parseRole(request.getRole());
+        requireEmployeeManagementRole(role);
         User.Status status = parseStatus(request.getStatus());
-        User user = userRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "User tidak ditemukan"
-                        )
-                );
 
         Long existingJabatanId = user.getJabatanId();
         Jabatan jabatan = resolveJabatan(request.getJabatanId(), role == User.Role.EMPLOYEE,
@@ -103,14 +104,14 @@ public class UserService {
     
         public void deleteUser(Long id) {
 
-        if (!userRepository.existsById(id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "User tidak ditemukan"
-            );
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User tidak ditemukan"));
+        if (user.getRole() != User.Role.EMPLOYEE) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Akun ADMIN tidak dapat dihapus melalui modul karyawan");
         }
 
-        userRepository.deleteById(id);
+        userRepository.delete(user);
         }
         
     public void changePassword(String username, ChangePasswordRequest request) {
@@ -161,6 +162,13 @@ public class UserService {
             return User.Role.valueOf(value.trim().toUpperCase(java.util.Locale.ROOT));
         } catch (IllegalArgumentException ex) {
             throw badRequest("Role tidak valid");
+        }
+    }
+
+    private void requireEmployeeManagementRole(User.Role role) {
+        if (role != User.Role.EMPLOYEE) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Modul pengelolaan karyawan hanya dapat membuat atau mempertahankan role EMPLOYEE");
         }
     }
 
