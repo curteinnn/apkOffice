@@ -1,4 +1,4 @@
-package com.mycompany.admin.desktop;
+package com.mycompany.admin.desktop.auth;
 
 public final class AuthResult {
     public final long id;

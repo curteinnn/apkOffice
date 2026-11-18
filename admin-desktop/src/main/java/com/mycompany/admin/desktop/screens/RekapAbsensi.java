@@ -2,11 +2,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.admin.desktop;
+package com.mycompany.admin.desktop.screens;
 
 import com.mycompany.admin.desktop.api.ApiContext;
 import com.mycompany.admin.desktop.dto.AttendanceDto;
 import com.mycompany.admin.desktop.service.AttendanceApiService;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -18,6 +20,7 @@ import javax.swing.table.DefaultTableModel;
 public class RekapAbsensi extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(RekapAbsensi.class.getName());
+    private List<AttendanceDto> allRows = List.of();
 
     /**
      * Creates new form RekapAbsensi
@@ -32,6 +35,11 @@ public class RekapAbsensi extends javax.swing.JFrame {
                 new String[]{"Tanggal", "Nama", "Jabatan", "Status", "Check in", "Check out"}) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         });
+        txtStartDate.setToolTipText("Format tanggal: yyyy-MM-dd");
+        txtEndDate.setToolTipText("Format tanggal: yyyy-MM-dd");
+        btnApplyFilter.addActionListener(evt -> applyDateFilter());
+        txtStartDate.addActionListener(evt -> applyDateFilter());
+        txtEndDate.addActionListener(evt -> applyDateFilter());
         loadSummary();
     }
 
@@ -42,29 +50,69 @@ public class RekapAbsensi extends javax.swing.JFrame {
             }
             @Override protected void done() {
                 try {
-                    List<AttendanceDto> rows = get();
-                    long present = rows.stream().filter(a -> "PRESENT".equals(a.status())).count();
-                    long notCheckedOut = rows.stream().filter(a -> a.jamKeluar() == null).count();
-                    String latest = rows.stream().map(AttendanceDto::tanggal).filter(java.util.Objects::nonNull)
-                            .max(String::compareTo).orElse("-");
-                    jLabel13.setText(Long.toString(rows.size()));
-                    jLabel11.setText(Long.toString(present));
-                    jLabel12.setText(Long.toString(notCheckedOut));
-                    jLabel10.setText(latest);
-                    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-                    for (AttendanceDto row : rows) {
-                        var user = row.user();
-                        model.addRow(new Object[]{row.tanggal(), user == null ? "-" : user.namaLengkap(),
-                                user == null ? "-" : user.jabatan(), row.status(),
-                                clock(row.jamMasuk()), clock(row.jamKeluar())});
-                    }
+                    allRows = get();
+                    applyDateFilter();
                 } catch (Exception ex) {
                     jLabel13.setText("-"); jLabel11.setText("-"); jLabel12.setText("-"); jLabel10.setText("-");
+                    ((DefaultTableModel) jTable1.getModel()).setRowCount(0);
                     JOptionPane.showMessageDialog(RekapAbsensi.this, ex.getMessage(),
                             "Gagal memuat rekap", JOptionPane.ERROR_MESSAGE);
                 }
             }
         }.execute();
+    }
+
+    private void applyDateFilter() {
+        try {
+            LocalDate startDate = parseOptionalDate(txtStartDate.getText());
+            LocalDate endDate = parseOptionalDate(txtEndDate.getText());
+            if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+                JOptionPane.showMessageDialog(this, "Tanggal mulai tidak boleh setelah tanggal akhir.",
+                        "Rentang tanggal tidak valid", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            List<AttendanceDto> filteredRows = allRows.stream()
+                    .filter(row -> isWithinRange(row.tanggal(), startDate, endDate))
+                    .toList();
+            updateSummary(filteredRows);
+        } catch (DateTimeParseException ex) {
+            JOptionPane.showMessageDialog(this, "Gunakan format tanggal yyyy-MM-dd, contoh 2026-10-24.",
+                    "Format tanggal tidak valid", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private LocalDate parseOptionalDate(String value) {
+        String date = value == null ? "" : value.trim();
+        return date.isEmpty() ? null : LocalDate.parse(date);
+    }
+
+    private boolean isWithinRange(String value, LocalDate startDate, LocalDate endDate) {
+        if (startDate == null && endDate == null) return true;
+        if (value == null || value.isBlank()) return false;
+        LocalDate date = LocalDate.parse(value);
+        return (startDate == null || !date.isBefore(startDate))
+                && (endDate == null || !date.isAfter(endDate));
+    }
+
+    private void updateSummary(List<AttendanceDto> rows) {
+        long present = rows.stream().filter(a -> "PRESENT".equals(a.status())).count();
+        long notCheckedOut = rows.stream().filter(a -> a.jamKeluar() == null).count();
+        String latest = rows.stream().map(AttendanceDto::tanggal).filter(java.util.Objects::nonNull)
+                .max(String::compareTo).orElse("-");
+        jLabel13.setText(Long.toString(rows.size()));
+        jLabel11.setText(Long.toString(present));
+        jLabel12.setText(Long.toString(notCheckedOut));
+        jLabel10.setText(latest);
+
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+        for (AttendanceDto row : rows) {
+            var user = row.user();
+            model.addRow(new Object[]{row.tanggal(), user == null ? "-" : user.namaLengkap(),
+                    user == null ? "-" : user.jabatan(), row.status(),
+                    clock(row.jamMasuk()), clock(row.jamKeluar())});
+        }
     }
 
     private String clock(String value) {
@@ -104,6 +152,11 @@ public class RekapAbsensi extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
+        lblStartDate = new javax.swing.JLabel();
+        txtStartDate = new javax.swing.JTextField();
+        lblEndDate = new javax.swing.JLabel();
+        txtEndDate = new javax.swing.JTextField();
+        btnApplyFilter = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -121,7 +174,16 @@ public class RekapAbsensi extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 300, 780, 200));
+        lblStartDate.setText("Dari tanggal");
+        getContentPane().add(lblStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 290, -1, 25));
+        getContentPane().add(txtStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 288, 120, 28));
+        lblEndDate.setText("Sampai");
+        getContentPane().add(lblEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 290, -1, 25));
+        getContentPane().add(txtEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 288, 130, 28));
+        btnApplyFilter.setText("Terapkan");
+        getContentPane().add(btnApplyFilter, new org.netbeans.lib.awtextra.AbsoluteConstraints(475, 288, 100, 28));
+
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 325, 780, 175));
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -325,6 +387,9 @@ public class RekapAbsensi extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JButton btnApplyFilter;
+    private javax.swing.JLabel lblEndDate;
+    private javax.swing.JLabel lblStartDate;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -333,5 +398,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JTextField txtEndDate;
+    private javax.swing.JTextField txtStartDate;
     // End of variables declaration//GEN-END:variables
 }

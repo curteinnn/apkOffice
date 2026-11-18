@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "user")
@@ -26,8 +27,10 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(length = 100)
-    private String jabatan;
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "jabatan_id")
+    private Jabatan jabatanRef;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -77,8 +80,14 @@ public String getEmail() {
     return email;
 }
 
+@JsonProperty("jabatan")
 public String getJabatan() {
-    return jabatan;
+    return jabatanRef == null ? null : jabatanRef.getNama();
+}
+
+@JsonProperty("jabatanId")
+public Long getJabatanId() {
+    return jabatanRef == null ? null : jabatanRef.getId();
 }
 
 public Role getRole() {
@@ -109,8 +118,8 @@ public void setEmail(String email) {
     this.email = email;
 }
 
-public void setJabatan(String jabatan) {
-    this.jabatan = jabatan;
+public void setJabatanRef(Jabatan jabatanRef) {
+    this.jabatanRef = jabatanRef;
 }
 
 public void setRole(Role role) {

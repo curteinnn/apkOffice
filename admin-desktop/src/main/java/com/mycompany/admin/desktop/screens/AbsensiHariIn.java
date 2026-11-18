@@ -1,5 +1,5 @@
 
-package com.mycompany.admin.desktop;
+package com.mycompany.admin.desktop.screens;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mycompany.admin.desktop.api.ApiContext;

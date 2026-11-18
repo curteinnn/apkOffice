@@ -11,4 +11,6 @@ import java.util.List;
 public interface TugasRepository extends JpaRepository<Tugas, String> {
     @Query("select distinct t from Tugas t join t.penugasanKaryawan p where p.karyawan = :user")
     List<Tugas> findAssignedTo(@Param("user") User user);
+
+    boolean existsByJenisTugas_Id(String jenisTugasId);
 }

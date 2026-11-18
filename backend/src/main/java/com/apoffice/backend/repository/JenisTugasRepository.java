@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JenisTugasRepository extends JpaRepository<JenisTugas, String> {
     List<JenisTugas> findAllByOrderByIdAsc();
+    boolean existsByNamaIgnoreCase(String nama);
 }

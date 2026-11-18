@@ -1,4 +1,4 @@
-package com.mycompany.admin.desktop;
+package com.mycompany.admin.desktop.auth;
 
 /** Menyimpan identitas dan JWT untuk request API berikutnya. */
 public final class AuthSession {

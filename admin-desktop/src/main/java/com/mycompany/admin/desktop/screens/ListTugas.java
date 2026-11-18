@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.admin.desktop;
+package com.mycompany.admin.desktop.screens;
 
 import com.mycompany.admin.desktop.api.ApiContext;
 import com.mycompany.admin.desktop.dto.TaskDto;
@@ -39,7 +39,7 @@ public class ListTugas extends javax.swing.JFrame {
     }
 
     private final DefaultTableModel taskModel = new DefaultTableModel(
-            new String[]{"ID", "Employee", "Pelanggan", "Jenis Tugas", "Judul Tugas", "Lokasi", "Tanggal", "Status", "Nominal"}, 0) {
+            new String[]{"ID Tugas", "Employee", "Pelanggan", "Jenis Tugas", "Judul Tugas", "Lokasi", "Tanggal", "Status", "Nominal"}, 0) {
         @Override public boolean isCellEditable(int row, int column) { return false; }
     };
 
@@ -79,9 +79,14 @@ public class ListTugas extends javax.swing.JFrame {
         });
         JMenuItem refresh = new JMenuItem("Muat ulang");
         refresh.addActionListener(evt -> loadTasks());
+        JMenuItem edit = new JMenuItem("Ubah data tugas terpilih");
+        edit.addActionListener(evt -> editSelected());
+        JMenuItem delete = new JMenuItem("Hapus tugas terpilih");
+        delete.addActionListener(evt -> deleteSelected());
         JMenuItem verify = new JMenuItem("Verifikasi tugas terpilih");
         verify.addActionListener(evt -> verifySelected());
-        menu.add(create); menu.add(refresh); menu.add(verify); bar.add(menu); setJMenuBar(bar);
+        menu.add(create); menu.add(edit); menu.add(delete); menu.addSeparator();
+        menu.add(refresh); menu.add(verify); bar.add(menu); setJMenuBar(bar);
         jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (evt.getClickCount() == 2) showSelectedTask();
@@ -145,7 +150,8 @@ public class ListTugas extends javax.swing.JFrame {
         if (task == null) return;
         String employee = assignedEmployees(task);
         JOptionPane.showMessageDialog(this,
-                "Employee: " + employee + "\nPelanggan: " + (task.namaPelanggan() == null ? "Belum ditentukan" : task.namaPelanggan())
+                "ID Tugas: " + task.id() + "\nEmployee: " + employee
+                        + "\nPelanggan: " + (task.namaPelanggan() == null ? "Belum ditentukan" : task.namaPelanggan())
                         + "\nJenis tugas: " + (task.jenisTugas() == null ? "Belum dikategorikan" : task.jenisTugas().nama())
                         + "\nJudul: " + task.judul() + "\nTanggal: " + task.tanggal()
                         + "\nLokasi: " + task.lokasi() + "\nStatus: " + task.status()
@@ -201,6 +207,64 @@ public class ListTugas extends javax.swing.JFrame {
                 try { get(); loadTasks(); }
                 catch (Exception ex) { JOptionPane.showMessageDialog(ListTugas.this, ex.getMessage(),
                         "Gagal memverifikasi tugas", JOptionPane.ERROR_MESSAGE); }
+            }
+        }.execute();
+    }
+
+    private void editSelected() {
+        TaskDto task = selectedTask();
+        if (task == null) {
+            JOptionPane.showMessageDialog(this, "Pilih tugas terlebih dahulu.",
+                    "Ubah Tugas", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (!"PENDING".equals(task.status()) && !"REJECTED".equals(task.status())) {
+            JOptionPane.showMessageDialog(this,
+                    "Data hanya dapat diubah saat tugas berstatus PENDING atau REJECTED.",
+                    "Ubah Tugas", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        PengajuanTugas form = new PengajuanTugas(task);
+        form.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override public void windowClosed(java.awt.event.WindowEvent e) { loadTasks(); }
+        });
+        form.setLocationRelativeTo(this);
+        form.setVisible(true);
+    }
+
+    private void deleteSelected() {
+        TaskDto task = selectedTask();
+        if (task == null) {
+            JOptionPane.showMessageDialog(this, "Pilih tugas terlebih dahulu.",
+                    "Hapus Tugas", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (!"PENDING".equals(task.status())) {
+            JOptionPane.showMessageDialog(this,
+                    "Hanya tugas PENDING yang dapat dihapus agar riwayat proses tetap tersimpan.",
+                    "Hapus Tugas", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Hapus tugas " + task.id() + "? Penugasan karyawan yang terkait juga akan dihapus.",
+                "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        new SwingWorker<Void, Void>() {
+            @Override protected Void doInBackground() throws Exception {
+                new TaskApiService(ApiContext.client()).delete(task.id());
+                return null;
+            }
+            @Override protected void done() {
+                try {
+                    get();
+                    JOptionPane.showMessageDialog(ListTugas.this, "Tugas berhasil dihapus.",
+                            "Hapus Tugas", JOptionPane.INFORMATION_MESSAGE);
+                    loadTasks();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(ListTugas.this, ex.getMessage(),
+                            "Gagal menghapus tugas", JOptionPane.ERROR_MESSAGE);
+                }
             }
         }.execute();
     }

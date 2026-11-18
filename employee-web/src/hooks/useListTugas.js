@@ -1,20 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiRequest } from "../services/api";
-
-const getTanggalWIB = () => {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Jakarta",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-
-  const values = Object.fromEntries(
-    parts.map(({ type, value }) => [type, value]),
-  );
-
-  return `${values.year}-${values.month}-${values.day}`;
-};
+import { getTodayWIB } from "../utils/date";
 
 export default function useListTugas() {
   const [tugas, setTugas] = useState([]);
@@ -24,42 +10,62 @@ export default function useListTugas() {
   const [accessDenied, setAccessDenied] = useState(false);
   const [isCheckedOut, setIsCheckedOut] = useState(false);
 
+  const loadTugasData = useCallback(async () => {
+    const attendance = await apiRequest("/api/attendance/my");
+    const attendanceHariIni = Array.isArray(attendance)
+      ? attendance.find((item) => item.tanggal === getTodayWIB())
+      : null;
+
+    if (!attendanceHariIni?.jamMasuk) {
+      return { tugas: [], accessDenied: true, isCheckedOut: false };
+    }
+
+    const data = await apiRequest("/api/tugas");
+    return {
+      tugas: Array.isArray(data) ? data : [],
+      accessDenied: false,
+      isCheckedOut: Boolean(attendanceHariIni.jamKeluar),
+    };
+  }, []);
+
+  const applyTugasData = useCallback((data) => {
+    setTugas(data.tugas);
+    setAccessDenied(data.accessDenied);
+    setIsCheckedOut(data.isCheckedOut);
+  }, []);
+
   const fetchTugas = useCallback(async () => {
     setLoading(true);
     setError("");
     setAccessDenied(false);
 
     try {
-      const attendance = await apiRequest("/api/attendance/my");
-      const hariIni = getTanggalWIB();
-
-      const attendanceHariIni = Array.isArray(attendance)
-        ? attendance.find((item) => item.tanggal === hariIni)
-        : null;
-
-      // Belum check-in: tidak boleh membuka daftar tugas.
-      if (!attendanceHariIni?.jamMasuk) {
-        setTugas([]);
-        setAccessDenied(true);
-        setIsCheckedOut(false);
-        return;
-      }
-
-      // Sudah check-out: tetap boleh melihat daftar dan status tugas.
-      setIsCheckedOut(Boolean(attendanceHariIni.jamKeluar));
-
-      const data = await apiRequest("/api/tugas");
-      setTugas(Array.isArray(data) ? data : []);
+      applyTugasData(await loadTugasData());
     } catch (err) {
       setError(err.message || "Gagal memuat daftar tugas.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [applyTugasData, loadTugasData]);
 
   useEffect(() => {
-    fetchTugas();
-  }, [fetchTugas]);
+    let active = true;
+
+    loadTugasData()
+      .then((data) => {
+        if (active) applyTugasData(data);
+      })
+      .catch((err) => {
+        if (active) setError(err.message || "Gagal memuat daftar tugas.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [applyTugasData, loadTugasData]);
 
   const updateStatus = async (id, action) => {
     // Perlindungan di frontend; backend juga wajib memeriksa absensi.

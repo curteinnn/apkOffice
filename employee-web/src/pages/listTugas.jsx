@@ -143,9 +143,15 @@ export default function ListTugas() {
                 }}
                 className="flex min-h-40 flex-col rounded-xl bg-white p-6 text-left transition hover:bg-blue-100"
               >
-                <h2 className="text-lg font-semibold text-blue-950">
-                  {item.judul || "Tanpa judul"}
-                </h2>
+                <div className="flex w-full items-start justify-between gap-3">
+                  <h2 className="text-lg font-semibold text-blue-950">
+                    {item.judul || "Tanpa judul"}
+                  </h2>
+                  <div className="shrink-0 text-right text-xs text-gray-500">
+                    <p>ID: {item.id || "-"}</p>
+                    <p>{formatTanggal(item.tanggal)}</p>
+                  </div>
+                </div>
 
                 <span className="mt-1 w-fit rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800">
                   {item.jenisTugas
@@ -161,9 +167,7 @@ export default function ListTugas() {
                   {item.deskripsi || "Tidak ada deskripsi."}
                 </p>
 
-                <div className="mt-auto flex items-center justify-between gap-2 pt-4 text-sm text-blue-950">
-                  <span>{formatTanggal(item.tanggal)}</span>
-
+                <div className="mt-auto flex items-center justify-end gap-2 pt-4 text-sm text-blue-950">
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusClass(item.status)}`}
                   >

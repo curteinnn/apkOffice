@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.admin.desktop;
+package com.mycompany.admin.desktop.screens;
 
+import com.mycompany.admin.desktop.auth.AuthSession;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mycompany.admin.desktop.api.ApiContext;
 import com.mycompany.admin.desktop.dto.AttendanceDto;
@@ -39,14 +40,29 @@ public class Dashboard extends javax.swing.JFrame {
         jButton4.addActionListener(evt -> open(new ListTugas()));
         jButton5.addActionListener(evt -> open(new RekapAbsensi()));
         JMenuBar menuBar = new JMenuBar();
+        JMenu masterData = new JMenu("Master Data");
+        JMenuItem manageJabatan = new JMenuItem("Jabatan");
+        manageJabatan.addActionListener(evt -> open(new MasterJabatan()));
+        masterData.add(manageJabatan);
+        JMenuItem manageJenisTugas = new JMenuItem("Jenis Tugas");
+        manageJenisTugas.addActionListener(evt -> open(new MasterJenisTugas()));
+        masterData.add(manageJenisTugas);
         JMenu account = new JMenu("Akun");
+        JMenuItem changePassword = new JMenuItem("Ubah password");
+        changePassword.addActionListener(evt ->
+                new ChangePasswordDialog(this, true).setVisible(true));
         JMenuItem logout = new JMenuItem("Logout");
         logout.addActionListener(evt -> {
             AuthSession.clear();
             new loginadmin().setVisible(true);
             dispose();
         });
-        account.add(logout); menuBar.add(account); setJMenuBar(menuBar);
+        account.add(changePassword);
+        account.addSeparator();
+        account.add(logout);
+        menuBar.add(masterData);
+        menuBar.add(account);
+        setJMenuBar(menuBar);
         loadDashboardData();
     }
 
@@ -176,7 +192,7 @@ public class Dashboard extends javax.swing.JFrame {
         jButton1.setText("Beranda");
         jButton1.addActionListener(this::jButton1ActionPerformed);
 
-        jButton2.setText("Tambah Karyawan");
+        jButton2.setText("Master Karyawan");
         jButton2.addActionListener(this::jButton2ActionPerformed);
 
         jButton3.setText("Absensi Hari ini");

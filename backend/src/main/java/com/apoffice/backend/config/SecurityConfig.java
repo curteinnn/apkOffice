@@ -31,6 +31,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/api/jabatan", "/api/jabatan/**").hasRole("ADMIN")
+                .requestMatchers("/api/jenis-tugas", "/api/jenis-tugas/**").hasRole("ADMIN")
 
                 // User management
                 .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
@@ -48,6 +50,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/tugas").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/tugas").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/tugas/bulk").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/tugas/*").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/tugas/*").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/tugas/*/start").hasRole("EMPLOYEE")
                 .requestMatchers(HttpMethod.PUT, "/api/tugas/*/submit").hasRole("EMPLOYEE")
                 .requestMatchers(HttpMethod.PUT, "/api/tugas/*/verify").hasRole("ADMIN")

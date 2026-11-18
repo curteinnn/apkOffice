@@ -6,6 +6,7 @@ import com.mycompany.admin.desktop.dto.CreateTaskRequest;
 import com.mycompany.admin.desktop.dto.CreateBulkTaskRequest;
 import com.mycompany.admin.desktop.dto.TaskDto;
 import com.mycompany.admin.desktop.dto.VerifyTaskRequest;
+import com.mycompany.admin.desktop.dto.UpdateTaskRequest;
 import java.io.IOException;
 import java.util.List;
 
@@ -24,5 +25,14 @@ public final class TaskApiService {
     }
     public TaskDto verify(String id, VerifyTaskRequest request) throws IOException, InterruptedException {
         return api.put("/api/tugas/" + id + "/verify", request, TaskDto.class);
+    }
+    public TaskDto update(String id, UpdateTaskRequest request) throws IOException, InterruptedException {
+        return api.put("/api/tugas/" + pathSegment(id), request, TaskDto.class);
+    }
+    public void delete(String id) throws IOException, InterruptedException {
+        api.delete("/api/tugas/" + pathSegment(id));
+    }
+    private String pathSegment(String value) {
+        return java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.UTF_8);
     }
 }

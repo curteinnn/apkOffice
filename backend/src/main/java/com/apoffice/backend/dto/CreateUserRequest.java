@@ -6,7 +6,7 @@ public class CreateUserRequest {
     private String password;
     private String namaLengkap;
     private String email;
-    private String jabatan;
+    private Long jabatanId;
     private String role;
 
     public String getUsername() {
@@ -41,12 +41,12 @@ public class CreateUserRequest {
         this.email = email;
     }
 
-    public String getJabatan() {
-        return jabatan;
+    public Long getJabatanId() {
+        return jabatanId;
     }
 
-    public void setJabatan(String jabatan) {
-        this.jabatan = jabatan;
+    public void setJabatanId(Long jabatanId) {
+        this.jabatanId = jabatanId;
     }
 
     public String getRole() {

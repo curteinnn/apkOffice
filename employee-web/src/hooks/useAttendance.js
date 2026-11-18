@@ -4,21 +4,7 @@ import {
   checkIn,
   checkOut,
 } from "../services/attendanceService";
-
-function getToday() {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Jakarta",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-
-  const values = Object.fromEntries(
-    parts.map(({ type, value }) => [type, value]),
-  );
-
-  return `${values.year}-${values.month}-${values.day}`;
-}
+import { getTodayWIB } from "../utils/date";
 
 export default function useAttendance() {
   const [attendance, setAttendance] = useState(null);
@@ -27,21 +13,37 @@ export default function useAttendance() {
   const [error, setError] = useState("");
   const [checkoutWarning, setCheckoutWarning] = useState("");
 
-  const refreshAttendance = useCallback(async () => {
+  const loadTodayAttendance = useCallback(async () => {
     const records = await getMyAttendance();
 
-    const todayAttendance = Array.isArray(records)
-      ? records.find((record) => record.tanggal === getToday())
+    return Array.isArray(records)
+      ? records.find((record) => record.tanggal === getTodayWIB())
       : null;
-
-    setAttendance(todayAttendance ?? null);
   }, []);
 
+  const refreshAttendance = useCallback(async () => {
+    const todayAttendance = await loadTodayAttendance();
+    setAttendance(todayAttendance ?? null);
+  }, [loadTodayAttendance]);
+
   useEffect(() => {
-    refreshAttendance()
-      .catch((err) => setError(err.message || "Gagal memuat absensi."))
-      .finally(() => setLoading(false));
-  }, [refreshAttendance]);
+    let active = true;
+
+    loadTodayAttendance()
+      .then((todayAttendance) => {
+        if (active) setAttendance(todayAttendance ?? null);
+      })
+      .catch((err) => {
+        if (active) setError(err.message || "Gagal memuat absensi.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [loadTodayAttendance]);
 
   const isCheckedIn = Boolean(attendance?.jamMasuk);
   const isCheckedOut = Boolean(attendance?.jamKeluar);

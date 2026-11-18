@@ -1,5 +1,7 @@
 package com.mycompany.admin.desktop;
 
+import com.mycompany.admin.desktop.screens.loginadmin;
+
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 

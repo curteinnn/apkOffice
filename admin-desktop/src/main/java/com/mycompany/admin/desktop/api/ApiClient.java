@@ -3,7 +3,7 @@ package com.mycompany.admin.desktop.api;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mycompany.admin.desktop.AuthSession;
+import com.mycompany.admin.desktop.auth.AuthSession;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.http.HttpClient;
@@ -36,6 +36,10 @@ public final class ApiClient {
 
     public <T> T put(String path, Object body, Class<T> responseType) throws IOException, InterruptedException {
         return request("PUT", path, body, responseType, false);
+    }
+
+    public void put(String path, Object body) throws IOException, InterruptedException {
+        send("PUT", path, body, false);
     }
 
     public void delete(String path) throws IOException, InterruptedException {

@@ -2,8 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.admin.desktop;
+package com.mycompany.admin.desktop.screens;
 
+import com.mycompany.admin.desktop.auth.AuthResult;
+import com.mycompany.admin.desktop.auth.AuthSession;
 import com.mycompany.admin.desktop.api.ApiContext;
 import com.mycompany.admin.desktop.dto.LoginResponse;
 import com.mycompany.admin.desktop.service.AuthApiService;

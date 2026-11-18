@@ -3,6 +3,7 @@ package com.apoffice.backend.controller;
 import com.apoffice.backend.dto.CreateTugasRequest;
 import com.apoffice.backend.dto.CreateBulkTugasRequest;
 import com.apoffice.backend.dto.VerifyTugasRequest;
+import com.apoffice.backend.dto.UpdateTugasRequest;
 import com.apoffice.backend.entity.Attendance;
 import com.apoffice.backend.entity.Tugas;
 import com.apoffice.backend.entity.User;
@@ -50,12 +51,12 @@ public List<Tugas> getAllTugas(HttpServletRequest httpRequest) {
             (String) httpRequest.getAttribute("role");
 
     if ("EMPLOYEE".equals(role)) {
-        getUser(username);
+        User user = getUser(username);
 
         LocalDate hariIni = LocalDate.now(ZONA_WIB);
 
         attendanceRepository.findByUserAndTanggal(
-                getUser(username),
+                user,
                 hariIni
         ).orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.FORBIDDEN,
@@ -95,6 +96,28 @@ public Tugas createTugasForEmployees(
                 "Hanya admin yang dapat membuat tugas");
     }
     return tugasService.createTugasForEmployees(request);
+}
+
+@PutMapping("/{id}")
+public Tugas updateTugas(@PathVariable String id, @RequestBody UpdateTugasRequest request,
+        HttpServletRequest httpRequest) {
+    String role = (String) httpRequest.getAttribute("role");
+    if (!"ADMIN".equals(role)) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Hanya admin yang dapat mengubah data tugas");
+    }
+    return tugasService.updateTugas(id, request);
+}
+
+@DeleteMapping("/{id}")
+@ResponseStatus(HttpStatus.NO_CONTENT)
+public void deleteTugas(@PathVariable String id, HttpServletRequest httpRequest) {
+    String role = (String) httpRequest.getAttribute("role");
+    if (!"ADMIN".equals(role)) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Hanya admin yang dapat menghapus tugas");
+    }
+    tugasService.deleteTugas(id);
 }
 
 @PutMapping("/{id}/submit")

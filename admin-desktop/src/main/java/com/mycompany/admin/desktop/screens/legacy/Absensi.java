@@ -1,5 +1,5 @@
 
-package com.mycompany.admin.desktop;
+package com.mycompany.admin.desktop.screens.legacy;
 
 /**
  *
