@@ -47,6 +47,15 @@ public class Dashboard extends javax.swing.JFrame {
         JMenuItem manageJenisTugas = new JMenuItem("Jenis Tugas");
         manageJenisTugas.addActionListener(evt -> open(new MasterJenisTugas()));
         masterData.add(manageJenisTugas);
+        JMenu reports = new JMenu("Laporan");
+        JMenuItem taskProductivity = new JMenuItem("Rekap Tugas per Karyawan");
+        taskProductivity.addActionListener(evt ->
+                open(new TaskReportFrame(TaskReportFrame.ReportMode.PRODUCTIVITY)));
+        JMenuItem taskAmounts = new JMenuItem("Rekap Nominal Tugas per Karyawan");
+        taskAmounts.addActionListener(evt ->
+                open(new TaskReportFrame(TaskReportFrame.ReportMode.APPROVED_AMOUNT)));
+        reports.add(taskProductivity);
+        reports.add(taskAmounts);
         JMenu account = new JMenu("Akun");
         JMenuItem changePassword = new JMenuItem("Ubah password");
         changePassword.addActionListener(evt ->
@@ -61,6 +70,7 @@ public class Dashboard extends javax.swing.JFrame {
         account.addSeparator();
         account.add(logout);
         menuBar.add(masterData);
+        menuBar.add(reports);
         menuBar.add(account);
         setJMenuBar(menuBar);
         loadDashboardData();
