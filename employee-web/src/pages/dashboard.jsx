@@ -100,10 +100,10 @@ export default function Dashboard() {
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <button
             type="button"
-            onClick={() => navigate("/listVisit")}
+            onClick={() => navigate("/list-tugas")}
             className="card-dashboard flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
           >
-            <h2 className="text-lg font-semibold text-blue-950">List Visit</h2>
+            <h2 className="text-lg font-semibold text-blue-950">Daftar Tugas</h2>
 
             <p className="mt-2 text-sm text-blue-800">
               Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias,

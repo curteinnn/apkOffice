@@ -16,7 +16,7 @@ const getTanggalWIB = () => {
   return `${values.year}-${values.month}-${values.day}`;
 };
 
-export default function useListVisit() {
+export default function useListTugas() {
   const [tugas, setTugas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -37,7 +37,7 @@ export default function useListVisit() {
         ? attendance.find((item) => item.tanggal === hariIni)
         : null;
 
-      // Belum check-in: tidak boleh membuka List Visit.
+      // Belum check-in: tidak boleh membuka daftar tugas.
       if (!attendanceHariIni?.jamMasuk) {
         setTugas([]);
         setAccessDenied(true);

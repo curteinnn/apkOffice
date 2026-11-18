@@ -59,7 +59,7 @@ public List<Tugas> getAllTugas(HttpServletRequest httpRequest) {
                 hariIni
         ).orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.FORBIDDEN,
-                "Silakan check-in terlebih dahulu untuk mengakses List Visit"
+                "Silakan check-in terlebih dahulu untuk mengakses daftar tugas"
         ));
     }
 

@@ -24,15 +24,15 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author argag
  */
-public class ListVisit extends javax.swing.JFrame {
+public class ListTugas extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ListVisit.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ListTugas.class.getName());
     private List<TaskDto> loadedTasks = List.of();
 
     /**
-     * Creates new form ListVisit
+     * Creates new form ListTugas
      */
-    public ListVisit() {
+    public ListTugas() {
         initComponents();
         buildTaskActions();
         loadTasks();
@@ -105,7 +105,7 @@ public class ListVisit extends javax.swing.JFrame {
                                 task.judul(), task.lokasi(), task.tanggal(), task.status(), nominalSummary(task)});
                     }
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(ListVisit.this, ex.getMessage(),
+                    JOptionPane.showMessageDialog(ListTugas.this, ex.getMessage(),
                             "Gagal memuat tugas", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -199,7 +199,7 @@ public class ListVisit extends javax.swing.JFrame {
             }
             @Override protected void done() {
                 try { get(); loadTasks(); }
-                catch (Exception ex) { JOptionPane.showMessageDialog(ListVisit.this, ex.getMessage(),
+                catch (Exception ex) { JOptionPane.showMessageDialog(ListTugas.this, ex.getMessage(),
                         "Gagal memverifikasi tugas", JOptionPane.ERROR_MESSAGE); }
             }
         }.execute();
@@ -226,7 +226,7 @@ public class ListVisit extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(204, 255, 255));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel1.setText("List Visit");
+        jLabel1.setText("Daftar Tugas");
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Gambar/pnhkembali.png"))); // NOI18N
 
@@ -312,7 +312,7 @@ public class ListVisit extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new ListVisit().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new ListTugas().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

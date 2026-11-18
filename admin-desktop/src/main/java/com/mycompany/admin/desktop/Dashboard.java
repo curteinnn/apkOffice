@@ -36,7 +36,7 @@ public class Dashboard extends javax.swing.JFrame {
     public Dashboard() {
         initComponents();
         jButton3.addActionListener(evt -> open(new AbsensiHariIn()));
-        jButton4.addActionListener(evt -> open(new ListVisit()));
+        jButton4.addActionListener(evt -> open(new ListTugas()));
         jButton5.addActionListener(evt -> open(new RekapAbsensi()));
         JMenuBar menuBar = new JMenuBar();
         JMenu account = new JMenu("Akun");
@@ -181,7 +181,7 @@ public class Dashboard extends javax.swing.JFrame {
 
         jButton3.setText("Absensi Hari ini");
 
-        jButton4.setText("List visit");
+        jButton4.setText("Daftar Tugas");
 
         jButton5.setText("Rekap Absensi");
 

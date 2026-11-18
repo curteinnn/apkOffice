@@ -1,7 +1,7 @@
 import { useState } from "react";
-import useListVisit from "../hooks/useListVisit";
+import useListTugas from "../hooks/useListTugas";
 
-export default function ListVisit() {
+export default function ListTugas() {
   const {
     tugas,
     loading,
@@ -10,7 +10,7 @@ export default function ListVisit() {
     accessDenied,
     isCheckedOut,
     updateStatus,
-  } = useListVisit();
+  } = useListTugas();
 
   const [selectedTugas, setSelectedTugas] = useState(null);
   const [actionError, setActionError] = useState("");
@@ -95,7 +95,7 @@ export default function ListVisit() {
 
           <p className="mt-3 text-sm leading-6 text-gray-600">
             Silakan check-in terlebih dahulu sebelum mengakses daftar tugas atau
-            List Visit.
+            daftar tugas.
           </p>
 
           <p className="mt-2 text-xs text-gray-500">
