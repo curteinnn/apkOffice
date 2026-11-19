@@ -18,6 +18,7 @@ public class detailtugas1 extends javax.swing.JDialog {
     public detailtugas1(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
     }
 
     /**

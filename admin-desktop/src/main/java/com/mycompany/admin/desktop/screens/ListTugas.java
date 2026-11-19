@@ -19,6 +19,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
+import java.util.function.Consumer;
 
 /**
  *
@@ -26,16 +27,30 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ListTugas extends javax.swing.JFrame {
 
+    public enum PageMode { MANAGEMENT, VERIFICATION, REPORT }
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ListTugas.class.getName());
     private List<TaskDto> loadedTasks = List.of();
+    private final PageMode pageMode;
+    private Consumer<TaskDto> editHandler;
 
     /**
      * Creates new form ListTugas
      */
     public ListTugas() {
+        this(PageMode.MANAGEMENT);
+    }
+
+    public ListTugas(PageMode pageMode) {
+        this.pageMode = pageMode;
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
         buildTaskActions();
         loadTasks();
+    }
+
+    public void setEditHandler(Consumer<TaskDto> editHandler) {
+        this.editHandler = editHandler;
     }
 
     private final DefaultTableModel taskModel = new DefaultTableModel(
@@ -44,7 +59,11 @@ public class ListTugas extends javax.swing.JFrame {
     };
 
     private void buildTaskActions() {
-        setTitle("Daftar Tugas");
+        setTitle(switch (pageMode) {
+            case MANAGEMENT -> "Kelola Tugas";
+            case VERIFICATION -> "Verifikasi Tugas";
+            case REPORT -> "Daftar Tugas";
+        });
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         jTable1.setModel(taskModel);
         jTable1.setAutoCreateRowSorter(true);
@@ -86,8 +105,15 @@ public class ListTugas extends javax.swing.JFrame {
         delete.addActionListener(evt -> deleteSelected());
         JMenuItem verify = new JMenuItem("Verifikasi tugas terpilih");
         verify.addActionListener(evt -> verifySelected());
-        menu.add(create); menu.add(edit); menu.add(delete); menu.addSeparator();
-        menu.add(refresh); menu.add(verify); bar.add(menu); setJMenuBar(bar);
+        if (pageMode == PageMode.MANAGEMENT) {
+            menu.add(create); menu.add(edit); menu.add(delete);
+        } else if (pageMode == PageMode.VERIFICATION) {
+            menu.add(verify);
+        }
+        if (pageMode != PageMode.REPORT) menu.addSeparator();
+        menu.add(refresh);
+        bar.add(menu);
+        setJMenuBar(bar);
         jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (evt.getClickCount() == 2) showSelectedTask();
@@ -95,7 +121,7 @@ public class ListTugas extends javax.swing.JFrame {
         });
     }
 
-    private void loadTasks() {
+    public void loadTasks() {
         taskModel.setRowCount(0);
         new SwingWorker<List<TaskDto>, Void>() {
             @Override protected List<TaskDto> doInBackground() throws Exception {
@@ -160,7 +186,7 @@ public class ListTugas extends javax.swing.JFrame {
                 "Detail Tugas", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void verifySelected() {
+    public void verifySelected() {
         TaskDto task = selectedTask();
         if (task == null) {
             JOptionPane.showMessageDialog(this, "Pilih tugas terlebih dahulu.", "Verifikasi", JOptionPane.WARNING_MESSAGE);
@@ -212,7 +238,7 @@ public class ListTugas extends javax.swing.JFrame {
         }.execute();
     }
 
-    private void editSelected() {
+    public void editSelected() {
         TaskDto task = selectedTask();
         if (task == null) {
             JOptionPane.showMessageDialog(this, "Pilih tugas terlebih dahulu.",
@@ -225,6 +251,10 @@ public class ListTugas extends javax.swing.JFrame {
                     "Ubah Tugas", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        if (editHandler != null) {
+            editHandler.accept(task);
+            return;
+        }
         PengajuanTugas form = new PengajuanTugas(task);
         form.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override public void windowClosed(java.awt.event.WindowEvent e) { loadTasks(); }
@@ -233,7 +263,7 @@ public class ListTugas extends javax.swing.JFrame {
         form.setVisible(true);
     }
 
-    private void deleteSelected() {
+    public void deleteSelected() {
         TaskDto task = selectedTask();
         if (task == null) {
             JOptionPane.showMessageDialog(this, "Pilih tugas terlebih dahulu.",

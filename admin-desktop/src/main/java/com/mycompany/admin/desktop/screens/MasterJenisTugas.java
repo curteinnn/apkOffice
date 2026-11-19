@@ -21,6 +21,7 @@ public class MasterJenisTugas extends javax.swing.JFrame {
 
     public MasterJenisTugas() {
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
         tableJenisTugas.setModel(model);
         tableJenisTugas.setAutoCreateRowSorter(true);
         setLocationRelativeTo(null);

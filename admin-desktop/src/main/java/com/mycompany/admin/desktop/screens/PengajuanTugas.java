@@ -46,17 +46,24 @@ public class PengajuanTugas extends javax.swing.JFrame {
     private JTextField mapsField;
     private JTextArea descriptionField;
     private final TaskDto editingTask;
+    private final Runnable onSaved;
 
     /**
      * Creates new form PengajuanTugas
      */
     public PengajuanTugas() {
-        this(null);
+        this(null, null);
     }
 
     public PengajuanTugas(TaskDto editingTask) {
+        this(editingTask, null);
+    }
+
+    public PengajuanTugas(TaskDto editingTask, Runnable onSaved) {
         this.editingTask = editingTask;
+        this.onSaved = onSaved;
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
         configureFormActions();
         if (editingTask != null) populateForEdit(editingTask);
         loadEmployees();
@@ -65,6 +72,7 @@ public class PengajuanTugas extends javax.swing.JFrame {
 
     private void configureFormActions() {
         setTitle(editingTask == null ? "Buat Tugas" : "Ubah Tugas " + editingTask.id());
+        lblTitle.setText(editingTask == null ? "Kelola Tugas" : "Ubah Tugas");
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         titleField = txtTitle;
         customerNameField = txtCustomer;
@@ -218,6 +226,7 @@ public class PengajuanTugas extends javax.swing.JFrame {
                             editingTask == null
                                     ? "Tugas berhasil dibuat untuk " + employees.size() + " karyawan."
                                     : "Data tugas berhasil diperbarui.");
+                    if (onSaved != null) onSaved.run();
                     dispose();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(PengajuanTugas.this, ex.getMessage(),
@@ -267,7 +276,7 @@ public class PengajuanTugas extends javax.swing.JFrame {
 
         lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         lblTitle.setForeground(new java.awt.Color(31, 41, 55));
-        lblTitle.setText("Pengajuan Tugas");
+        lblTitle.setText("Kelola Tugas");
         jPanel1.add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 20, 500, 36));
 
         lblEmployees.setText("Karyawan penerima* (bisa pilih beberapa)");

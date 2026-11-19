@@ -50,6 +50,7 @@ public class TambahKaryawan extends javax.swing.JFrame {
      */
     public TambahKaryawan() {
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
         configureFormActions();
         loadEmployees();
         loadJabatanOptions();

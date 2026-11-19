@@ -19,6 +19,7 @@ public class MasterJabatan extends javax.swing.JFrame {
 
     public MasterJabatan() {
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
         tableJabatan.setModel(model);
         tableJabatan.setAutoCreateRowSorter(true);
         setLocationRelativeTo(null);

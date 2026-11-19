@@ -27,6 +27,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
      */
     public RekapAbsensi() {
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         jLabel8.setText("Total data");
         jLabel7.setText("Hadir (PRESENT)");

@@ -13,6 +13,7 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
     public ChangePasswordDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
 
         setLocationRelativeTo(parent);
         getRootPane().setDefaultButton(btnSave);

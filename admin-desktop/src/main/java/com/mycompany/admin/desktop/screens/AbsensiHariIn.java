@@ -30,6 +30,7 @@ public class AbsensiHariIn extends javax.swing.JFrame {
      */
 public AbsensiHariIn() {
     initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
     LocalDate tanggal = LocalDate.now(ZoneId.of("Asia/Jakarta"));
     lblTanggal.setText("Tanggal: " + tanggal.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
     tblabsensi.setModel(new DefaultTableModel(new Object[0][0],

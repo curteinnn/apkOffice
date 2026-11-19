@@ -52,6 +52,7 @@ public class TaskReportFrame extends javax.swing.JFrame {
     public TaskReportFrame(ReportMode mode) {
         this.mode = mode;
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(mode == ReportMode.PRODUCTIVITY
                 ? "Rekap Tugas per Karyawan" : "Rekap Nominal Tugas per Karyawan");

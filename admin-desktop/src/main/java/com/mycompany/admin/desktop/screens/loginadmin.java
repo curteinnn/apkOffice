@@ -23,6 +23,7 @@ public class loginadmin extends javax.swing.JFrame {
      */
     public loginadmin() {
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
         applyFormPresentation();
     }
 

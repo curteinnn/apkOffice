@@ -8,20 +8,37 @@ import com.mycompany.admin.desktop.dto.UserDto;
 import com.mycompany.admin.desktop.service.AttendanceApiService;
 import com.mycompany.admin.desktop.service.TaskApiService;
 import com.mycompany.admin.desktop.service.UserApiService;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Rectangle;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
 /** Dashboard view designed in Dashboard.form; this class supplies navigation and live API data. */
 public class Dashboard extends javax.swing.JFrame {
+    private JPanel contentCards;
+    private final Map<String, JPanel> pages = new HashMap<>();
+    private ListTugas managementTasks;
+    private JScrollPane taskManagementScroll;
+
     public Dashboard() {
         initComponents();
         setTitle("MyIn | Dashboard");
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        configureWorkspace();
         setLocationRelativeTo(null);
         configureNavigation();
         configureDashboardDataView();
@@ -29,15 +46,20 @@ public class Dashboard extends javax.swing.JFrame {
     }
 
     private void configureNavigation() {
-        btnEmployees.addActionListener(evt -> open(new TambahKaryawan()));
-        btnJabatan.addActionListener(evt -> open(new MasterJabatan()));
-        btnJenisTugas.addActionListener(evt -> open(new MasterJenisTugas()));
-        btnAttendance.addActionListener(evt -> open(new AbsensiHariIn()));
-        btnTaskManagement.addActionListener(evt -> open(new ListTugas()));
-        btnTaskList.addActionListener(evt -> open(new ListTugas()));
-        btnAttendanceReport.addActionListener(evt -> open(new RekapAbsensi()));
-        btnTaskReport.addActionListener(evt -> open(new TaskReportFrame(TaskReportFrame.ReportMode.PRODUCTIVITY)));
-        btnNominalReport.addActionListener(evt -> open(new TaskReportFrame(TaskReportFrame.ReportMode.APPROVED_AMOUNT)));
+        btnHome.addActionListener(evt -> showPage("dashboard", () -> mainPanel));
+        btnEmployees.addActionListener(evt -> showFramePage("master-employees", TambahKaryawan::new));
+        btnJabatan.addActionListener(evt -> showFramePage("master-jabatan", MasterJabatan::new));
+        btnJenisTugas.addActionListener(evt -> showFramePage("master-jenis-tugas", MasterJenisTugas::new));
+        btnAttendance.addActionListener(evt -> showFramePage("attendance", AbsensiHariIn::new));
+        btnTaskManagement.setText("Kelola Tugas");
+        btnTaskManagement.addActionListener(evt -> showPage("task-management", this::createTaskManagementPage));
+        btnTaskVerification.addActionListener(evt -> showPage("task-verification", this::createTaskVerificationPage));
+        btnTaskList.addActionListener(evt -> showPage("report-task-list", this::createTaskReportPage));
+        btnAttendanceReport.addActionListener(evt -> showFramePage("report-attendance", RekapAbsensi::new));
+        btnTaskReport.addActionListener(evt -> showFramePage("report-productivity",
+                () -> new TaskReportFrame(TaskReportFrame.ReportMode.PRODUCTIVITY)));
+        btnNominalReport.addActionListener(evt -> showFramePage("report-nominal",
+                () -> new TaskReportFrame(TaskReportFrame.ReportMode.APPROVED_AMOUNT)));
         btnChangePassword.addActionListener(evt -> new ChangePasswordDialog(this, true).setVisible(true));
         btnLogout.addActionListener(evt -> {
             AuthSession.clear();
@@ -51,6 +73,31 @@ public class Dashboard extends javax.swing.JFrame {
         lblDate.setText(LocalDate.now(ZoneId.of("Asia/Jakarta")).toString());
     }
 
+    private void configureWorkspace() {
+        Dimension dashboardSize = mainPanel.getSize();
+        if (dashboardSize.width > 0 && dashboardSize.height > 0) mainPanel.setPreferredSize(dashboardSize);
+        com.mycompany.admin.desktop.ui.ResponsiveUi.installPanel(mainPanel);
+
+        rootPanel.removeAll();
+        rootPanel.setLayout(new BorderLayout());
+        sidePanel.setPreferredSize(new Dimension(225, 720));
+        JScrollPane sidebar = new JScrollPane(sidePanel,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        sidebar.setPreferredSize(new Dimension(225, 720));
+        sidebar.setBorder(null);
+        rootPanel.add(sidebar, BorderLayout.WEST);
+
+        contentCards = new JPanel(new CardLayout());
+        contentCards.add(mainPanel, "dashboard");
+        pages.put("dashboard", mainPanel);
+        rootPanel.add(contentCards, BorderLayout.CENTER);
+
+        getContentPane().removeAll();
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(rootPanel, BorderLayout.CENTER);
+        setMinimumSize(new Dimension(900, 600));
+    }
+
     private void configureDashboardDataView() {
         jTable1.setModel(new DefaultTableModel(new Object[0][0],
                 new String[]{"ID Tugas", "Judul Tugas", "Jenis Tugas", "Karyawan", "Tanggal", "Lokasi", "Status"}) {
@@ -60,9 +107,136 @@ public class Dashboard extends javax.swing.JFrame {
 
     }
 
-    private void open(javax.swing.JFrame frame) {
-        frame.setLocationRelativeTo(this);
-        frame.setVisible(true);
+    private void showFramePage(String key, Supplier<? extends javax.swing.JFrame> factory) {
+        showPage(key, () -> takeFrameContent(factory.get()));
+    }
+
+    private void showPage(String key, Supplier<JPanel> factory) {
+        JPanel page = pages.get(key);
+        if (page == null) {
+            page = factory.get();
+            pages.put(key, page);
+            contentCards.add(page, key);
+        }
+        ((CardLayout) contentCards.getLayout()).show(contentCards, key);
+        contentCards.revalidate();
+        contentCards.repaint();
+    }
+
+    private JPanel takeFrameContent(javax.swing.JFrame frame) {
+        java.awt.Container content = frame.getContentPane();
+        Dimension preferred = content.getSize();
+        if (preferred.width <= 0 || preferred.height <= 0) preferred = frame.getSize();
+        frame.setContentPane(new JPanel());
+        frame.dispose();
+        JPanel panel;
+        if (content instanceof JPanel contentPanel) {
+            panel = contentPanel;
+        } else {
+            panel = new JPanel(new BorderLayout());
+            panel.add(content, BorderLayout.CENTER);
+        }
+        panel.setPreferredSize(preferred);
+        com.mycompany.admin.desktop.ui.ResponsiveUi.installPanel(panel);
+        return panel;
+    }
+
+    private JPanel createTaskManagementPage() {
+        managementTasks = new ListTugas(ListTugas.PageMode.MANAGEMENT);
+        managementTasks.setEditHandler(this::showTaskEditor);
+        JPanel taskTable = takeFrameContent(managementTasks);
+
+        JPanel editorHost = new JPanel(new BorderLayout());
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEADING));
+        JButton edit = new JButton("Ubah Tugas Terpilih");
+        JButton delete = new JButton("Delete Tugas Terpilih");
+        JButton refresh = new JButton("Muat Ulang");
+        edit.addActionListener(evt -> managementTasks.editSelected());
+        delete.addActionListener(evt -> managementTasks.deleteSelected());
+        refresh.addActionListener(evt -> managementTasks.loadTasks());
+        toolbar.add(edit);
+        toolbar.add(delete);
+        toolbar.add(refresh);
+
+        JPanel taskSection = new JPanel(new BorderLayout());
+        taskSection.add(toolbar, BorderLayout.NORTH);
+        taskSection.add(taskTable, BorderLayout.CENTER);
+        Dimension taskSectionSize = taskSection.getPreferredSize();
+        taskSection.setMaximumSize(new Dimension(Integer.MAX_VALUE, taskSectionSize.height));
+
+        ScrollableColumn column = new ScrollableColumn();
+        column.add(editorHost);
+        column.add(taskSection);
+        installTaskEditor(editorHost, null);
+        taskManagementScroll = new JScrollPane(column,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JPanel page = new JPanel(new BorderLayout());
+        page.add(taskManagementScroll, BorderLayout.CENTER);
+        return page;
+    }
+
+    private void installTaskEditor(JPanel editorHost, TaskDto task) {
+        PengajuanTugas editor = new PengajuanTugas(task, () -> {
+            managementTasks.loadTasks();
+            installTaskEditor(editorHost, null);
+        });
+        JPanel editorPanel = takeFrameContent(editor);
+        editorHost.removeAll();
+        editorHost.add(editorPanel, BorderLayout.CENTER);
+        editorHost.setPreferredSize(editorPanel.getPreferredSize());
+        editorHost.setMaximumSize(new Dimension(Integer.MAX_VALUE, editorPanel.getPreferredSize().height));
+        editorHost.revalidate();
+        editorHost.repaint();
+    }
+
+    private void showTaskEditor(TaskDto task) {
+        if (taskManagementScroll == null) return;
+        ScrollableColumn column = (ScrollableColumn) taskManagementScroll.getViewport().getView();
+        JPanel editorHost = (JPanel) column.getComponent(0);
+        installTaskEditor(editorHost, task);
+        taskManagementScroll.getViewport().setViewPosition(new java.awt.Point(0, 0));
+    }
+
+    private JPanel createTaskVerificationPage() {
+        ListTugas verification = new ListTugas(ListTugas.PageMode.VERIFICATION);
+        JPanel table = takeFrameContent(verification);
+        JPanel page = new JPanel(new BorderLayout(0, 8));
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEADING));
+        JButton verify = new JButton("Verifikasi Tugas Terpilih");
+        JButton refresh = new JButton("Muat Ulang");
+        verify.addActionListener(evt -> verification.verifySelected());
+        refresh.addActionListener(evt -> verification.loadTasks());
+        toolbar.add(verify);
+        toolbar.add(refresh);
+        page.add(toolbar, BorderLayout.NORTH);
+        page.add(table, BorderLayout.CENTER);
+        return page;
+    }
+
+    private JPanel createTaskReportPage() {
+        ListTugas report = new ListTugas(ListTugas.PageMode.REPORT);
+        JPanel table = takeFrameContent(report);
+        JPanel page = new JPanel(new BorderLayout(0, 8));
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEADING));
+        JButton refresh = new JButton("Muat Ulang");
+        refresh.addActionListener(evt -> report.loadTasks());
+        toolbar.add(refresh);
+        page.add(toolbar, BorderLayout.NORTH);
+        page.add(table, BorderLayout.CENTER);
+        return page;
+    }
+
+    private static final class ScrollableColumn extends JPanel implements javax.swing.Scrollable {
+        ScrollableColumn() {
+            setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.Y_AXIS));
+        }
+        @Override public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+        @Override public int getScrollableUnitIncrement(Rectangle visible, int orientation, int direction) { return 32; }
+        @Override public int getScrollableBlockIncrement(Rectangle visible, int orientation, int direction) {
+            return Math.max(32, visible.height - 32);
+        }
+        @Override public boolean getScrollableTracksViewportWidth() { return true; }
+        @Override public boolean getScrollableTracksViewportHeight() { return false; }
     }
 
     private void loadDashboardData() {
@@ -134,6 +308,7 @@ public class Dashboard extends javax.swing.JFrame {
         lblTransactionGroup = new javax.swing.JLabel();
         btnAttendance = new javax.swing.JButton();
         btnTaskManagement = new javax.swing.JButton();
+        btnTaskVerification = new javax.swing.JButton();
         lblReportGroup = new javax.swing.JLabel();
         btnTaskList = new javax.swing.JButton();
         btnAttendanceReport = new javax.swing.JButton();
@@ -202,23 +377,26 @@ public class Dashboard extends javax.swing.JFrame {
         btnAttendance.setText("Absensi Hari Ini");
         sidePanel.add(btnAttendance, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 285, 198, 34));
 
-        btnTaskManagement.setText("Pengelolaan Tugas");
+        btnTaskManagement.setText("Kelola Tugas");
         sidePanel.add(btnTaskManagement, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 321, 198, 34));
 
+        btnTaskVerification.setText("Verifikasi Tugas");
+        sidePanel.add(btnTaskVerification, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 357, 198, 34));
+
         lblReportGroup.setText("REPORT");
-        sidePanel.add(lblReportGroup, new org.netbeans.lib.awtextra.AbsoluteConstraints(18, 368, 190, 18));
+        sidePanel.add(lblReportGroup, new org.netbeans.lib.awtextra.AbsoluteConstraints(18, 402, 190, 18));
 
         btnTaskList.setText("Daftar Tugas");
-        sidePanel.add(btnTaskList, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 389, 198, 34));
+        sidePanel.add(btnTaskList, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 423, 198, 34));
 
         btnAttendanceReport.setText("Rekap Absensi");
-        sidePanel.add(btnAttendanceReport, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 425, 198, 34));
+        sidePanel.add(btnAttendanceReport, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 459, 198, 34));
 
         btnTaskReport.setText("Rekap Tugas");
-        sidePanel.add(btnTaskReport, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 461, 198, 34));
+        sidePanel.add(btnTaskReport, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 495, 198, 34));
 
         btnNominalReport.setText("Rekap Nominal Tugas");
-        sidePanel.add(btnNominalReport, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 497, 198, 34));
+        sidePanel.add(btnNominalReport, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 531, 198, 34));
 
         lblAccount.setText("Administrator");
         sidePanel.add(lblAccount, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 580, 190, 24));
@@ -323,6 +501,7 @@ public class Dashboard extends javax.swing.JFrame {
     private javax.swing.JButton btnTaskList;
     private javax.swing.JButton btnTaskManagement;
     private javax.swing.JButton btnTaskReport;
+    private javax.swing.JButton btnTaskVerification;
     private javax.swing.JPanel cardActiveTasks;
     private javax.swing.JPanel cardApproved;
     private javax.swing.JPanel cardEmployees;
