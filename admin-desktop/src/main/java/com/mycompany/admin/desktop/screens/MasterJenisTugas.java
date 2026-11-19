@@ -24,6 +24,7 @@ public class MasterJenisTugas extends javax.swing.JFrame {
         tableJenisTugas.setModel(model);
         tableJenisTugas.setAutoCreateRowSorter(true);
         setLocationRelativeTo(null);
+
         loadRows();
     }
 

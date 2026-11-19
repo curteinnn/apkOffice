@@ -1,5 +1,6 @@
 package com.mycompany.admin.desktop.screens;
 
+
 import com.mycompany.admin.desktop.api.ApiContext;
 import com.mycompany.admin.desktop.dto.ChangePasswordRequest;
 import com.mycompany.admin.desktop.service.UserApiService;
@@ -12,6 +13,7 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
     public ChangePasswordDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+
         setLocationRelativeTo(parent);
         getRootPane().setDefaultButton(btnSave);
     }
@@ -129,6 +131,7 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
         dispose();
     }
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnSave;
     private javax.swing.JLabel lblConfirmPassword;
@@ -138,4 +141,5 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
     private javax.swing.JPasswordField txtConfirmPassword;
     private javax.swing.JPasswordField txtCurrentPassword;
     private javax.swing.JPasswordField txtNewPassword;
+    // End of variables declaration//GEN-END:variables
 }

@@ -18,7 +18,7 @@ import javax.swing.table.DefaultTableModel;
  * @author nafan
  */
 public class RekapAbsensi extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(RekapAbsensi.class.getName());
     private List<AttendanceDto> allRows = List.of();
 
@@ -27,6 +27,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
      */
     public RekapAbsensi() {
         initComponents();
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         jLabel8.setText("Total data");
         jLabel7.setText("Hadir (PRESENT)");
         jLabel9.setText("Belum check-out");
@@ -40,6 +41,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
         btnApplyFilter.addActionListener(evt -> applyDateFilter());
         txtStartDate.addActionListener(evt -> applyDateFilter());
         txtEndDate.addActionListener(evt -> applyDateFilter());
+
         loadSummary();
     }
 
@@ -131,6 +133,11 @@ public class RekapAbsensi extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        lblStartDate = new javax.swing.JLabel();
+        txtStartDate = new javax.swing.JTextField();
+        lblEndDate = new javax.swing.JLabel();
+        txtEndDate = new javax.swing.JTextField();
+        btnApplyFilter = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jPanel5 = new javax.swing.JPanel();
@@ -152,14 +159,20 @@ public class RekapAbsensi extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
-        lblStartDate = new javax.swing.JLabel();
-        txtStartDate = new javax.swing.JTextField();
-        lblEndDate = new javax.swing.JLabel();
-        txtEndDate = new javax.swing.JTextField();
-        btnApplyFilter = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblStartDate.setText("Dari tanggal");
+        getContentPane().add(lblStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 290, -1, 25));
+        getContentPane().add(txtStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 288, 120, 28));
+
+        lblEndDate.setText("Sampai");
+        getContentPane().add(lblEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 290, -1, 25));
+        getContentPane().add(txtEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 288, 130, 28));
+
+        btnApplyFilter.setText("Terapkan");
+        getContentPane().add(btnApplyFilter, new org.netbeans.lib.awtextra.AbsoluteConstraints(475, 288, 100, 28));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -173,15 +186,6 @@ public class RekapAbsensi extends javax.swing.JFrame {
             }
         ));
         jScrollPane1.setViewportView(jTable1);
-
-        lblStartDate.setText("Dari tanggal");
-        getContentPane().add(lblStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 290, -1, 25));
-        getContentPane().add(txtStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 288, 120, 28));
-        lblEndDate.setText("Sampai");
-        getContentPane().add(lblEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 290, -1, 25));
-        getContentPane().add(txtEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 288, 130, 28));
-        btnApplyFilter.setText("Terapkan");
-        getContentPane().add(btnApplyFilter, new org.netbeans.lib.awtextra.AbsoluteConstraints(475, 288, 100, 28));
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 325, 780, 175));
 
@@ -330,7 +334,8 @@ public class RekapAbsensi extends javax.swing.JFrame {
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(951, 0, -1, -1));
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 910, -1));
 
-        jPanel6.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel6.setBackground(new java.awt.Color(244, 247, 251));
+        jPanel6.setPreferredSize(new java.awt.Dimension(1024, 550));
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -355,7 +360,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -374,6 +379,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnApplyFilter;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -387,9 +393,6 @@ public class RekapAbsensi extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JButton btnApplyFilter;
-    private javax.swing.JLabel lblEndDate;
-    private javax.swing.JLabel lblStartDate;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -398,6 +401,8 @@ public class RekapAbsensi extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JLabel lblEndDate;
+    private javax.swing.JLabel lblStartDate;
     private javax.swing.JTextField txtEndDate;
     private javax.swing.JTextField txtStartDate;
     // End of variables declaration//GEN-END:variables

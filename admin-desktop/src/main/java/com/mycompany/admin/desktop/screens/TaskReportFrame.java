@@ -69,6 +69,7 @@ public class TaskReportFrame extends javax.swing.JFrame {
         for (int i = 0; i < columnWidths.length; i++) {
             tableReport.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
         }
+
         setLocationRelativeTo(null);
         loadTasks();
     }

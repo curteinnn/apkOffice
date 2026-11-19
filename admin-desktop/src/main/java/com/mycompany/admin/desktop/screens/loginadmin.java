@@ -23,6 +23,14 @@ public class loginadmin extends javax.swing.JFrame {
      */
     public loginadmin() {
         initComponents();
+        applyFormPresentation();
+    }
+
+    private void applyFormPresentation() {
+        setTitle("Masuk | MyIn Admin");
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getRootPane().setDefaultButton(blogin);
+        setLocationRelativeTo(null);
     }
 
     /**
@@ -45,50 +53,52 @@ public class loginadmin extends javax.swing.JFrame {
         bg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(520, 570));
 
-        jPanel1.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setPreferredSize(new java.awt.Dimension(520, 530));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         blogin.setBackground(new java.awt.Color(51, 102, 255));
         blogin.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         blogin.setForeground(new java.awt.Color(255, 255, 255));
-        blogin.setText("Login");
+        blogin.setText("Masuk");
         blogin.addActionListener(this::bloginActionPerformed);
-        jPanel1.add(blogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 580, 90, 30));
-        jPanel1.add(tpass, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 440, 350, 30));
+        jPanel1.add(blogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 420, 360, 42));
+        jPanel1.add(tpass, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 348, 360, 38));
 
         pass.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         pass.setText("Password");
-        jPanel1.add(pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 410, -1, -1));
-        jPanel1.add(tuser, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 360, 350, 30));
+        jPanel1.add(pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 318, -1, -1));
+        jPanel1.add(tuser, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 266, 360, 38));
 
         user.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        user.setText("username / ID");
-        jPanel1.add(user, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 330, -1, -1));
+        user.setText("Username");
+        jPanel1.add(user, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 236, -1, -1));
 
-        desk.setText("Masuk untuk mengakases");
-        jPanel1.add(desk, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 250, -1, 20));
+        desk.setText("Kelola karyawan, absensi, dan tugas");
+        jPanel1.add(desk, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 184, 360, 24));
 
         loginadmin.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        loginadmin.setText("Login Admin");
-        jPanel1.add(loginadmin, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 220, -1, -1));
-        jPanel1.add(bg, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 912));
+        loginadmin.setText("Masuk ke akun admin");
+        jPanel1.add(loginadmin, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 140, 360, 36));
+
+        bg.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        bg.setForeground(new java.awt.Color(29, 78, 216));
+        bg.setText("MyIn Admin");
+        jPanel1.add(bg, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 70, 360, 30));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 690, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 520, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(46, 46, 46))
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 530, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();

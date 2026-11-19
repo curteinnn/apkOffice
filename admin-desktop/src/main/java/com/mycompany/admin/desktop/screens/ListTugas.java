@@ -25,7 +25,7 @@ import javax.swing.table.DefaultTableModel;
  * @author argag
  */
 public class ListTugas extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ListTugas.class.getName());
     private List<TaskDto> loadedTasks = List.of();
 
@@ -48,6 +48,7 @@ public class ListTugas extends javax.swing.JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         jTable1.setModel(taskModel);
         jTable1.setAutoCreateRowSorter(true);
+
         jTextField1.setText("");
         jTextField1.setToolTipText("Cari employee, tugas, lokasi, atau status");
         jTextField1.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -287,7 +288,7 @@ public class ListTugas extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(244, 247, 251));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setText("Daftar Tugas");
@@ -361,7 +362,7 @@ public class ListTugas extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

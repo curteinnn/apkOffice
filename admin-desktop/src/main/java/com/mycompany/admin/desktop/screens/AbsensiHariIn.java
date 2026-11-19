@@ -22,7 +22,7 @@ import javax.swing.table.DefaultTableModel;
  * @author nafan
  */
 public class AbsensiHariIn extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AbsensiHariIn.class.getName());
 
     /**
@@ -36,6 +36,8 @@ public AbsensiHariIn() {
             new String[]{"No", "Nama", "Jabatan", "Tanggal", "Status", "Check in", "Check out"}) {
         @Override public boolean isCellEditable(int row, int column) { return false; }
     });
+    setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
     loadAttendance(tanggal);
 }
 
@@ -90,7 +92,7 @@ private String clock(String value) {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(244, 247, 251));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         bexport.setBackground(new java.awt.Color(0, 153, 255));
@@ -152,7 +154,7 @@ private String clock(String value) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

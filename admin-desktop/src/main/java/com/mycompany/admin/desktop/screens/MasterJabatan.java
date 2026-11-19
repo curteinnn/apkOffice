@@ -22,6 +22,7 @@ public class MasterJabatan extends javax.swing.JFrame {
         tableJabatan.setModel(model);
         tableJabatan.setAutoCreateRowSorter(true);
         setLocationRelativeTo(null);
+
         loadJabatan();
     }
 

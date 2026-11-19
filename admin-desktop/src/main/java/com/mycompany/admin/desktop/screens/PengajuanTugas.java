@@ -6,10 +6,10 @@ package com.mycompany.admin.desktop.screens;
 
 import com.mycompany.admin.desktop.api.ApiContext;
 import com.mycompany.admin.desktop.dto.CreateBulkTaskRequest;
-import com.mycompany.admin.desktop.dto.UpdateTaskRequest;
-import com.mycompany.admin.desktop.dto.TaskDto;
-import com.mycompany.admin.desktop.dto.UserDto;
 import com.mycompany.admin.desktop.dto.JenisTugasDto;
+import com.mycompany.admin.desktop.dto.TaskDto;
+import com.mycompany.admin.desktop.dto.UpdateTaskRequest;
+import com.mycompany.admin.desktop.dto.UserDto;
 import com.mycompany.admin.desktop.service.JenisTugasApiService;
 import com.mycompany.admin.desktop.service.TaskApiService;
 import com.mycompany.admin.desktop.service.UserApiService;
@@ -18,21 +18,15 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JLabel;
+import javax.swing.ListSelectionModel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 /**
  *
@@ -41,16 +35,16 @@ import javax.swing.table.DefaultTableModel;
 public class PengajuanTugas extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(PengajuanTugas.class.getName());
-    private final JList<UserDto> employeeList = new JList<>();
-    private final JComboBox<JenisTugasDto> jenisTugasBox = new JComboBox<>();
+    private JList<UserDto> employeeList;
+    private JComboBox<JenisTugasDto> jenisTugasBox;
     private boolean employeesLoaded;
     private boolean jenisTugasLoaded;
-    private final JTextField titleField = new JTextField();
-    private final JTextField customerNameField = new JTextField();
-    private final JTextField locationField = new JTextField();
-    private final JTextField dateField = new JTextField(LocalDate.now().toString());
-    private final JTextField mapsField = new JTextField();
-    private final JTextArea descriptionField = new JTextArea(4, 24);
+    private JTextField titleField;
+    private JTextField customerNameField;
+    private JTextField locationField;
+    private JTextField dateField;
+    private JTextField mapsField;
+    private JTextArea descriptionField;
     private final TaskDto editingTask;
 
     /**
@@ -63,39 +57,30 @@ public class PengajuanTugas extends javax.swing.JFrame {
     public PengajuanTugas(TaskDto editingTask) {
         this.editingTask = editingTask;
         initComponents();
-        buildConnectedUi();
+        configureFormActions();
         if (editingTask != null) populateForEdit(editingTask);
         loadEmployees();
         loadJenisTugas();
     }
 
-    private void buildConnectedUi() {
+    private void configureFormActions() {
         setTitle(editingTask == null ? "Buat Tugas" : "Ubah Tugas " + editingTask.id());
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        JPanel form = new JPanel(new java.awt.GridBagLayout());
-        form.setBorder(javax.swing.BorderFactory.createEmptyBorder(18, 18, 18, 18));
-        java.awt.GridBagConstraints c = new java.awt.GridBagConstraints();
-        c.insets = new java.awt.Insets(6, 6, 6, 6);
-        c.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        c.weightx = 0;
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        titleField = txtTitle;
+        customerNameField = txtCustomer;
+        locationField = txtLocation;
+        dateField = txtDate;
+        mapsField = txtMaps;
+        descriptionField = txtDescription;
+        employeeList = (JList<UserDto>) (JList<?>) listEmployees;
+        jenisTugasBox = (JComboBox<JenisTugasDto>) (JComboBox<?>) comboJenisTugas;
+        dateField.setText(LocalDate.now().toString());
         employeeList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         employeeList.setVisibleRowCount(4);
-        addField(form, c, 0, "Employee penerima* (pilih satu atau beberapa)", new JScrollPane(employeeList));
-        addField(form, c, 1, "Jenis tugas*", jenisTugasBox);
-        addField(form, c, 2, "Nama pelanggan*", customerNameField);
-        addField(form, c, 3, "Judul tugas*", titleField);
-        addField(form, c, 4, "Lokasi*", locationField);
-        addField(form, c, 5, "Tanggal (YYYY-MM-DD)*", dateField);
-        addField(form, c, 6, "Link Google Maps", mapsField);
         descriptionField.setLineWrap(true);
         descriptionField.setWrapStyleWord(true);
-        addField(form, c, 7, "Deskripsi", new JScrollPane(descriptionField));
         jButton1.setText(editingTask == null ? "Buat tugas" : "Simpan perubahan");
-        c.gridx = 1; c.gridy = 8; c.weightx = 1;
-        form.add(jButton1, c);
-        setContentPane(form);
-        setSize(650, 520);
-        jButton1.addActionListener(evt -> submitTask());
+        setLocationRelativeTo(null);
         employeeList.setCellRenderer((list, user, index, selected, focus) ->
                 new javax.swing.JLabel(user == null ? "Memuat employee..."
                         : user.namaLengkap() + " (" + user.username() + ")"
@@ -111,14 +96,6 @@ public class PengajuanTugas extends javax.swing.JFrame {
         dateField.setText(task.tanggal() == null ? "" : task.tanggal());
         mapsField.setText(task.linkGmaps() == null ? "" : task.linkGmaps());
         descriptionField.setText(task.deskripsi() == null ? "" : task.deskripsi());
-    }
-
-    private void addField(JPanel panel, java.awt.GridBagConstraints c, int row, String label,
-            java.awt.Component component) {
-        c.gridx = 0; c.gridy = row; c.weightx = 0;
-        panel.add(new JLabel(label), c);
-        c.gridx = 1; c.weightx = 1;
-        panel.add(component, c);
     }
 
     private void loadEmployees() {
@@ -260,198 +237,93 @@ public class PengajuanTugas extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        pnhkembali = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
-        jTextField6 = new javax.swing.JTextField();
+        lblTitle = new javax.swing.JLabel();
+        lblEmployees = new javax.swing.JLabel();
+        scrollEmployees = new javax.swing.JScrollPane();
+        listEmployees = new javax.swing.JList<>();
+        lblJenisTugas = new javax.swing.JLabel();
+        comboJenisTugas = new javax.swing.JComboBox<>();
+        lblCustomer = new javax.swing.JLabel();
+        txtCustomer = new javax.swing.JTextField();
+        lblTaskTitle = new javax.swing.JLabel();
+        txtTitle = new javax.swing.JTextField();
+        lblLocation = new javax.swing.JLabel();
+        txtLocation = new javax.swing.JTextField();
+        lblDate = new javax.swing.JLabel();
+        txtDate = new javax.swing.JTextField();
+        lblMaps = new javax.swing.JLabel();
+        txtMaps = new javax.swing.JTextField();
+        lblDescription = new javax.swing.JLabel();
+        scrollDescription = new javax.swing.JScrollPane();
+        txtDescription = new javax.swing.JTextArea();
         jButton1 = new javax.swing.JButton();
-        jLabel9 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Pengajuan Tugas");
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel1.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(244, 247, 251));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        pnhkembali.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Gambar/pnhkembali.png"))); // NOI18N
-        pnhkembali.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                pnhkembaliMouseClicked(evt);
-            }
-        });
+        lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        lblTitle.setForeground(new java.awt.Color(31, 41, 55));
+        lblTitle.setText("Pengajuan Tugas");
+        jPanel1.add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 20, 500, 36));
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel2.setText("Pengajuan Tugas");
+        lblEmployees.setText("Karyawan penerima* (bisa pilih beberapa)");
+        jPanel1.add(lblEmployees, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 72, 330, 24));
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel3.setText("Nama Client*");
+        scrollEmployees.setViewportView(listEmployees);
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel4.setText("Alamat Lokasi*");
+        jPanel1.add(scrollEmployees, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 100, 330, 500));
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel5.setText("Judul Tugas*");
+        lblJenisTugas.setText("Jenis tugas*");
+        jPanel1.add(lblJenisTugas, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 72, 400, 24));
+        jPanel1.add(comboJenisTugas, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 100, 400, 36));
 
-        jLabel6.setText("Tanggal Tugas*");
+        lblCustomer.setText("Nama pelanggan*");
+        jPanel1.add(lblCustomer, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 150, 400, 24));
+        jPanel1.add(txtCustomer, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 178, 400, 36));
 
-        jLabel7.setText("Link Gmeet*");
+        lblTaskTitle.setText("Judul tugas*");
+        jPanel1.add(lblTaskTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 228, 400, 24));
+        jPanel1.add(txtTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 256, 400, 36));
 
-        jLabel8.setText("Deskripsi / Keterangan*");
+        lblLocation.setText("Lokasi tugas*");
+        jPanel1.add(lblLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 306, 190, 24));
+        jPanel1.add(txtLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 334, 190, 36));
 
-        jTextField5.setText("jTextField5");
+        lblDate.setText("Tanggal (YYYY-MM-DD)*");
+        jPanel1.add(lblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 306, 190, 24));
+        jPanel1.add(txtDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 334, 190, 36));
 
-        jTextField6.setText("jTextField6");
+        lblMaps.setText("Link Google Maps");
+        jPanel1.add(lblMaps, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 384, 400, 24));
+        jPanel1.add(txtMaps, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 412, 400, 36));
 
-        jButton1.setBackground(new java.awt.Color(51, 153, 255));
+        lblDescription.setText("Deskripsi tugas");
+        jPanel1.add(lblDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 462, 400, 24));
+
+        txtDescription.setColumns(20);
+        txtDescription.setRows(4);
+        txtDescription.setLineWrap(true);
+        txtDescription.setWrapStyleWord(true);
+        scrollDescription.setViewportView(txtDescription);
+
+        jPanel1.add(scrollDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 490, 400, 110));
+
+        jButton1.setBackground(new java.awt.Color(37, 99, 235));
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Kirim");
+        jButton1.setText("Buat tugas");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 620, 190, 36));
 
-        jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel9.setText("tanggal Tugas");
-
-        jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel10.setText("Link Gmeet");
-
-        jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel11.setText("Deskripsi / Keterangan");
-
-        jTextField7.addActionListener(this::jTextField7ActionPerformed);
-
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(62, 62, 62))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(55, 55, 55)
-                .addComponent(pnhkembali)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jLabel5)
-                        .addComponent(jLabel4)
-                        .addComponent(jLabel3)
-                        .addComponent(jLabel2)
-                        .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
-                        .addComponent(jTextField2)))
-                .addGap(128, 128, 128)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel10)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel9)
-                            .addComponent(jLabel11)
-                            .addComponent(jTextField4)
-                            .addComponent(jTextField7)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE))
-                        .addGap(2610, 2610, 2610)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jTextField6, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
-                                .addComponent(jLabel6)
-                                .addComponent(jLabel7)
-                                .addComponent(jTextField5))
-                            .addComponent(jLabel8))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(32, 32, 32)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(pnhkembali))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(78, 78, 78)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel6))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(33, 33, 33)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel10))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(28, 28, 28)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel8)
-                                    .addComponent(jLabel11)))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(18, 69, Short.MAX_VALUE)
-                        .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(148, 148, 148)))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49))
-        );
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 946, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 19344, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 12, Short.MAX_VALUE))
-        );
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 830, 680));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void pnhkembaliMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pnhkembaliMouseClicked
-
-      
-            // TODO add your handling code here:
-    }//GEN-LAST:event_pnhkembaliMouseClicked
-
-    private void jTextField7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField7ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField7ActionPerformed
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) { submitTask(); }
 
     /**
      * @param args the command line arguments
@@ -479,27 +351,26 @@ public class PengajuanTugas extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<com.mycompany.admin.desktop.dto.JenisTugasDto> comboJenisTugas;
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
-    private javax.swing.JLabel pnhkembali;
+    private javax.swing.JLabel lblCustomer;
+    private javax.swing.JLabel lblDate;
+    private javax.swing.JLabel lblDescription;
+    private javax.swing.JLabel lblEmployees;
+    private javax.swing.JLabel lblJenisTugas;
+    private javax.swing.JLabel lblLocation;
+    private javax.swing.JLabel lblMaps;
+    private javax.swing.JLabel lblTaskTitle;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JList<com.mycompany.admin.desktop.dto.UserDto> listEmployees;
+    private javax.swing.JScrollPane scrollDescription;
+    private javax.swing.JScrollPane scrollEmployees;
+    private javax.swing.JTextField txtCustomer;
+    private javax.swing.JTextField txtDate;
+    private javax.swing.JTextArea txtDescription;
+    private javax.swing.JTextField txtLocation;
+    private javax.swing.JTextField txtMaps;
+    private javax.swing.JTextField txtTitle;
     // End of variables declaration//GEN-END:variables
 }
