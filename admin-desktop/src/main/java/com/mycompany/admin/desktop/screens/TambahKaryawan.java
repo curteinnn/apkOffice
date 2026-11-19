@@ -322,7 +322,7 @@ public class TambahKaryawan extends javax.swing.JFrame {
         setTitle("Master Karyawan");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        rootPanel.setBackground(new java.awt.Color(244, 247, 251));
+        rootPanel.setBackground(new java.awt.Color(51, 255, 255));
         rootPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N

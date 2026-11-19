@@ -184,13 +184,16 @@ public class Dashboard extends javax.swing.JFrame {
         lblMasterGroup.setText("MASTER DATA");
         sidePanel.add(lblMasterGroup, new org.netbeans.lib.awtextra.AbsoluteConstraints(18, 124, 190, 18));
 
+        btnEmployees.setBackground(new java.awt.Color(51, 153, 255));
         btnEmployees.setText("Karyawan");
         sidePanel.add(btnEmployees, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 145, 198, 34));
 
+        btnJabatan.setBackground(new java.awt.Color(102, 153, 255));
         btnJabatan.setText("Jabatan");
         sidePanel.add(btnJabatan, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 181, 198, 34));
 
         btnJenisTugas.setText("Jenis Tugas");
+        btnJenisTugas.addActionListener(this::btnJenisTugasActionPerformed);
         sidePanel.add(btnJenisTugas, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 217, 198, 34));
 
         lblTransactionGroup.setText("TRANSAKSI");
@@ -229,6 +232,7 @@ public class Dashboard extends javax.swing.JFrame {
 
         rootPanel.add(sidePanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 225, 720));
 
+        mainPanel.setBackground(new java.awt.Color(51, 153, 255));
         mainPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblPageTitle.setFont(new java.awt.Font("Segoe UI", 1, 26)); // NOI18N
@@ -301,6 +305,10 @@ public class Dashboard extends javax.swing.JFrame {
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void btnJenisTugasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJenisTugasActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnJenisTugasActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAttendance;
