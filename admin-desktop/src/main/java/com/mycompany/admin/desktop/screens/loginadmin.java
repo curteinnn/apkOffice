@@ -17,12 +17,54 @@ import java.io.IOException;
 public class loginadmin extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(loginadmin.class.getName());
+    private java.awt.Image logoSourceImage;
 
     /**
      * Creates new form loginadmin
      */
     public loginadmin() {
         initComponents();
+        scaleLogoIcon();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
+        applyFormPresentation();
+    }
+
+    private void scaleLogoIcon() {
+        java.net.URL logoResource = getClass().getResource("/Gambar/logomyin.png");
+        if (logoResource == null) return;
+
+        javax.swing.ImageIcon sourceIcon = new javax.swing.ImageIcon(logoResource);
+        logoSourceImage = sourceIcon.getImage();
+        logoMyin.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override public void componentResized(java.awt.event.ComponentEvent event) {
+                updateLogoIconSize();
+            }
+        });
+        updateLogoIconSize();
+    }
+
+    private void updateLogoIconSize() {
+        if (logoSourceImage == null) return;
+        int sourceWidth = logoSourceImage.getWidth(this);
+        int sourceHeight = logoSourceImage.getHeight(this);
+        int maxWidth = Math.min(360, logoMyin.getWidth() - 32);
+        int maxHeight = Math.min(360, logoMyin.getHeight() - 32);
+        if (sourceWidth <= 0 || sourceHeight <= 0 || maxWidth <= 0 || maxHeight <= 0) return;
+
+        double scale = Math.min(maxWidth / (double) sourceWidth, maxHeight / (double) sourceHeight);
+        int width = Math.max(1, (int) Math.round(sourceWidth * scale));
+        int height = Math.max(1, (int) Math.round(sourceHeight * scale));
+        logoMyin.setIcon(new javax.swing.ImageIcon(
+                logoSourceImage.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH)));
+    }
+
+    private void applyFormPresentation() {
+        setTitle("Masuk | MyIn Admin");
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getRootPane().setDefaultButton(blogin);
+        setMinimumSize(new java.awt.Dimension(760, 480));
+        setLocationRelativeTo(null);
+        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
     }
 
     /**
@@ -35,60 +77,65 @@ public class loginadmin extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        brandPanel = new javax.swing.JPanel();
+        logoMyin = new javax.swing.JLabel();
         blogin = new javax.swing.JButton();
         tpass = new javax.swing.JPasswordField();
         pass = new javax.swing.JLabel();
         tuser = new javax.swing.JTextField();
         user = new javax.swing.JLabel();
-        desk = new javax.swing.JLabel();
         loginadmin = new javax.swing.JLabel();
-        bg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Masuk | MyIn Admin");
 
-        jPanel1.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setPreferredSize(new java.awt.Dimension(1440, 900));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        brandPanel.setBackground(new java.awt.Color(18, 52, 106));
+        brandPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        logoMyin.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        logoMyin.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Gambar/logomyin.png"))); // NOI18N
+        brandPanel.add(logoMyin, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 230, 440, 440));
+
+        jPanel1.add(brandPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 0, 720, 900));
 
         blogin.setBackground(new java.awt.Color(51, 102, 255));
         blogin.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         blogin.setForeground(new java.awt.Color(255, 255, 255));
-        blogin.setText("Login");
+        blogin.setText("Masuk");
         blogin.addActionListener(this::bloginActionPerformed);
-        jPanel1.add(blogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 580, 90, 30));
-        jPanel1.add(tpass, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 440, 350, 30));
+        jPanel1.add(blogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 540, 440, 54));
+
+        tpass.addActionListener(this::tpassActionPerformed);
+        jPanel1.add(tpass, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 460, 440, 44));
 
         pass.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         pass.setText("Password");
-        jPanel1.add(pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 410, -1, -1));
-        jPanel1.add(tuser, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 360, 350, 30));
+        jPanel1.add(pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 430, 440, 24));
+
+        tuser.addActionListener(this::tuserActionPerformed);
+        jPanel1.add(tuser, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 370, 440, 44));
 
         user.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        user.setText("username / ID");
-        jPanel1.add(user, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 330, -1, -1));
+        user.setText("Username");
+        jPanel1.add(user, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 340, 440, 24));
 
-        desk.setText("Masuk untuk mengakases");
-        jPanel1.add(desk, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 250, -1, 20));
-
-        loginadmin.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        loginadmin.setText("Login Admin");
-        jPanel1.add(loginadmin, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 220, -1, -1));
-        jPanel1.add(bg, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 912));
+        loginadmin.setFont(new java.awt.Font("Segoe UI", 1, 28)); // NOI18N
+        loginadmin.setText("                      Login");
+        jPanel1.add(loginadmin, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 240, 440, 44));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 690, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1440, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(46, 46, 46))
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 900, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -155,6 +202,14 @@ public class loginadmin extends javax.swing.JFrame {
         }.execute();
     }//GEN-LAST:event_bloginActionPerformed
 
+    private void tpassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tpassActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tpassActionPerformed
+
+    private void tuserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tuserActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tuserActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -181,11 +236,11 @@ public class loginadmin extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel bg;
     private javax.swing.JButton blogin;
-    private javax.swing.JLabel desk;
+    private javax.swing.JPanel brandPanel;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel loginadmin;
+    private javax.swing.JLabel logoMyin;
     private javax.swing.JLabel pass;
     private javax.swing.JPasswordField tpass;
     private javax.swing.JTextField tuser;

@@ -18,7 +18,7 @@ import javax.swing.table.DefaultTableModel;
  * @author nafan
  */
 public class RekapAbsensi extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(RekapAbsensi.class.getName());
     private List<AttendanceDto> allRows = List.of();
 
@@ -27,6 +27,8 @@ public class RekapAbsensi extends javax.swing.JFrame {
      */
     public RekapAbsensi() {
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         jLabel8.setText("Total data");
         jLabel7.setText("Hadir (PRESENT)");
         jLabel9.setText("Belum check-out");
@@ -40,6 +42,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
         btnApplyFilter.addActionListener(evt -> applyDateFilter());
         txtStartDate.addActionListener(evt -> applyDateFilter());
         txtEndDate.addActionListener(evt -> applyDateFilter());
+
         loadSummary();
     }
 
@@ -131,6 +134,11 @@ public class RekapAbsensi extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        lblStartDate = new javax.swing.JLabel();
+        txtStartDate = new javax.swing.JTextField();
+        lblEndDate = new javax.swing.JLabel();
+        txtEndDate = new javax.swing.JTextField();
+        btnApplyFilter = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jPanel5 = new javax.swing.JPanel();
@@ -152,14 +160,20 @@ public class RekapAbsensi extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
-        lblStartDate = new javax.swing.JLabel();
-        txtStartDate = new javax.swing.JTextField();
-        lblEndDate = new javax.swing.JLabel();
-        txtEndDate = new javax.swing.JTextField();
-        btnApplyFilter = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblStartDate.setText("Dari tanggal");
+        getContentPane().add(lblStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 236, -1, 25));
+        getContentPane().add(txtStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(112, 234, 150, 32));
+
+        lblEndDate.setText("Sampai");
+        getContentPane().add(lblEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(282, 236, -1, 25));
+        getContentPane().add(txtEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(342, 234, 150, 32));
+
+        btnApplyFilter.setText("Terapkan");
+        getContentPane().add(btnApplyFilter, new org.netbeans.lib.awtextra.AbsoluteConstraints(512, 234, 120, 32));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -174,24 +188,15 @@ public class RekapAbsensi extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        lblStartDate.setText("Dari tanggal");
-        getContentPane().add(lblStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 290, -1, 25));
-        getContentPane().add(txtStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 288, 120, 28));
-        lblEndDate.setText("Sampai");
-        getContentPane().add(lblEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 290, -1, 25));
-        getContentPane().add(txtEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 288, 130, 28));
-        btnApplyFilter.setText("Terapkan");
-        getContentPane().add(btnApplyFilter, new org.netbeans.lib.awtextra.AbsoluteConstraints(475, 288, 100, 28));
-
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 325, 780, 175));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 282, 1016, 368));
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(255, 0, 0));
-        jLabel8.setText("Sakit");
+        jLabel8.setForeground(new java.awt.Color(71, 85, 105));
+        jLabel8.setText("Total data");
 
-        jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
         jLabel13.setText("0");
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
@@ -215,15 +220,15 @@ public class RekapAbsensi extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 210, 230, 70));
+        getContentPane().add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 112, 245, 84));
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(255, 153, 0));
-        jLabel7.setText("Terlambat");
+        jLabel7.setForeground(new java.awt.Color(22, 163, 74));
+        jLabel7.setText("Hadir (PRESENT)");
 
-        jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
         jLabel11.setText("3");
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -247,15 +252,15 @@ public class RekapAbsensi extends javax.swing.JFrame {
                 .addContainerGap(13, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 120, 230, 70));
+        getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(289, 112, 245, 84));
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(51, 153, 255));
-        jLabel9.setText("Izin");
+        jLabel9.setForeground(new java.awt.Color(217, 119, 6));
+        jLabel9.setText("Belum check-out");
 
-        jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
         jLabel12.setText("1");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -279,16 +284,16 @@ public class RekapAbsensi extends javax.swing.JFrame {
                 .addContainerGap(7, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 240, 70));
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(546, 112, 245, 84));
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(51, 204, 0));
-        jLabel6.setText("Hadir");
+        jLabel6.setForeground(new java.awt.Color(51, 65, 85));
+        jLabel6.setText("Tanggal terbaru");
 
-        jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel10.setText("9");
+        jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+        jLabel10.setText("yyyy-MM-dd");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -313,37 +318,38 @@ public class RekapAbsensi extends javax.swing.JFrame {
                 .addContainerGap(13, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 120, 240, 70));
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(803, 112, 245, 84));
 
         jLabel5.setText("Periode");
-        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 40, -1, -1));
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 38, -1, -1));
 
         jLabel4.setText("Ringkasan kehadiran karyawan");
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 60, -1, -1));
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 62, -1, -1));
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel3.setText("Rekap Absensi");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 20, -1, -1));
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, -1, -1));
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 20, 420, 36));
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(951, 0, -1, -1));
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 910, -1));
 
-        jPanel6.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel6.setBackground(new java.awt.Color(244, 247, 251));
+        jPanel6.setPreferredSize(new java.awt.Dimension(1080, 690));
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1000, Short.MAX_VALUE)
+            .addGap(0, 1080, Short.MAX_VALUE)
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 550, Short.MAX_VALUE)
+            .addGap(0, 690, Short.MAX_VALUE)
         );
 
-        getContentPane().add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 550));
+        getContentPane().add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1080, 690));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -355,7 +361,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -374,6 +380,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnApplyFilter;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -387,9 +394,6 @@ public class RekapAbsensi extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JButton btnApplyFilter;
-    private javax.swing.JLabel lblEndDate;
-    private javax.swing.JLabel lblStartDate;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -398,6 +402,8 @@ public class RekapAbsensi extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JLabel lblEndDate;
+    private javax.swing.JLabel lblStartDate;
     private javax.swing.JTextField txtEndDate;
     private javax.swing.JTextField txtStartDate;
     // End of variables declaration//GEN-END:variables

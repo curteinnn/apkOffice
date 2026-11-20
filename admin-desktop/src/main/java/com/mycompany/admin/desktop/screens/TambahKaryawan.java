@@ -11,16 +11,12 @@ import com.mycompany.admin.desktop.dto.UpdateUserRequest;
 import com.mycompany.admin.desktop.dto.UserDto;
 import com.mycompany.admin.desktop.service.JabatanApiService;
 import com.mycompany.admin.desktop.service.UserApiService;
-import java.awt.FlowLayout;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
@@ -33,19 +29,19 @@ import javax.swing.table.DefaultTableModel;
 public class TambahKaryawan extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TambahKaryawan.class.getName());
-    private final JTextField usernameField = new JTextField();
-    private final JTextField nameField = new JTextField();
-    private final JTextField emailField = new JTextField();
-    private final JComboBox<JabatanDto> positionField = new JComboBox<>();
-    private final JPasswordField passwordField = new JPasswordField();
-    private final JButton saveButton = new JButton("Simpan karyawan");
-    private final JButton editButton = new JButton("Ubah terpilih");
-    private final JButton deleteButton = new JButton("Hapus terpilih");
+    private JTextField usernameField;
+    private JTextField nameField;
+    private JTextField emailField;
+    private JComboBox<JabatanDto> positionField;
+    private javax.swing.JPasswordField passwordField;
+    private JButton saveButton;
+    private JButton editButton;
+    private JButton deleteButton;
     private final DefaultTableModel employeeModel = new DefaultTableModel(
             new String[]{"ID", "Username", "Nama", "Email", "Jabatan", "Status"}, 0) {
         @Override public boolean isCellEditable(int row, int column) { return false; }
     };
-    private final JTable employeeTable = new JTable(employeeModel);
+    private JTable employeeTable;
     private List<UserDto> loadedEmployees = List.of();
     private List<JabatanDto> activeJabatans = List.of();
 
@@ -54,37 +50,27 @@ public class TambahKaryawan extends javax.swing.JFrame {
      */
     public TambahKaryawan() {
         initComponents();
-        buildConnectedUi();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
+        configureFormActions();
         loadEmployees();
         loadJabatanOptions();
     }
 
-    private void buildConnectedUi() {
+    private void configureFormActions() {
         setTitle("Master Karyawan");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        JPanel root = new JPanel(new java.awt.BorderLayout(12, 12));
-        JPanel form = new JPanel(new java.awt.GridLayout(0, 2, 8, 8));
-        form.setBorder(javax.swing.BorderFactory.createTitledBorder("Tambah karyawan"));
-        form.add(new JLabel("Username*")); form.add(usernameField);
-        form.add(new JLabel("Password awal*")); form.add(passwordField);
-        form.add(new JLabel("Nama lengkap*")); form.add(nameField);
-        form.add(new JLabel("Email*")); form.add(emailField);
-        form.add(new JLabel("Jabatan*")); form.add(positionField);
-        form.add(new JLabel("Role")); form.add(new JLabel("EMPLOYEE (tetap)"));
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        actions.add(saveButton);
-        actions.add(editButton);
-        actions.add(deleteButton);
-        form.add(new JLabel()); form.add(actions);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+        positionField = (JComboBox<JabatanDto>) (JComboBox<?>) positionCombo;
+        usernameField = txtUsername;
+        passwordField = txtPassword;
+        nameField = txtName;
+        emailField = txtEmail;
+        saveButton = btnSave;
+        editButton = btnEdit;
+        deleteButton = btnDelete;
+        employeeTable = tblEmployees;
+        employeeTable.setModel(employeeModel);
         employeeTable.setAutoCreateRowSorter(true);
-        root.setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 12, 12, 12));
-        root.add(form, java.awt.BorderLayout.NORTH);
-        root.add(new JScrollPane(employeeTable), java.awt.BorderLayout.CENTER);
-        setContentPane(root);
-        setSize(850, 580);
-        saveButton.addActionListener(evt -> createEmployee());
-        editButton.addActionListener(evt -> editSelectedEmployee());
-        deleteButton.addActionListener(evt -> deleteSelectedEmployee());
     }
 
     private void loadJabatanOptions() {
@@ -314,108 +300,88 @@ public class TambahKaryawan extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jButton1 = new javax.swing.JButton();
+        rootPanel = new javax.swing.JPanel();
+        lblTitle = new javax.swing.JLabel();
+        lblUsername = new javax.swing.JLabel();
+        txtUsername = new javax.swing.JTextField();
+        lblPassword = new javax.swing.JLabel();
+        txtPassword = new javax.swing.JPasswordField();
+        lblName = new javax.swing.JLabel();
+        txtName = new javax.swing.JTextField();
+        lblEmail = new javax.swing.JLabel();
+        txtEmail = new javax.swing.JTextField();
+        lblJabatan = new javax.swing.JLabel();
+        positionCombo = new javax.swing.JComboBox<>();
+        lblRole = new javax.swing.JLabel();
+        btnSave = new javax.swing.JButton();
+        btnEdit = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
+        scrollEmployees = new javax.swing.JScrollPane();
+        tblEmployees = new javax.swing.JTable();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Master Karyawan");
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel1.setBackground(new java.awt.Color(204, 255, 255));
+        rootPanel.setBackground(new java.awt.Color(51, 255, 255));
+        rootPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel1.setText("Tambah Karyawan");
+        lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        lblTitle.setForeground(new java.awt.Color(31, 41, 55));
+        lblTitle.setText("Master Karyawan");
+        rootPanel.add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 22, 420, 36));
 
-        jLabel2.setText("Nama Lengkap*");
+        lblUsername.setText("Username*");
+        rootPanel.add(lblUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 76, 220, 22));
+        rootPanel.add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 100, 220, 36));
 
-        jLabel3.setText("Email*");
+        lblPassword.setText("Password awal*");
+        rootPanel.add(lblPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(274, 76, 220, 22));
+        rootPanel.add(txtPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(274, 100, 220, 36));
 
-        jLabel4.setText("No HP*");
+        lblName.setText("Nama lengkap*");
+        rootPanel.add(lblName, new org.netbeans.lib.awtextra.AbsoluteConstraints(516, 76, 220, 22));
+        rootPanel.add(txtName, new org.netbeans.lib.awtextra.AbsoluteConstraints(516, 100, 220, 36));
 
-        jLabel5.setText("Jabatan*");
+        lblEmail.setText("Email*");
+        rootPanel.add(lblEmail, new org.netbeans.lib.awtextra.AbsoluteConstraints(758, 76, 250, 22));
+        rootPanel.add(txtEmail, new org.netbeans.lib.awtextra.AbsoluteConstraints(758, 100, 250, 36));
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        lblJabatan.setText("Jabatan*");
+        rootPanel.add(lblJabatan, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 154, 220, 22));
+        rootPanel.add(positionCombo, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 178, 300, 36));
 
-        jButton1.setBackground(new java.awt.Color(0, 153, 255));
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Simpan");
+        lblRole.setForeground(new java.awt.Color(107, 120, 139));
+        lblRole.setText("Role akun: EMPLOYEE");
+        rootPanel.add(lblRole, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 178, 240, 36));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(95, 95, 95)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel5)
-                            .addComponent(jTextField3)
-                            .addComponent(jTextField2)
-                            .addComponent(jComboBox1, 0, 405, Short.MAX_VALUE)
-                            .addComponent(jTextField1)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(361, 361, 361)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(350, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(34, 34, 34)
-                .addComponent(jLabel1)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel4)
-                .addGap(12, 12, 12)
-                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
-                .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(74, 74, 74)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(93, Short.MAX_VALUE))
-        );
+        btnSave.setBackground(new java.awt.Color(37, 99, 235));
+        btnSave.setForeground(new java.awt.Color(255, 255, 255));
+        btnSave.setText("Tambah Karyawan");
+        btnSave.addActionListener(this::btnSaveActionPerformed);
+        rootPanel.add(btnSave, new org.netbeans.lib.awtextra.AbsoluteConstraints(768, 178, 240, 36));
 
-        jComboBox1.getAccessibleContext().setAccessibleName("351");
-        jComboBox1.getAccessibleContext().setAccessibleDescription("31");
+        btnEdit.setText("Ubah Terpilih");
+        btnEdit.addActionListener(this::btnEditActionPerformed);
+        rootPanel.add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 244, 140, 34));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 24, Short.MAX_VALUE))
-        );
+        btnDelete.setText("Hapus Terpilih");
+        btnDelete.addActionListener(this::btnDeleteActionPerformed);
+        rootPanel.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(184, 244, 140, 34));
+
+        tblEmployees.setRowHeight(30);
+        scrollEmployees.setViewportView(tblEmployees);
+
+        rootPanel.add(scrollEmployees, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 294, 1016, 360));
+
+        getContentPane().add(rootPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1080, 690));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) { createEmployee(); }
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) { editSelectedEmployee(); }
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) { deleteSelectedEmployee(); }
 
     /**
      * @param args the command line arguments
@@ -443,16 +409,23 @@ public class TambahKaryawan extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
+    private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnEdit;
+    private javax.swing.JButton btnSave;
+    private javax.swing.JLabel lblEmail;
+    private javax.swing.JLabel lblJabatan;
+    private javax.swing.JLabel lblName;
+    private javax.swing.JLabel lblPassword;
+    private javax.swing.JLabel lblRole;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JLabel lblUsername;
+    private javax.swing.JComboBox<com.mycompany.admin.desktop.dto.JabatanDto> positionCombo;
+    private javax.swing.JPanel rootPanel;
+    private javax.swing.JScrollPane scrollEmployees;
+    private javax.swing.JTable tblEmployees;
+    private javax.swing.JTextField txtEmail;
+    private javax.swing.JTextField txtName;
+    private javax.swing.JPasswordField txtPassword;
+    private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 }

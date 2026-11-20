@@ -21,9 +21,11 @@ public class MasterJenisTugas extends javax.swing.JFrame {
 
     public MasterJenisTugas() {
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
         tableJenisTugas.setModel(model);
         tableJenisTugas.setAutoCreateRowSorter(true);
         setLocationRelativeTo(null);
+
         loadRows();
     }
 
@@ -152,6 +154,7 @@ public class MasterJenisTugas extends javax.swing.JFrame {
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        rootPanel = new javax.swing.JPanel();
         lblTitle = new javax.swing.JLabel();
         scrollPane = new javax.swing.JScrollPane();
         tableJenisTugas = new javax.swing.JTable();
@@ -162,24 +165,29 @@ public class MasterJenisTugas extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Master Jenis Tugas");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 22));
+        rootPanel.setBackground(new java.awt.Color(51, 255, 255));
+        rootPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 24));
+        lblTitle.setForeground(new java.awt.Color(31, 41, 55));
         lblTitle.setText("Master Jenis Tugas");
-        getContentPane().add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(24, 18, -1, 32));
+        rootPanel.add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 22, 420, 36));
         scrollPane.setViewportView(tableJenisTugas);
-        getContentPane().add(scrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(24, 64, 690, 320));
+        tableJenisTugas.setRowHeight(30);
+        rootPanel.add(scrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 76, 1016, 520));
         btnAdd.setText("Tambah");
         btnAdd.addActionListener(this::btnAddActionPerformed);
-        getContentPane().add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(24, 400, 105, 32));
+        rootPanel.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 620, 130, 36));
         btnEdit.setText("Ubah Nama");
         btnEdit.addActionListener(this::btnEditActionPerformed);
-        getContentPane().add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 400, 115, 32));
+        rootPanel.add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(174, 620, 140, 36));
         btnDelete.setText("Hapus");
         btnDelete.addActionListener(this::btnDeleteActionPerformed);
-        getContentPane().add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(266, 400, 95, 32));
+        rootPanel.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(326, 620, 130, 36));
         btnRefresh.setText("Muat Ulang");
         btnRefresh.addActionListener(this::btnRefreshActionPerformed);
-        getContentPane().add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(372, 400, 110, 32));
-        setSize(new java.awt.Dimension(760, 500));
+        rootPanel.add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(468, 620, 140, 36));
+        getContentPane().add(rootPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1080, 690));
+        pack();
     }
     // </editor-fold>//GEN-END:initComponents
 
@@ -194,6 +202,7 @@ public class MasterJenisTugas extends javax.swing.JFrame {
     private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JLabel lblTitle;
+    private javax.swing.JPanel rootPanel;
     private javax.swing.JScrollPane scrollPane;
     private javax.swing.JTable tableJenisTugas;
     // End of variables declaration//GEN-END:variables

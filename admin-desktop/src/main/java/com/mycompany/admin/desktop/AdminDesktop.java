@@ -19,6 +19,7 @@ public class AdminDesktop {
             } catch (Exception ignored) {
                 // Use the platform default look and feel if Nimbus is unavailable.
             }
+            com.mycompany.admin.desktop.ui.ButtonStyler.installDefaults();
             new loginadmin().setVisible(true);
         });
     }

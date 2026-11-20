@@ -1,5 +1,6 @@
 package com.mycompany.admin.desktop.screens;
 
+
 import com.mycompany.admin.desktop.api.ApiContext;
 import com.mycompany.admin.desktop.dto.ChangePasswordRequest;
 import com.mycompany.admin.desktop.service.UserApiService;
@@ -12,6 +13,9 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
     public ChangePasswordDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        setResizable(false);
+        getContentPane().setBackground(new java.awt.Color(248, 250, 252));
+        setSize(460, 410);
         setLocationRelativeTo(parent);
         getRootPane().setDefaultButton(btnSave);
     }
@@ -80,6 +84,7 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         lblTitle = new javax.swing.JLabel();
         lblCurrentPassword = new javax.swing.JLabel();
         txtCurrentPassword = new javax.swing.JPasswordField();
@@ -92,34 +97,36 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Ubah Password");
+        setResizable(false);
+        getContentPane().setBackground(new java.awt.Color(248, 250, 252));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 20));
+        lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
         lblTitle.setText("Ubah Password");
-        getContentPane().add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 20, -1, -1));
+        getContentPane().add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 22, 396, 36));
 
         lblCurrentPassword.setText("Password saat ini");
-        getContentPane().add(lblCurrentPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 68, 145, 25));
-        getContentPane().add(txtCurrentPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 68, 230, 28));
+        getContentPane().add(lblCurrentPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 75, 396, 22));
+        getContentPane().add(txtCurrentPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 101, 396, 38));
 
         lblNewPassword.setText("Password baru");
-        getContentPane().add(lblNewPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 112, 145, 25));
-        getContentPane().add(txtNewPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 112, 230, 28));
+        getContentPane().add(lblNewPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 151, 396, 22));
+        getContentPane().add(txtNewPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 177, 396, 38));
 
         lblConfirmPassword.setText("Konfirmasi password");
-        getContentPane().add(lblConfirmPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 156, 145, 25));
-        getContentPane().add(txtConfirmPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 156, 230, 28));
+        getContentPane().add(lblConfirmPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 227, 396, 22));
+        getContentPane().add(txtConfirmPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 253, 396, 38));
 
         btnSave.setText("Simpan");
         btnSave.addActionListener(this::btnSaveActionPerformed);
-        getContentPane().add(btnSave, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 208, 85, 30));
+        getContentPane().add(btnSave, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 328, 132, 36));
+
         btnCancel.setText("Batal");
         btnCancel.addActionListener(this::btnCancelActionPerformed);
-        getContentPane().add(btnCancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(325, 208, 85, 30));
+        getContentPane().add(btnCancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(296, 328, 132, 36));
 
-        setSize(new java.awt.Dimension(450, 290));
-    }
-    // </editor-fold>//GEN-END:initComponents
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {
         changePassword();
@@ -129,6 +136,7 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
         dispose();
     }
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnSave;
     private javax.swing.JLabel lblConfirmPassword;
@@ -138,4 +146,5 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
     private javax.swing.JPasswordField txtConfirmPassword;
     private javax.swing.JPasswordField txtCurrentPassword;
     private javax.swing.JPasswordField txtNewPassword;
+    // End of variables declaration//GEN-END:variables
 }

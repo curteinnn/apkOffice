@@ -14,6 +14,7 @@ public class Absensi extends javax.swing.JFrame {
      */
     public Absensi() {
         initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
     }
 
     /**

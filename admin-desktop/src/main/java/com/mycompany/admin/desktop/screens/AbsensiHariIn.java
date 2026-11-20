@@ -22,7 +22,7 @@ import javax.swing.table.DefaultTableModel;
  * @author nafan
  */
 public class AbsensiHariIn extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AbsensiHariIn.class.getName());
 
     /**
@@ -30,12 +30,15 @@ public class AbsensiHariIn extends javax.swing.JFrame {
      */
 public AbsensiHariIn() {
     initComponents();
+        com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
     LocalDate tanggal = LocalDate.now(ZoneId.of("Asia/Jakarta"));
     lblTanggal.setText("Tanggal: " + tanggal.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
     tblabsensi.setModel(new DefaultTableModel(new Object[0][0],
             new String[]{"No", "Nama", "Jabatan", "Tanggal", "Status", "Check in", "Check out"}) {
         @Override public boolean isCellEditable(int row, int column) { return false; }
     });
+    setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
     loadAttendance(tanggal);
 }
 
@@ -88,17 +91,20 @@ private String clock(String value) {
         bg = new javax.swing.JLabel();
         lblTanggal = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel1.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(153, 255, 255));
+        jPanel1.setPreferredSize(new java.awt.Dimension(1080, 690));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         bexport.setBackground(new java.awt.Color(0, 153, 255));
         bexport.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         bexport.setForeground(new java.awt.Color(255, 255, 255));
         bexport.setText("Export");
-        jPanel1.add(bexport, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 33, 90, 30));
+        jPanel1.add(bexport, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 66, 148, 36));
 
+        tblabsensi.setRowHeight(30);
         tblabsensi.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
@@ -116,31 +122,18 @@ private String clock(String value) {
             tblabsensi.getColumnModel().getColumn(0).setMaxWidth(30);
         }
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 120, 680, 240));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 130, 1016, 520));
 
         AbsensiHariIni.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         AbsensiHariIni.setText("Absensi Hari Ini");
-        jPanel1.add(AbsensiHariIni, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, -1, -1));
-        jPanel1.add(pnhkembali, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, -1));
+        jPanel1.add(AbsensiHariIni, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 22, 500, 36));
+        jPanel1.add(pnhkembali, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
         jPanel1.add(bg, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         lblTanggal.setText("Tanggal");
-        jPanel1.add(lblTanggal, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 70, -1, -1));
+        jPanel1.add(lblTanggal, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 72, 500, 24));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 197, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1080, 690));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -152,7 +145,7 @@ private String clock(String value) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
