@@ -91,16 +91,17 @@ private String clock(String value) {
         bg = new javax.swing.JLabel();
         lblTanggal = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(244, 247, 251));
+        jPanel1.setPreferredSize(new java.awt.Dimension(1080, 690));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         bexport.setBackground(new java.awt.Color(0, 153, 255));
         bexport.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         bexport.setForeground(new java.awt.Color(255, 255, 255));
         bexport.setText("Export");
-        jPanel1.add(bexport, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 33, 90, 30));
+        jPanel1.add(bexport, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 66, 148, 36));
 
         tblabsensi.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -119,31 +120,20 @@ private String clock(String value) {
             tblabsensi.getColumnModel().getColumn(0).setMaxWidth(30);
         }
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 120, 680, 240));
+        tblabsensi.setRowHeight(30);
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 130, 1016, 520));
 
         AbsensiHariIni.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         AbsensiHariIni.setText("Absensi Hari Ini");
-        jPanel1.add(AbsensiHariIni, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, -1, -1));
-        jPanel1.add(pnhkembali, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, -1));
+        jPanel1.add(AbsensiHariIni, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 22, 500, 36));
+        jPanel1.add(pnhkembali, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
         jPanel1.add(bg, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         lblTanggal.setText("Tanggal");
-        jPanel1.add(lblTanggal, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 70, -1, -1));
+        jPanel1.add(lblTanggal, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 72, 500, 24));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 197, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1080, 690));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

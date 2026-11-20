@@ -45,6 +45,13 @@ export default function ListTugas() {
     }
   };
 
+  const getTeamMembers = (item) =>
+    Array.isArray(item.assignees)
+      ? item.assignees
+          .map((member) => member?.namaLengkap?.trim())
+          .filter(Boolean)
+      : [];
+
   const handleStatus = async (action) => {
     if (!selectedTugas || isCheckedOut) return;
 
@@ -133,7 +140,10 @@ export default function ListTugas() {
           </p>
         ) : (
           <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {tugas.map((item) => (
+            {tugas.map((item) => {
+              const teamMembers = getTeamMembers(item);
+
+              return (
               <button
                 key={item.id}
                 type="button"
@@ -159,13 +169,27 @@ export default function ListTugas() {
                     : "Belum dikategorikan"}
                 </span>
 
-                <p className="mt-2 text-sm font-medium text-blue-900">
-                  Pelanggan: {item.namaPelanggan || "Belum ditentukan"}
-                </p>
-
-                <p className="mt-2 line-clamp-2 text-sm text-blue-800">
-                  {item.deskripsi || "Tidak ada deskripsi."}
-                </p>
+                <div className="mt-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Team
+                  </p>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {teamMembers.length > 0 ? (
+                      teamMembers.map((name, index) => (
+                        <span
+                          key={`${item.id}-${name}-${index}`}
+                          className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-900"
+                        >
+                          {name}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-sm text-gray-500">
+                        Nama tim belum tersedia.
+                      </span>
+                    )}
+                  </div>
+                </div>
 
                 <div className="mt-auto flex items-center justify-end gap-2 pt-4 text-sm text-blue-950">
                   <span
@@ -179,7 +203,8 @@ export default function ListTugas() {
                   Lihat detail →
                 </span>
               </button>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>

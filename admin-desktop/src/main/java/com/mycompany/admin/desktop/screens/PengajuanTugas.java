@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JLabel;
@@ -83,16 +85,26 @@ public class PengajuanTugas extends javax.swing.JFrame {
         employeeList = (JList<UserDto>) (JList<?>) listEmployees;
         jenisTugasBox = (JComboBox<JenisTugasDto>) (JComboBox<?>) comboJenisTugas;
         dateField.setText(LocalDate.now().toString());
+        employeeList.setSelectionModel(new CheckboxSelectionModel());
         employeeList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         employeeList.setVisibleRowCount(4);
+        employeeList.setFixedCellHeight(36);
+        employeeList.setToolTipText("Klik baris untuk mencentang atau menghapus centang; pilih lebih dari dua karyawan.");
         descriptionField.setLineWrap(true);
         descriptionField.setWrapStyleWord(true);
         jButton1.setText(editingTask == null ? "Buat tugas" : "Simpan perubahan");
         setLocationRelativeTo(null);
-        employeeList.setCellRenderer((list, user, index, selected, focus) ->
-                new javax.swing.JLabel(user == null ? "Memuat employee..."
-                        : user.namaLengkap() + " (" + user.username() + ")"
-                                + ("ACTIVE".equals(user.status()) ? "" : " — nonaktif, dipertahankan")));
+        employeeList.setCellRenderer((list, user, index, selected, focus) -> {
+            JCheckBox checkbox = new JCheckBox(user == null ? "Memuat employee..."
+                    : user.namaLengkap() + " (" + user.username() + ")"
+                            + ("ACTIVE".equals(user.status()) ? "" : " — nonaktif, dipertahankan"));
+            checkbox.setSelected(selected);
+            checkbox.setOpaque(true);
+            checkbox.setBackground(selected ? new java.awt.Color(219, 234, 254) : list.getBackground());
+            checkbox.setForeground(new java.awt.Color(31, 41, 55));
+            checkbox.setBorder(javax.swing.BorderFactory.createEmptyBorder(4, 8, 4, 8));
+            return checkbox;
+        });
         jenisTugasBox.setRenderer((list, jenis, index, selected, focus) ->
                 new javax.swing.JLabel(jenis == null ? "Memuat jenis tugas..." : jenis.nama()));
     }
@@ -179,6 +191,22 @@ public class PengajuanTugas extends javax.swing.JFrame {
 
     private void updateSubmitEnabled() {
         jButton1.setEnabled(employeesLoaded && jenisTugasLoaded);
+    }
+
+    private static final class CheckboxSelectionModel extends DefaultListSelectionModel {
+        CheckboxSelectionModel() {
+            setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        }
+
+        @Override
+        public void setSelectionInterval(int index0, int index1) {
+            if (index0 < 0 || index1 < 0) return;
+            if (index0 == index1 && isSelectedIndex(index0)) {
+                super.removeSelectionInterval(index0, index1);
+            } else {
+                super.addSelectionInterval(index0, index1);
+            }
+        }
     }
 
     private void submitTask() {
@@ -272,46 +300,47 @@ public class PengajuanTugas extends javax.swing.JFrame {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(244, 247, 251));
+        jPanel1.setPreferredSize(new java.awt.Dimension(1080, 690));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         lblTitle.setForeground(new java.awt.Color(31, 41, 55));
         lblTitle.setText("Kelola Tugas");
-        jPanel1.add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 20, 500, 36));
+        jPanel1.add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 22, 500, 36));
 
-        lblEmployees.setText("Karyawan penerima* (bisa pilih beberapa)");
-        jPanel1.add(lblEmployees, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 72, 330, 24));
+        lblEmployees.setText("Karyawan penerima* (centang satu atau lebih)");
+        jPanel1.add(lblEmployees, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 76, 410, 24));
 
         scrollEmployees.setViewportView(listEmployees);
 
-        jPanel1.add(scrollEmployees, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 100, 330, 500));
+        jPanel1.add(scrollEmployees, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 104, 410, 500));
 
         lblJenisTugas.setText("Jenis tugas*");
-        jPanel1.add(lblJenisTugas, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 72, 400, 24));
-        jPanel1.add(comboJenisTugas, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 100, 400, 36));
+        jPanel1.add(lblJenisTugas, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 76, 574, 24));
+        jPanel1.add(comboJenisTugas, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 104, 574, 36));
 
         lblCustomer.setText("Nama pelanggan*");
-        jPanel1.add(lblCustomer, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 150, 400, 24));
-        jPanel1.add(txtCustomer, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 178, 400, 36));
+        jPanel1.add(lblCustomer, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 152, 574, 24));
+        jPanel1.add(txtCustomer, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 180, 574, 36));
 
         lblTaskTitle.setText("Judul tugas*");
-        jPanel1.add(lblTaskTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 228, 400, 24));
-        jPanel1.add(txtTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 256, 400, 36));
+        jPanel1.add(lblTaskTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 228, 574, 24));
+        jPanel1.add(txtTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 256, 574, 36));
 
         lblLocation.setText("Lokasi tugas*");
-        jPanel1.add(lblLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 306, 190, 24));
-        jPanel1.add(txtLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 334, 190, 36));
+        jPanel1.add(lblLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 304, 278, 24));
+        jPanel1.add(txtLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 332, 278, 36));
 
         lblDate.setText("Tanggal (YYYY-MM-DD)*");
-        jPanel1.add(lblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 306, 190, 24));
-        jPanel1.add(txtDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 334, 190, 36));
+        jPanel1.add(lblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 304, 278, 24));
+        jPanel1.add(txtDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 332, 278, 36));
 
         lblMaps.setText("Link Google Maps");
-        jPanel1.add(lblMaps, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 384, 400, 24));
-        jPanel1.add(txtMaps, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 412, 400, 36));
+        jPanel1.add(lblMaps, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 380, 574, 24));
+        jPanel1.add(txtMaps, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 408, 574, 36));
 
         lblDescription.setText("Deskripsi tugas");
-        jPanel1.add(lblDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 462, 400, 24));
+        jPanel1.add(lblDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 456, 574, 24));
 
         txtDescription.setColumns(20);
         txtDescription.setRows(4);
@@ -319,15 +348,15 @@ public class PengajuanTugas extends javax.swing.JFrame {
         txtDescription.setWrapStyleWord(true);
         scrollDescription.setViewportView(txtDescription);
 
-        jPanel1.add(scrollDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 490, 400, 110));
+        jPanel1.add(scrollDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(474, 484, 574, 116));
 
         jButton1.setBackground(new java.awt.Color(37, 99, 235));
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Buat tugas");
         jButton1.addActionListener(this::jButton1ActionPerformed);
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 620, 190, 36));
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(858, 620, 190, 36));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 830, 680));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1080, 690));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

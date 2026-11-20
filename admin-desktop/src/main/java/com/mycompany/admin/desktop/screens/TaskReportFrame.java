@@ -52,6 +52,8 @@ public class TaskReportFrame extends javax.swing.JFrame {
     public TaskReportFrame(ReportMode mode) {
         this.mode = mode;
         initComponents();
+        getContentPane().setPreferredSize(new java.awt.Dimension(1080, 690));
+        pack();
         com.mycompany.admin.desktop.ui.ResponsiveUi.install(this);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(mode == ReportMode.PRODUCTIVITY
@@ -60,16 +62,30 @@ public class TaskReportFrame extends javax.swing.JFrame {
         tableReport.setModel(tableModel);
         tableReport.setAutoCreateRowSorter(true);
         tableReport.setFillsViewportHeight(true);
-        tableReport.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tableReport.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         tableModel.setColumnIdentifiers(mode == ReportMode.PRODUCTIVITY
                 ? new String[]{"Karyawan", "Total Penugasan", "Pending", "In Progress", "Submitted", "Approved", "Rejected", "ID Tugas Selesai/Dikirim"}
                 : new String[]{"Karyawan", "Tugas Approved", "Nominal Tidak Tersedia", "Total Nominal Tugas", "ID Tugas Approved"});
         int[] columnWidths = mode == ReportMode.PRODUCTIVITY
-                ? new int[]{170, 120, 80, 100, 100, 90, 85, 520}
-                : new int[]{170, 120, 180, 190, 520};
+                ? new int[]{150, 110, 75, 100, 90, 85, 85, 321}
+                : new int[]{160, 120, 175, 180, 381};
         for (int i = 0; i < columnWidths.length; i++) {
             tableReport.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
         }
+        tableReport.setToolTipText("");
+        tableReport.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            @Override public void mouseMoved(java.awt.event.MouseEvent event) {
+                int row = tableReport.rowAtPoint(event.getPoint());
+                int column = tableReport.columnAtPoint(event.getPoint());
+                int idColumn = tableReport.getColumnCount() - 1;
+                if (row >= 0 && column == idColumn) {
+                    Object value = tableReport.getValueAt(row, column);
+                    tableReport.setToolTipText(value == null ? null : value.toString());
+                } else {
+                    tableReport.setToolTipText(null);
+                }
+            }
+        });
 
         setLocationRelativeTo(null);
         loadTasks();
@@ -249,29 +265,28 @@ public class TaskReportFrame extends javax.swing.JFrame {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 22));
         lblTitle.setText("Report Tugas");
-        getContentPane().add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(24, 16, -1, 32));
+        getContentPane().add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 22, 700, 36));
         lblStartDate.setText("Dari tanggal");
-        getContentPane().add(lblStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(24, 62, 82, 28));
+        getContentPane().add(lblStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 76, 82, 32));
         txtStartDate.setToolTipText("Kosongkan untuk tanpa batas awal; format yyyy-MM-dd");
-        getContentPane().add(txtStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(108, 62, 122, 28));
+        getContentPane().add(txtStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 76, 140, 32));
         lblEndDate.setText("Sampai");
-        getContentPane().add(lblEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(244, 62, 55, 28));
+        getContentPane().add(lblEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(272, 76, 55, 32));
         txtEndDate.setToolTipText("Kosongkan untuk tanpa batas akhir; format yyyy-MM-dd");
-        getContentPane().add(txtEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 62, 122, 28));
+        getContentPane().add(txtEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 76, 140, 32));
         lblEmployee.setText("Karyawan");
-        getContentPane().add(lblEmployee, new org.netbeans.lib.awtextra.AbsoluteConstraints(438, 62, 65, 28));
-        getContentPane().add(cmbEmployee, new org.netbeans.lib.awtextra.AbsoluteConstraints(506, 62, 190, 28));
+        getContentPane().add(lblEmployee, new org.netbeans.lib.awtextra.AbsoluteConstraints(486, 76, 65, 32));
+        getContentPane().add(cmbEmployee, new org.netbeans.lib.awtextra.AbsoluteConstraints(554, 76, 210, 32));
         btnApply.setText("Terapkan");
         btnApply.addActionListener(this::btnApplyActionPerformed);
-        getContentPane().add(btnApply, new org.netbeans.lib.awtextra.AbsoluteConstraints(708, 62, 90, 28));
+        getContentPane().add(btnApply, new org.netbeans.lib.awtextra.AbsoluteConstraints(778, 76, 110, 32));
         btnRefresh.setText("Muat Ulang");
         btnRefresh.addActionListener(this::btnRefreshActionPerformed);
-        getContentPane().add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(808, 62, 100, 28));
+        getContentPane().add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(898, 76, 150, 32));
         lblSummary.setText("Memuat data...");
-        getContentPane().add(lblSummary, new org.netbeans.lib.awtextra.AbsoluteConstraints(24, 105, 880, 28));
+        getContentPane().add(lblSummary, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 126, 1016, 28));
         scrollPane.setViewportView(tableReport);
-        getContentPane().add(scrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(24, 140, 884, 370));
-        setSize(new java.awt.Dimension(950, 570));
+        getContentPane().add(scrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 164, 1016, 486));
     }
     // </editor-fold>//GEN-END:initComponents
 

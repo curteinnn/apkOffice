@@ -165,15 +165,15 @@ public class RekapAbsensi extends javax.swing.JFrame {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblStartDate.setText("Dari tanggal");
-        getContentPane().add(lblStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 290, -1, 25));
-        getContentPane().add(txtStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 288, 120, 28));
+        getContentPane().add(lblStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 236, -1, 25));
+        getContentPane().add(txtStartDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(112, 234, 150, 32));
 
         lblEndDate.setText("Sampai");
-        getContentPane().add(lblEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 290, -1, 25));
-        getContentPane().add(txtEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 288, 130, 28));
+        getContentPane().add(lblEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(282, 236, -1, 25));
+        getContentPane().add(txtEndDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(342, 234, 150, 32));
 
         btnApplyFilter.setText("Terapkan");
-        getContentPane().add(btnApplyFilter, new org.netbeans.lib.awtextra.AbsoluteConstraints(475, 288, 100, 28));
+        getContentPane().add(btnApplyFilter, new org.netbeans.lib.awtextra.AbsoluteConstraints(512, 234, 120, 32));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -188,7 +188,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 325, 780, 175));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 282, 1016, 368));
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -220,7 +220,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 210, 230, 70));
+        getContentPane().add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(806, 120, 240, 70));
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -252,7 +252,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
                 .addContainerGap(13, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 120, 230, 70));
+        getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 120, 240, 70));
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -284,7 +284,7 @@ public class RekapAbsensi extends javax.swing.JFrame {
                 .addContainerGap(7, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 240, 70));
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(548, 120, 240, 70));
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -318,38 +318,38 @@ public class RekapAbsensi extends javax.swing.JFrame {
                 .addContainerGap(13, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 120, 240, 70));
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 120, 240, 70));
 
         jLabel5.setText("Periode");
-        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 40, -1, -1));
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 38, -1, -1));
 
         jLabel4.setText("Ringkasan kehadiran karyawan");
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 60, -1, -1));
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 62, -1, -1));
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel3.setText("Rekap Absensi");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 20, -1, -1));
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, -1, -1));
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 20, 420, 36));
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(951, 0, -1, -1));
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 910, -1));
 
         jPanel6.setBackground(new java.awt.Color(244, 247, 251));
-        jPanel6.setPreferredSize(new java.awt.Dimension(1024, 550));
+        jPanel6.setPreferredSize(new java.awt.Dimension(1080, 690));
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1000, Short.MAX_VALUE)
+            .addGap(0, 1080, Short.MAX_VALUE)
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 550, Short.MAX_VALUE)
+            .addGap(0, 690, Short.MAX_VALUE)
         );
 
-        getContentPane().add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 550));
+        getContentPane().add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1080, 690));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

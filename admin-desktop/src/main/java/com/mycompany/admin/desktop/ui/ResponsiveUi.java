@@ -29,6 +29,7 @@ public final class ResponsiveUi {
         else ((JDialog) window).setResizable(true);
         Container root = window instanceof JFrame frame
                 ? frame.getContentPane() : ((JDialog) window).getContentPane();
+        ButtonStyler.apply(root);
         Dimension designWindow = window.getSize();
         if (designWindow.width <= 0 || designWindow.height <= 0) {
             window.pack();
@@ -47,6 +48,7 @@ public final class ResponsiveUi {
 
     /** Installs the same proportional layout behavior on a panel embedded in a card. */
     public static void installPanel(JPanel panel) {
+        ButtonStyler.apply(panel);
         PanelLayout layout = PanelLayout.capture(panel);
         if (layout != null) observeResize(panel, panel, layout);
     }

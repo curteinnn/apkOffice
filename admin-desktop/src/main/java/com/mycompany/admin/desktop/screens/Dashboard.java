@@ -12,7 +12,6 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Rectangle;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -24,18 +23,22 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
 /** Dashboard view designed in Dashboard.form; this class supplies navigation and live API data. */
 public class Dashboard extends javax.swing.JFrame {
+    private static final java.util.logging.Logger LOGGER =
+            java.util.logging.Logger.getLogger(Dashboard.class.getName());
     private JPanel contentCards;
     private final Map<String, JPanel> pages = new HashMap<>();
-    private ListTugas managementTasks;
-    private JScrollPane taskManagementScroll;
+    private JPanel taskEditorHost;
+    private ListTugas taskReportList;
 
     public Dashboard() {
         initComponents();
+        com.mycompany.admin.desktop.ui.ButtonStyler.apply(this);
         setTitle("MyIn | Dashboard");
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         configureWorkspace();
@@ -88,6 +91,7 @@ public class Dashboard extends javax.swing.JFrame {
         rootPanel.add(sidebar, BorderLayout.WEST);
 
         contentCards = new JPanel(new CardLayout());
+        contentCards.setOpaque(false);
         contentCards.add(mainPanel, "dashboard");
         pages.put("dashboard", mainPanel);
         rootPanel.add(contentCards, BorderLayout.CENTER);
@@ -96,6 +100,8 @@ public class Dashboard extends javax.swing.JFrame {
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(rootPanel, BorderLayout.CENTER);
         setMinimumSize(new Dimension(900, 600));
+        mainPanel.setVisible(true);
+        ((CardLayout) contentCards.getLayout()).show(contentCards, "dashboard");
     }
 
     private void configureDashboardDataView() {
@@ -112,15 +118,25 @@ public class Dashboard extends javax.swing.JFrame {
     }
 
     private void showPage(String key, Supplier<JPanel> factory) {
-        JPanel page = pages.get(key);
-        if (page == null) {
-            page = factory.get();
-            pages.put(key, page);
-            contentCards.add(page, key);
+        try {
+            JPanel page = pages.get(key);
+            if (page == null) {
+                page = factory.get();
+                contentCards.add(page, key);
+                pages.put(key, page);
+            }
+            ((CardLayout) contentCards.getLayout()).show(contentCards, key);
+            contentCards.revalidate();
+            contentCards.repaint();
+        } catch (RuntimeException ex) {
+            LOGGER.log(java.util.logging.Level.SEVERE, "Gagal membuka menu: " + key, ex);
+            Throwable cause = ex.getCause() == null ? ex : ex.getCause();
+            String message = cause.getMessage();
+            JOptionPane.showMessageDialog(this,
+                    "Menu gagal dibuka. Periksa koneksi dan konfigurasi backend."
+                    + (message == null || message.isBlank() ? "" : "\nDetail: " + message),
+                    "Gagal Membuka Menu", JOptionPane.ERROR_MESSAGE);
         }
-        ((CardLayout) contentCards.getLayout()).show(contentCards, key);
-        contentCards.revalidate();
-        contentCards.repaint();
     }
 
     private JPanel takeFrameContent(javax.swing.JFrame frame) {
@@ -142,43 +158,18 @@ public class Dashboard extends javax.swing.JFrame {
     }
 
     private JPanel createTaskManagementPage() {
-        managementTasks = new ListTugas(ListTugas.PageMode.MANAGEMENT);
-        managementTasks.setEditHandler(this::showTaskEditor);
-        JPanel taskTable = takeFrameContent(managementTasks);
-
-        JPanel editorHost = new JPanel(new BorderLayout());
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEADING));
-        JButton edit = new JButton("Ubah Tugas Terpilih");
-        JButton delete = new JButton("Delete Tugas Terpilih");
-        JButton refresh = new JButton("Muat Ulang");
-        edit.addActionListener(evt -> managementTasks.editSelected());
-        delete.addActionListener(evt -> managementTasks.deleteSelected());
-        refresh.addActionListener(evt -> managementTasks.loadTasks());
-        toolbar.add(edit);
-        toolbar.add(delete);
-        toolbar.add(refresh);
-
-        JPanel taskSection = new JPanel(new BorderLayout());
-        taskSection.add(toolbar, BorderLayout.NORTH);
-        taskSection.add(taskTable, BorderLayout.CENTER);
-        Dimension taskSectionSize = taskSection.getPreferredSize();
-        taskSection.setMaximumSize(new Dimension(Integer.MAX_VALUE, taskSectionSize.height));
-
-        ScrollableColumn column = new ScrollableColumn();
-        column.add(editorHost);
-        column.add(taskSection);
-        installTaskEditor(editorHost, null);
-        taskManagementScroll = new JScrollPane(column,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        taskEditorHost = new JPanel(new BorderLayout());
+        installTaskEditor(taskEditorHost, null);
         JPanel page = new JPanel(new BorderLayout());
-        page.add(taskManagementScroll, BorderLayout.CENTER);
+        page.add(taskEditorHost, BorderLayout.CENTER);
         return page;
     }
 
     private void installTaskEditor(JPanel editorHost, TaskDto task) {
         PengajuanTugas editor = new PengajuanTugas(task, () -> {
-            managementTasks.loadTasks();
-            installTaskEditor(editorHost, null);
+            if (taskReportList != null) taskReportList.loadTasks();
+            if (task == null) installTaskEditor(editorHost, null);
+            else showPage("report-task-list", this::createTaskReportPage);
         });
         JPanel editorPanel = takeFrameContent(editor);
         editorHost.removeAll();
@@ -190,53 +181,55 @@ public class Dashboard extends javax.swing.JFrame {
     }
 
     private void showTaskEditor(TaskDto task) {
-        if (taskManagementScroll == null) return;
-        ScrollableColumn column = (ScrollableColumn) taskManagementScroll.getViewport().getView();
-        JPanel editorHost = (JPanel) column.getComponent(0);
-        installTaskEditor(editorHost, task);
-        taskManagementScroll.getViewport().setViewPosition(new java.awt.Point(0, 0));
+        showPage("task-management", this::createTaskManagementPage);
+        installTaskEditor(taskEditorHost, task);
     }
 
     private JPanel createTaskVerificationPage() {
         ListTugas verification = new ListTugas(ListTugas.PageMode.VERIFICATION);
+        JTextField search = verification.detachSearchField();
         JPanel table = takeFrameContent(verification);
         JPanel page = new JPanel(new BorderLayout(0, 8));
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEADING));
         JButton verify = new JButton("Verifikasi Tugas Terpilih");
         JButton refresh = new JButton("Muat Ulang");
         verify.addActionListener(evt -> verification.verifySelected());
         refresh.addActionListener(evt -> verification.loadTasks());
-        toolbar.add(verify);
-        toolbar.add(refresh);
+        JPanel toolbar = taskToolbar(search, verify, refresh);
         page.add(toolbar, BorderLayout.NORTH);
         page.add(table, BorderLayout.CENTER);
+        com.mycompany.admin.desktop.ui.ButtonStyler.apply(page);
         return page;
     }
 
     private JPanel createTaskReportPage() {
         ListTugas report = new ListTugas(ListTugas.PageMode.REPORT);
+        taskReportList = report;
+        report.setEditHandler(this::showTaskEditor);
+        JTextField search = report.detachSearchField();
         JPanel table = takeFrameContent(report);
         JPanel page = new JPanel(new BorderLayout(0, 8));
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEADING));
+        JButton edit = new JButton("Ubah Tugas Terpilih");
+        JButton delete = new JButton("Hapus Tugas Terpilih");
         JButton refresh = new JButton("Muat Ulang");
+        edit.addActionListener(evt -> report.editSelected());
+        delete.addActionListener(evt -> report.deleteSelected());
         refresh.addActionListener(evt -> report.loadTasks());
-        toolbar.add(refresh);
+        JPanel toolbar = taskToolbar(search, edit, delete, refresh);
         page.add(toolbar, BorderLayout.NORTH);
         page.add(table, BorderLayout.CENTER);
+        com.mycompany.admin.desktop.ui.ButtonStyler.apply(page);
         return page;
     }
 
-    private static final class ScrollableColumn extends JPanel implements javax.swing.Scrollable {
-        ScrollableColumn() {
-            setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.Y_AXIS));
-        }
-        @Override public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
-        @Override public int getScrollableUnitIncrement(Rectangle visible, int orientation, int direction) { return 32; }
-        @Override public int getScrollableBlockIncrement(Rectangle visible, int orientation, int direction) {
-            return Math.max(32, visible.height - 32);
-        }
-        @Override public boolean getScrollableTracksViewportWidth() { return true; }
-        @Override public boolean getScrollableTracksViewportHeight() { return false; }
+    private JPanel taskToolbar(JTextField search, JButton... actions) {
+        JPanel toolbar = new JPanel(new BorderLayout(12, 0));
+        search.setColumns(24);
+        search.setPreferredSize(new Dimension(300, 36));
+        toolbar.add(search, BorderLayout.CENTER);
+        JPanel actionGroup = new JPanel(new FlowLayout(FlowLayout.TRAILING, 8, 0));
+        for (JButton action : actions) actionGroup.add(action);
+        toolbar.add(actionGroup, BorderLayout.EAST);
+        return toolbar;
     }
 
     private void loadDashboardData() {
@@ -368,7 +361,6 @@ public class Dashboard extends javax.swing.JFrame {
         sidePanel.add(btnJabatan, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 181, 198, 34));
 
         btnJenisTugas.setText("Jenis Tugas");
-        btnJenisTugas.addActionListener(this::btnJenisTugasActionPerformed);
         sidePanel.add(btnJenisTugas, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 217, 198, 34));
 
         lblTransactionGroup.setText("TRANSAKSI");
@@ -405,7 +397,6 @@ public class Dashboard extends javax.swing.JFrame {
         sidePanel.add(btnChangePassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 610, 198, 34));
 
         btnLogout.setText("Logout");
-        btnLogout.addActionListener(this::btnLogoutActionPerformed);
         sidePanel.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 650, 198, 34));
 
         rootPanel.add(sidePanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 225, 720));
@@ -479,14 +470,6 @@ public class Dashboard extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnLogoutActionPerformed
-
-    private void btnJenisTugasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJenisTugasActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnJenisTugasActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAttendance;
