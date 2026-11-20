@@ -84,9 +84,10 @@ public class Dashboard extends javax.swing.JFrame {
         rootPanel.setLayout(new BorderLayout());
         sidePanel.setPreferredSize(new Dimension(225, 720));
         JScrollPane sidebar = new JScrollPane(sidePanel,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         sidebar.setPreferredSize(new Dimension(225, 720));
         sidebar.setBorder(null);
+        sidebar.setWheelScrollingEnabled(true);
         rootPanel.add(sidebar, BorderLayout.WEST);
 
         contentCards = new JPanel(new CardLayout());
@@ -335,7 +336,8 @@ public class Dashboard extends javax.swing.JFrame {
         btnAttendance.setText("Absensi Hari Ini");
         sidePanel.add(btnAttendance, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 285, 198, 34));
 
-        btnTaskManagement.setText("Kelola Tugas");
+        btnTaskManagement.setText("Buat Tugas");
+        btnTaskManagement.addActionListener(this::btnTaskManagementActionPerformed);
         sidePanel.add(btnTaskManagement, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 321, 198, 34));
 
         btnTaskVerification.setText("Verifikasi Tugas");
@@ -436,6 +438,10 @@ public class Dashboard extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnTaskManagementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTaskManagementActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnTaskManagementActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAttendance;

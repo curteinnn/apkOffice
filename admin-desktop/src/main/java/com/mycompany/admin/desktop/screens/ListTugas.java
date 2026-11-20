@@ -349,7 +349,7 @@ public class ListTugas extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel1.setBackground(new java.awt.Color(244, 247, 251));
+        jPanel1.setBackground(new java.awt.Color(153, 255, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(1080, 690));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -358,7 +358,6 @@ public class ListTugas extends javax.swing.JFrame {
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 22, 500, 36));
 
         jTextField1.setText("Cari");
-        jTextField1.setColumns(24);
         jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 76, 250, 36));
 
         btnVerify.setText("Verifikasi Tugas Terpilih");
@@ -428,14 +427,14 @@ public class ListTugas extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnEdit;
+    private javax.swing.JButton btnRefresh;
+    private javax.swing.JButton btnVerify;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JButton btnDelete;
-    private javax.swing.JButton btnEdit;
-    private javax.swing.JButton btnRefresh;
-    private javax.swing.JButton btnVerify;
     // End of variables declaration//GEN-END:variables
 }

@@ -92,8 +92,9 @@ private String clock(String value) {
         lblTanggal = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel1.setBackground(new java.awt.Color(244, 247, 251));
+        jPanel1.setBackground(new java.awt.Color(153, 255, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(1080, 690));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -103,6 +104,7 @@ private String clock(String value) {
         bexport.setText("Export");
         jPanel1.add(bexport, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 66, 148, 36));
 
+        tblabsensi.setRowHeight(30);
         tblabsensi.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
@@ -120,7 +122,6 @@ private String clock(String value) {
             tblabsensi.getColumnModel().getColumn(0).setMaxWidth(30);
         }
 
-        tblabsensi.setRowHeight(30);
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 130, 1016, 520));
 
         AbsensiHariIni.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
@@ -132,7 +133,6 @@ private String clock(String value) {
         lblTanggal.setText("Tanggal");
         jPanel1.add(lblTanggal, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 72, 500, 24));
 
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1080, 690));
 
         pack();
