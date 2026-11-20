@@ -33,6 +33,7 @@ public class ListTugas extends javax.swing.JFrame {
     private List<TaskDto> loadedTasks = List.of();
     private final PageMode pageMode;
     private Consumer<TaskDto> editHandler;
+    private DefaultTableModel taskModel;
 
     /**
      * Creates new form ListTugas
@@ -64,18 +65,20 @@ public class ListTugas extends javax.swing.JFrame {
         this.editHandler = editHandler;
     }
 
-    private final DefaultTableModel taskModel = new DefaultTableModel(
-            new String[]{"ID Tugas", "Employee", "Pelanggan", "Jenis Tugas", "Judul Tugas", "Lokasi", "Tanggal", "Status", "Nominal"}, 0) {
-        @Override public boolean isCellEditable(int row, int column) { return false; }
-    };
-
     private void buildTaskActions() {
         setTitle(switch (pageMode) {
             case MANAGEMENT -> "Kelola Tugas";
             case VERIFICATION -> "Verifikasi Tugas";
             case REPORT -> "Daftar Tugas";
         });
+        jLabel1.setText(getTitle());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        String[] columns = pageMode == PageMode.REPORT
+                ? new String[]{"ID Tugas", "Employee", "Pelanggan", "Jenis Tugas", "Judul Tugas", "Lokasi", "Tanggal", "Status"}
+                : new String[]{"ID Tugas", "Employee", "Pelanggan", "Jenis Tugas", "Judul Tugas", "Lokasi", "Tanggal", "Status", "Nominal"};
+        taskModel = new DefaultTableModel(columns, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
         jTable1.setModel(taskModel);
         jTable1.setAutoCreateRowSorter(true);
 
@@ -116,6 +119,14 @@ public class ListTugas extends javax.swing.JFrame {
         delete.addActionListener(evt -> deleteSelected());
         JMenuItem verify = new JMenuItem("Verifikasi tugas terpilih");
         verify.addActionListener(evt -> verifySelected());
+        btnVerify.setVisible(pageMode == PageMode.VERIFICATION);
+        btnEdit.setVisible(pageMode == PageMode.REPORT);
+        btnDelete.setVisible(pageMode == PageMode.REPORT);
+        btnRefresh.setVisible(pageMode != PageMode.MANAGEMENT);
+        btnVerify.addActionListener(evt -> verifySelected());
+        btnEdit.addActionListener(evt -> editSelected());
+        btnDelete.addActionListener(evt -> deleteSelected());
+        btnRefresh.addActionListener(evt -> loadTasks());
         if (pageMode == PageMode.MANAGEMENT) {
             menu.add(create); menu.add(edit); menu.add(delete);
         } else if (pageMode == PageMode.VERIFICATION) {
@@ -142,10 +153,15 @@ public class ListTugas extends javax.swing.JFrame {
                 try {
                     loadedTasks = get();
                     for (TaskDto task : loadedTasks) {
-                        taskModel.addRow(new Object[]{task.id(), assignedEmployees(task),
+                        Object[] row = new Object[]{task.id(), assignedEmployees(task),
                                 task.namaPelanggan() == null ? "Belum ditentukan" : task.namaPelanggan(),
                                 task.jenisTugas() == null ? "Belum dikategorikan" : task.jenisTugas().nama(),
-                                task.judul(), task.lokasi(), task.tanggal(), task.status(), nominalSummary(task)});
+                                task.judul(), task.lokasi(), task.tanggal(), task.status()};
+                        if (pageMode != PageMode.REPORT) {
+                            row = java.util.Arrays.copyOf(row, row.length + 1);
+                            row[row.length - 1] = nominalSummary(task);
+                        }
+                        taskModel.addRow(row);
                     }
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(ListTugas.this, ex.getMessage(),
@@ -322,12 +338,15 @@ public class ListTugas extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        btnVerify = new javax.swing.JButton();
+        btnEdit = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
+        btnRefresh = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jTextField1 = new javax.swing.JTextField();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(244, 247, 251));
@@ -338,27 +357,46 @@ public class ListTugas extends javax.swing.JFrame {
         jLabel1.setText("Daftar Tugas");
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 22, 500, 36));
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Gambar/pnhkembali.png"))); // NOI18N
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "Judul Tugas", "Client", "Lokasi", "Tanggal", "Status"
-            }
-        ));
-        jScrollPane1.setViewportView(jTable1);
-        jTable1.setRowHeight(30);
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 130, 1016, 520));
-
         jTextField1.setText("Cari");
         jTextField1.setColumns(24);
-        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 76, 640, 36));
+        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 76, 250, 36));
+
+        btnVerify.setText("Verifikasi Tugas Terpilih");
+        jPanel1.add(btnVerify, new org.netbeans.lib.awtextra.AbsoluteConstraints(292, 76, 230, 36));
+
+        btnEdit.setText("Ubah Tugas Terpilih");
+        jPanel1.add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(532, 76, 160, 36));
+
+        btnDelete.setText("Hapus Tugas Terpilih");
+        jPanel1.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(702, 76, 170, 36));
+
+        btnRefresh.setText("Muat Ulang");
+        jPanel1.add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(882, 76, 150, 36));
+
+        jTable1.setRowHeight(30);
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "ID Tugas", "Employee", "Pelanggan", "Jenis Tugas", "Judul Tugas", "Lokasi", "Tanggal", "Status"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(jTable1);
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 130, 1016, 520));
+
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1080, 690));
 
         pack();
@@ -391,10 +429,13 @@ public class ListTugas extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnEdit;
+    private javax.swing.JButton btnRefresh;
+    private javax.swing.JButton btnVerify;
     // End of variables declaration//GEN-END:variables
 }

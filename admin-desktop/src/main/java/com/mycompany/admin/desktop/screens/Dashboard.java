@@ -11,7 +11,6 @@ import com.mycompany.admin.desktop.service.UserApiService;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -23,7 +22,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
@@ -43,6 +41,7 @@ public class Dashboard extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         configureWorkspace();
         setLocationRelativeTo(null);
+        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
         configureNavigation();
         configureDashboardDataView();
         loadDashboardData();
@@ -187,49 +186,18 @@ public class Dashboard extends javax.swing.JFrame {
 
     private JPanel createTaskVerificationPage() {
         ListTugas verification = new ListTugas(ListTugas.PageMode.VERIFICATION);
-        JTextField search = verification.detachSearchField();
         JPanel table = takeFrameContent(verification);
-        JPanel page = new JPanel(new BorderLayout(0, 8));
-        JButton verify = new JButton("Verifikasi Tugas Terpilih");
-        JButton refresh = new JButton("Muat Ulang");
-        verify.addActionListener(evt -> verification.verifySelected());
-        refresh.addActionListener(evt -> verification.loadTasks());
-        JPanel toolbar = taskToolbar(search, verify, refresh);
-        page.add(toolbar, BorderLayout.NORTH);
-        page.add(table, BorderLayout.CENTER);
-        com.mycompany.admin.desktop.ui.ButtonStyler.apply(page);
-        return page;
+        com.mycompany.admin.desktop.ui.ButtonStyler.apply(table);
+        return table;
     }
 
     private JPanel createTaskReportPage() {
         ListTugas report = new ListTugas(ListTugas.PageMode.REPORT);
         taskReportList = report;
         report.setEditHandler(this::showTaskEditor);
-        JTextField search = report.detachSearchField();
         JPanel table = takeFrameContent(report);
-        JPanel page = new JPanel(new BorderLayout(0, 8));
-        JButton edit = new JButton("Ubah Tugas Terpilih");
-        JButton delete = new JButton("Hapus Tugas Terpilih");
-        JButton refresh = new JButton("Muat Ulang");
-        edit.addActionListener(evt -> report.editSelected());
-        delete.addActionListener(evt -> report.deleteSelected());
-        refresh.addActionListener(evt -> report.loadTasks());
-        JPanel toolbar = taskToolbar(search, edit, delete, refresh);
-        page.add(toolbar, BorderLayout.NORTH);
-        page.add(table, BorderLayout.CENTER);
-        com.mycompany.admin.desktop.ui.ButtonStyler.apply(page);
-        return page;
-    }
-
-    private JPanel taskToolbar(JTextField search, JButton... actions) {
-        JPanel toolbar = new JPanel(new BorderLayout(12, 0));
-        search.setColumns(24);
-        search.setPreferredSize(new Dimension(300, 36));
-        toolbar.add(search, BorderLayout.CENTER);
-        JPanel actionGroup = new JPanel(new FlowLayout(FlowLayout.TRAILING, 8, 0));
-        for (JButton action : actions) actionGroup.add(action);
-        toolbar.add(actionGroup, BorderLayout.EAST);
-        return toolbar;
+        com.mycompany.admin.desktop.ui.ButtonStyler.apply(table);
+        return table;
     }
 
     private void loadDashboardData() {
@@ -352,11 +320,9 @@ public class Dashboard extends javax.swing.JFrame {
         lblMasterGroup.setText("MASTER DATA");
         sidePanel.add(lblMasterGroup, new org.netbeans.lib.awtextra.AbsoluteConstraints(18, 124, 190, 18));
 
-        btnEmployees.setBackground(new java.awt.Color(51, 153, 255));
         btnEmployees.setText("Karyawan");
         sidePanel.add(btnEmployees, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 145, 198, 34));
 
-        btnJabatan.setBackground(new java.awt.Color(102, 153, 255));
         btnJabatan.setText("Jabatan");
         sidePanel.add(btnJabatan, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 181, 198, 34));
 
@@ -401,7 +367,7 @@ public class Dashboard extends javax.swing.JFrame {
 
         rootPanel.add(sidePanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 225, 720));
 
-        mainPanel.setBackground(new java.awt.Color(51, 153, 255));
+        mainPanel.setBackground(new java.awt.Color(102, 102, 255));
         mainPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblPageTitle.setFont(new java.awt.Font("Segoe UI", 1, 26)); // NOI18N
