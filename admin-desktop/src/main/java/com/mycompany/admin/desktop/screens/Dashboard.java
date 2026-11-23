@@ -369,7 +369,7 @@ public class Dashboard extends javax.swing.JFrame {
 
         rootPanel.add(sidePanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 225, 720));
 
-        mainPanel.setBackground(new java.awt.Color(102, 102, 255));
+        mainPanel.setBackground(new java.awt.Color(153, 255, 255));
         mainPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblPageTitle.setFont(new java.awt.Font("Segoe UI", 1, 26)); // NOI18N
