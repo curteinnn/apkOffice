@@ -55,7 +55,7 @@ sequenceDiagram
     Filter->>Security: Token valid dan role ADMIN
     Security->>C: Izinkan POST /api/users
     C->>S: createUser(request)
-    S->>S: Wajib isi username, password, nama, email; role hanya EMPLOYEE
+    S->>S: Wajib isi username, password, nama, email, role hanya EMPLOYEE
     S->>JR: Cari jabatanId dan validasi status ACTIVE
     JR->>DB: SELECT jabatan
     DB-->>JR: Jabatan aktif

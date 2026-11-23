@@ -41,7 +41,7 @@ sequenceDiagram
             alt Role sesuai
                 Client->>Client: Simpan token dan buka halaman utama
             else Role tidak sesuai
-                Client->>User: Tampilkan penolakan role; jangan simpan sesi
+                Client->>User: Tampilkan penolakan role, jangan simpan sesi
             end
         end
     end
@@ -60,7 +60,7 @@ sequenceDiagram
     participant Controller
 
     Client->>Filter: Request Authorization: Bearer JWT
-    Filter->>JWT: Verifikasi signature dan expiry; baca subject/role
+    Filter->>JWT: Verifikasi signature dan expiry, baca subject/role
     alt Token malformed, invalid, atau expired
         JWT-->>Filter: JwtException
         Filter-->>Client: 401 token invalid/expired

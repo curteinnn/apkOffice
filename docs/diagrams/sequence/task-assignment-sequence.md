@@ -36,7 +36,7 @@ sequenceDiagram
     Users-->>UserS: User list
     UserS-->>UserC: User list
     UserC-->>Client: JSON users tanpa password
-    Client-->>Form: User; UI menyaring EMPLOYEE aktif
+    Client-->>Form: User, UI menyaring EMPLOYEE aktif
     Form->>Client: GET /api/jenis-tugas
     Client->>Filter: Bearer JWT
     Filter->>Security: Validasi token dan role
@@ -57,7 +57,7 @@ sequenceDiagram
     end
     Client->>Filter: Request Bearer JWT
     Filter->>Security: Validasi token dan role ADMIN
-    Security->>C: Izinkan POST /api/tugas[/bulk]
+    Security->>C: Izinkan POST endpoint tugas tunggal atau bulk
     C->>S: createTugas(...) atau createTugasForEmployees(...)
     opt Bulk
         S->>S: Tolak daftar kosong/null/ID duplikat

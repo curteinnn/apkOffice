@@ -26,7 +26,7 @@ sequenceDiagram
     C-->>API: JSON tasks
     API-->>UI: Daftar tugas
     UI-->>Admin: Tampilkan task berstatus SUBMITTED
-    Admin->>UI: Pilih setujui/tolak; bila setuju isi nominal tiap assignee
+    Admin->>UI: Pilih setujui/tolak, bila setuju isi nominal tiap assignee
     UI->>API: PUT /api/tugas/{id}/verify {status, nominalByAssignee}
     API->>Filter: Bearer JWT
     Filter->>C: Otorisasi ADMIN

@@ -55,7 +55,7 @@ sequenceDiagram
         end
         API->>Filter: Token dan role EMPLOYEE
         Filter->>TaskC: Otorisasi request
-        TaskC->>Attendance: Cari attendance hari ini; wajib jamMasuk dan jamKeluar null
+        TaskC->>Attendance: Cari attendance hari ini, wajib jamMasuk dan jamKeluar null
         Attendance->>DB: SELECT attendance user hari ini
         DB-->>Attendance: Record / kosong
         Attendance-->>TaskC: Attendance hari ini
