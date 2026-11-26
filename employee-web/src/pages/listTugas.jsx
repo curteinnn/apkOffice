@@ -260,20 +260,7 @@ export default function ListTugas() {
                   {selectedTugas.deskripsi || "Tidak ada deskripsi."}
                 </p>
               </div>
-
-              {selectedTugas.alasanPenolakan && (
-                <div className="rounded-lg bg-red-50 p-3">
-                  <p className="text-sm font-medium text-red-800">
-                    {selectedTugas.status === "REJECTED"
-                      ? "Alasan penolakan"
-                      : "Catatan penolakan sebelumnya"}
-                  </p>
-                  <p className="mt-1 whitespace-pre-wrap break-words text-sm text-red-700">
-                    {selectedTugas.alasanPenolakan}
-                  </p>
-                </div>
-              )}
-
+                                                                                                                       
               <div>
                 <p className="text-sm text-gray-500">Lokasi</p>
                 <p className="text-gray-800">{selectedTugas.lokasi || "-"}</p>

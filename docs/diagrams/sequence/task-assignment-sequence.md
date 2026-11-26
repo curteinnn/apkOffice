@@ -1,102 +1,100 @@
-# Task Assignment Sequence
+# Admin Task Management Sequence
 
-**Tujuan:** Menunjukkan pengambilan pilihan form dan pembuatan task untuk satu atau banyak employee.
+**Tujuan:** Menjelaskan baca, tambah, ubah, dan hapus tugas dari menu Kelola Tugas Admin Desktop.
 
 ```mermaid
 sequenceDiagram
     actor Admin
-    participant Form as PengajuanTugas
-    participant Client as TaskApiService ApiClient
-    participant Filter as JwtAuthenticationFilter
-    participant Security as SecurityConfig
-    participant UserC as UserController
-    participant UserS as UserService
-    participant TypeC as JenisTugasController
-    participant TypeS as JenisTugasService
+    participant UI as ListTugas dan PengajuanTugas
+    participant API as TaskApiService ApiClient
+    participant Filter as JWT filter + SecurityConfig
     participant C as TugasController
     participant S as TugasService
-    participant Users as UserRepository
-    participant Types as JenisTugasRepository
+    participant Master as User/JenisTugas services dan repositories
     participant Generator as TugasIdGenerator
-    participant Tasks as TugasRepository
+    participant Repo as TugasRepository
     participant DB as MariaDB
 
-    Admin->>Form: Buka form tugas
-    Form->>Client: GET /api/users
-    Client->>Filter: Bearer JWT
-    Filter->>Users: findByUsername(subject), validasi role token
-    Users->>DB: SELECT user yang login
-    DB-->>Users: Akun aktif dan role ADMIN
-    Filter->>Security: Set authority ROLE_ADMIN
-    Security->>UserC: Izinkan GET /api/users
-    UserC->>UserS: getAllUsers()
-    UserS->>Users: findAll()
-    Users->>DB: SELECT user list
-    DB-->>Users: User rows
-    Users-->>UserS: User list
-    UserS-->>UserC: User list
-    UserC-->>Client: JSON users tanpa password
-    Client-->>Form: User, UI menyaring EMPLOYEE aktif
-    Form->>Client: GET /api/jenis-tugas
-    Client->>Filter: Bearer JWT
-    Filter->>Security: Validasi token dan role
-    Security->>TypeC: Izinkan GET /api/jenis-tugas
-    TypeC->>TypeS: getAll()
-    TypeS->>Types: findAllByOrderByIdAsc()
-    Types->>DB: SELECT jenis tugas
-    DB-->>Types: Jenis tugas
-    Types-->>TypeS: Daftar jenis
-    TypeS-->>TypeC: Daftar jenis
-    TypeC-->>Client: JSON jenis tugas
-    Client-->>Form: Pilihan jenis tugas
-    Admin->>Form: Isi data, tanggal, pilih assignee(s)
-    alt Satu employee
-        Form->>Client: POST /api/tugas (userId, detail task)
-    else Beberapa employee
-        Form->>Client: POST /api/tugas/bulk (userIds, detail task)
+    Admin->>UI: Buka Kelola Tugas
+    UI->>API: GET /api/tugas
+    API->>Filter: Bearer JWT
+    Filter->>C: Otorisasi ADMIN
+    C->>S: getAllTugas(username, ADMIN)
+    S->>Repo: findAll()
+    Repo->>DB: SELECT tugas dan assignees
+    DB-->>Repo: Daftar tugas
+    Repo-->>S: Daftar tugas
+    S-->>C: Daftar tugas
+    C-->>API: JSON tugas
+    API-->>UI: Tampilkan tabel
+
+    alt Lihat detail
+        Admin->>UI: Pilih atau klik ganda tugas
+        UI->>UI: Tampilkan detail dari data yang sudah dimuat
+    else Tambah tugas
+        Admin->>UI: Buka form dan isi data serta tanggal rencana
+        UI->>API: GET /api/users dan GET /api/jenis-tugas
+        API->>Filter: Bearer JWT
+        Filter->>Master: Otorisasi ADMIN dan ambil opsi form
+        Master->>DB: SELECT user dan jenis tugas
+        DB-->>Master: Daftar user dan jenis tugas
+        Master-->>UI: JSON opsi, UI menyaring employee aktif
+        Admin->>UI: Pilih satu atau lebih employee
+        UI->>UI: Validasi field wajib dan format tanggal
+        UI->>API: POST /api/tugas/bulk
+        API->>Filter: Bearer JWT
+        Filter->>C: Otorisasi ADMIN
+        C->>S: createTugasForEmployees(request)
+        S->>Master: Validasi ID, keberadaan, role employee dan jenis tugas
+        Master->>DB: SELECT data referensi
+        DB-->>Master: Data valid atau tidak ditemukan
+        S->>Generator: nextId(tanggal rencana)
+        Generator->>DB: Kunci counter tahun dan naikkan nomor
+        DB-->>Generator: TASK-tahun-nomor
+        S->>Repo: Simpan Tugas PENDING dan assignees
+        Repo->>DB: INSERT tugas dan penugasan_karyawan
+        DB-->>Repo: Tugas tersimpan
+        Repo-->>S: Tugas
+        S-->>C: Tugas
+        C-->>API: JSON tugas
+        API-->>UI: Berhasil dan muat ulang tabel
+    else Ubah tugas PENDING
+        Admin->>UI: Pilih Ubah dan simpan perubahan
+        UI->>API: PUT /api/tugas/{id}
+        API->>Filter: Bearer JWT
+        Filter->>C: Otorisasi ADMIN
+        C->>S: updateTugas(id, request)
+        S->>Repo: findById(id)
+        Repo->>DB: SELECT tugas dan assignments
+        DB-->>Repo: Tugas
+        S->>S: Validasi status PENDING, tanggal, field dan assignee
+        S->>Repo: Update data tugas dan assignments
+        Repo->>DB: UPDATE tugas dan penugasan_karyawan
+        DB-->>Repo: Tugas diperbarui
+        S-->>C: Tugas terbaru atau error validasi
+        C-->>API: Response
+        API-->>UI: Tampilkan hasil dan muat ulang
+    else Hapus tugas PENDING
+        Admin->>UI: Konfirmasi hapus
+        UI->>API: DELETE /api/tugas/{id}
+        API->>Filter: Bearer JWT
+        Filter->>C: Otorisasi ADMIN
+        C->>S: deleteTugas(id)
+        S->>Repo: findById(id)
+        Repo->>DB: SELECT tugas
+        alt Status PENDING
+            S->>Repo: delete(tugas)
+            Repo->>DB: DELETE tugas, assignment terhapus melalui cascade
+            DB-->>Repo: Terhapus
+            S-->>C: Berhasil
+            C-->>API: 204 No Content
+            API-->>UI: Hapus baris dan muat ulang
+        else Status bukan PENDING
+            S-->>C: 409 penghapusan ditolak
+            C-->>API: Error response
+            API-->>UI: Tampilkan error
+        end
     end
-    Client->>Filter: Request Bearer JWT
-    Filter->>Security: Validasi token dan role ADMIN
-    Security->>C: Izinkan POST endpoint tugas tunggal atau bulk
-    C->>S: createTugas(...) atau createTugasForEmployees(...)
-    opt Bulk
-        S->>S: Tolak daftar kosong/null/ID duplikat
-        S->>Users: findAllById(userIds)
-        Users->>DB: SELECT user sesuai ID
-        DB-->>S: User list
-        S->>S: Pastikan semua ditemukan dan role EMPLOYEE
-    end
-    S->>S: Validasi nama pelanggan, judul, lokasi, tanggal, jenis tugas
-    S->>Users: findById(userId pertama / user tunggal)
-    Users->>DB: SELECT user target
-    DB-->>Users: User atau kosong
-    Users-->>S: User
-    S->>Types: findById(jenisTugasId)
-    Types->>DB: SELECT jenis tugas
-    DB-->>S: Jenis tugas atau kosong
-    S->>Generator: nextId(tanggal)
-    Generator->>DB: INSERT sequence tahun jika belum ada
-    Generator->>DB: SELECT nomor_terakhir FOR UPDATE
-    DB-->>Generator: Nomor terakhir
-    Generator->>DB: UPDATE nomor_terakhir
-    Generator-->>S: TASK-tahun-nomor
-    alt Satu employee
-        S->>Tasks: save(Tugas PENDING + satu assignment)
-        Tasks->>DB: INSERT tugas dan penugasan_karyawan
-        DB-->>Tasks: Tugas dan assignment tersimpan
-    else Bulk
-        S->>Tasks: save(Tugas PENDING + assignee pertama)
-        Tasks->>DB: INSERT tugas dan assignment awal
-        DB-->>Tasks: Tugas tersimpan
-        S->>S: Ganti collection dengan seluruh userIds yang tervalidasi
-        S->>Tasks: save(Tugas + seluruh assignment)
-        Tasks->>DB: Simpan assignment anggota lainnya
-        DB-->>Tasks: Tugas dan assignment lengkap
-    end
-    Tasks-->>S: Tugas tersimpan
-    S-->>C: Entity Tugas
-    C-->>Client: 200 JSON Tugas + assignees
-    Client-->>Form: Response berhasil
 ```
 
-**Interpretasi:** Form memilih karyawan melalui multi-selection. Backend memvalidasi duplikasi dan keberadaan ID serta role employee sebelum membuat row task dan assignment dalam transaksi. `TugasIdGenerator` mengunci counter per tahun lewat query native. Source service create memastikan role employee tetapi tidak memvalidasi status ACTIVE; UI form menyaring karyawan aktif.
+**Interpretasi:** Form Admin membuat tugas selalu melalui `POST /api/tugas/bulk`, termasuk jika hanya satu employee dipilih. Form menyaring employee aktif; service create memvalidasi keberadaan dan role employee, tetapi tidak memeriksa status aktif. Edit dan hapus biasa hanya berlaku untuk `PENDING`; penjadwalan ulang tugas `REJECTED` dijelaskan pada [sequence verifikasi](task-verification-sequence.md). Tanggal adalah rencana, bukan deadline atau waktu pembuatan.

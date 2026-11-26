@@ -1,6 +1,6 @@
 # Dokumentasi Diagram Sistem apkOffice
 
-Dokumentasi ini menggambarkan implementasi yang ditemukan pada source code saat audit 23 November 2026. Diagram dibuat dari controller, service, entity, repository, client API, route UI, dan berkas SQL migrasi. Nilai konfigurasi, credential, dan database aktif tidak dibaca.
+Dokumentasi ini menggambarkan implementasi yang ditemukan pada source code. Set sequence Admin Desktop diperbarui pada 26 November 2026; diagram lain mencerminkan audit sebelumnya. Diagram dibuat dari controller, service, entity, repository, client API, route UI, dan berkas SQL migrasi. Nilai konfigurasi, credential, dan database aktif tidak dibaca.
 
 ## Ringkasan arsitektur
 
@@ -30,19 +30,24 @@ Backend adalah pusat autentikasi, otorisasi, aturan proses, dan akses data. Kedu
 | [Login activity](activity/login-activity.md) | Cabang login berhasil/gagal dan pemeriksaan role di client. |
 | [Main workflows activity](activity/main-workflows.md) | Proses absensi, siklus status tugas, data master, dan laporan. |
 | [Object example](object/object-diagram.md) | Contoh instance dummy yang konsisten dengan entity. |
-| [Authentication sequence](sequence/authentication-sequence.md) | Login dan pemrosesan JWT pada request terlindungi. |
-| [Attendance sequence](sequence/attendance-sequence.md) | Check-in, check-out, dan baca riwayat. |
-| [Master user sequence](sequence/master-user-sequence.md) | Pembuatan karyawan dan pengelolaan master oleh Admin. |
-| [Task assignment sequence](sequence/task-assignment-sequence.md) | Penugasan tugas untuk satu atau beberapa karyawan. |
+| [Admin account sequence](sequence/authentication-sequence.md) | Login Admin, ubah password, dan logout lokal. |
+| [Master User sequence](sequence/master-user-sequence.md) | Daftar, tambah, ubah, dan hapus employee. |
+| [Master referensi sequence](sequence/master-reference-sequence.md) | CRUD jabatan dan jenis tugas. |
+| [Task management sequence](sequence/task-assignment-sequence.md) | Baca, tambah bulk, ubah, dan hapus tugas. |
+| [Task verification sequence](sequence/task-verification-sequence.md) | Approve/reject, alasan penolakan, dan penjadwalan ulang manual. |
+| [Admin attendance sequence](sequence/admin-attendance-sequence.md) | Daftar absensi hari ini di Admin Desktop. |
+| [Admin dashboard sequence](sequence/admin-dashboard-sequence.md) | Pengambilan dan agregasi ringkasan dashboard. |
+| [Admin reports sequence](sequence/report-sequence.md) | Daftar tugas, rekap absensi, rekap tugas, dan rekap nominal. |
+| [Employee attendance sequence](sequence/attendance-sequence.md) | Check-in, check-out, dan baca riwayat di Employee Web. |
 | [Employee task sequence](sequence/employee-task-sequence.md) | Baca, mulai, dan kirim tugas dari Employee Web. |
-| [Task verification sequence](sequence/task-verification-sequence.md) | Verifikasi tugas serta nominal per assignee. |
-| [Report sequence](sequence/report-sequence.md) | Pengambilan data dashboard dan laporan Admin. |
+
+Delapan sequence Admin di atas merupakan set yang diprioritaskan untuk laporan/FDD Admin Desktop. Dua sequence Employee Web dipertahankan sebagai dokumentasi pendukung sistem.
 
 ## Temuan implementasi yang memengaruhi interpretasi
 
 - Role yang ada hanya `ADMIN` dan `EMPLOYEE`. Pembuatan/pengelolaan user melalui service membatasi role menjadi `EMPLOYEE`; Admin tetap dikelola di luar modul karyawan.
 - Status proses berada di entity `Tugas`, bukan per anggota tim. `startTugas`, `submitTugas`, dan `verifyTugas` mengubah satu status bersama. Nilai nominal berada di `PenugasanKaryawan` per karyawan.
-- Check-out menerima jika ada tugas assigned berstatus `SUBMITTED` atau `APPROVED`; query tugas tidak difilter menurut tanggal tugas. Ini adalah perilaku yang tertulis di source code, bukan interpretasi aturan bisnis.
+- Check-out memakai tugas yang ditugaskan kepada karyawan untuk tanggal attendance hari ini. Hanya `PENDING` dan `IN_PROGRESS` yang memblokir; `SUBMITTED`, `APPROVED`, `REJECTED`, atau tidak ada tugas hari ini mengizinkan check-out.
 - Employee Web memiliki route `/preview-dashboard`, `/preview-list-tugas`, dan `/preview-riwayatAbsensi` di luar `ProtectedRoute`. Route reguler berada di dalam `ProtectedRoute`, yang hanya mengecek keberadaan token di browser; akses data tetap dibatasi backend.
 - Employee Web tidak menghapus token atau mengarahkan ulang saat API request menjawab 401; route guard hanya melihat token masih ada. Sesi expired dapat membuat UI tetap berada di route protected sementara request terus gagal.
 - `DELETE /api/attendance/my` tercantum dalam matcher keamanan, tetapi tidak ditemukan handler controller untuk route itu.

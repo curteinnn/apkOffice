@@ -1,108 +1,81 @@
-# Master User dan Master Data Sequence
+# Master User Sequence
 
-**Tujuan:** Menjelaskan pembuatan karyawan dari Admin Desktop serta bentuk umum CRUD master jabatan/jenis tugas.
-
-## Buat karyawan
+**Tujuan:** Menjelaskan daftar dan CRUD akun karyawan melalui Admin Desktop.
 
 ```mermaid
 sequenceDiagram
     actor Admin
-    participant Form as TambahKaryawan
-    participant Api as UserApiService ApiClient
-    participant Filter as JwtAuthenticationFilter
-    participant Security as SecurityConfig
-    participant C as UserController
-    participant S as UserService
-    participant JC as JabatanController
-    participant JS as JabatanService
-    participant JR as JabatanRepository
-    participant UR as UserRepository
+    participant UI as TambahKaryawan
+    participant UserAPI as UserApiService ApiClient
+    participant JabatanAPI as JabatanApiService ApiClient
+    participant Filter as JWT filter + SecurityConfig
+    participant UserBackend as UserController, UserService, UserRepository
+    participant JabatanBackend as JabatanController, JabatanService, Repository
     participant Encoder as BCrypt PasswordEncoder
     participant DB as MariaDB
 
-    Admin->>Form: Buka master user
-    Form->>Api: GET /api/users
-    Api->>Filter: Request Bearer JWT
-    Filter->>UR: findByUsername(subject) untuk validasi token
-    UR->>DB: SELECT user dan role terkini
-    DB-->>Filter: Akun aktif dan role ADMIN
-    Filter->>Security: Set authority ROLE_ADMIN
-    Security->>C: Izinkan GET /api/users
-    C->>S: getAllUsers()
-    S->>UR: findAll()
-    UR->>DB: SELECT user
-    DB-->>UR: List user
-    UR-->>S: List user
-    S-->>C: List user
-    C-->>Api: JSON user (password dikecualikan)
-    Api-->>Form: List user
-    Form->>Api: GET /api/jabatan?aktif=true
-    Api->>Filter: Request Bearer JWT
-    Filter->>Security: Validasi token dan role
-    Security->>JC: Izinkan GET /api/jabatan
-    JC->>JS: getAll(aktif=true)
-    JS->>JR: findAllByStatusOrderByNamaAsc(ACTIVE)
-    JR->>DB: SELECT jabatan aktif
-    DB-->>JR: Daftar jabatan aktif
-    JR-->>JS: Daftar jabatan aktif
-    JS-->>JC: Daftar jabatan aktif
-    JC-->>Api: JSON jabatan
-    Api-->>Form: Daftar jabatan aktif
+    Admin->>UI: Buka Master User
+    UI->>UserAPI: GET /api/users
+    UserAPI->>Filter: Bearer JWT
+    Filter->>UserBackend: Otorisasi ADMIN
+    UserBackend->>DB: SELECT user
+    DB-->>UserBackend: Daftar user
+    UserBackend-->>UserAPI: JSON user tanpa password
+    UserAPI-->>UI: UI menyaring dan menampilkan employee
+    UI->>JabatanAPI: GET /api/jabatan?aktif=true
+    JabatanAPI->>Filter: Bearer JWT
+    Filter->>JabatanBackend: Otorisasi ADMIN
+    JabatanBackend->>DB: SELECT jabatan ACTIVE
+    DB-->>JabatanBackend: Daftar jabatan aktif
+    JabatanBackend-->>JabatanAPI: JSON jabatan
+    JabatanAPI-->>UI: Pilihan jabatan
 
-    Admin->>Form: Isi data dan pilih jabatan
-    Form->>Api: POST /api/users (CreateUserRequest)
-    Api->>Filter: Bearer JWT
-    Filter->>Security: Token valid dan role ADMIN
-    Security->>C: Izinkan POST /api/users
-    C->>S: createUser(request)
-    S->>S: Wajib isi username, password, nama, email, role hanya EMPLOYEE
-    S->>JR: Cari jabatanId dan validasi status ACTIVE
-    JR->>DB: SELECT jabatan
-    DB-->>JR: Jabatan aktif
-    JR-->>S: Jabatan aktif
-    S->>Encoder: encode(password)
-    Encoder-->>S: Hash BCrypt
-    S->>UR: save(user)
-    UR->>DB: INSERT user
-    DB-->>UR: User tersimpan
-    UR-->>S: User tersimpan
-    S-->>C: User tersimpan
-    C-->>Api: JSON user tanpa password
-    Api-->>Form: Response berhasil
+    alt Tambah employee
+        Admin->>UI: Isi username, password, nama, email dan jabatan
+        UI->>UserAPI: POST /api/users dengan role EMPLOYEE
+        UserAPI->>Filter: Bearer JWT
+        Filter->>UserBackend: Otorisasi ADMIN
+        UserBackend->>UserBackend: Validasi field wajib dan role EMPLOYEE
+        UserBackend->>JabatanBackend: Pastikan jabatan aktif
+        JabatanBackend->>DB: SELECT jabatanId dan status
+        DB-->>JabatanBackend: Jabatan valid atau tidak valid
+        UserBackend->>Encoder: Hash password
+        Encoder-->>UserBackend: BCrypt hash
+        UserBackend->>DB: INSERT user ACTIVE
+        DB-->>UserBackend: User tersimpan
+        UserBackend-->>UserAPI: JSON tanpa password
+        UserAPI-->>UI: Berhasil dan muat ulang daftar
+    else Ubah employee
+        Admin->>UI: Ubah username, nama, email, jabatan atau status
+        UI->>UserAPI: PUT /api/users/{id}, role tetap EMPLOYEE
+        UserAPI->>Filter: Bearer JWT
+        Filter->>UserBackend: Otorisasi ADMIN
+        UserBackend->>DB: SELECT user target
+        DB-->>UserBackend: User target
+        UserBackend->>UserBackend: Tolak target non-EMPLOYEE dan validasi field/status
+        UserBackend->>JabatanBackend: Validasi jabatan untuk user
+        UserBackend->>DB: UPDATE user dan updatedAt
+        DB-->>UserBackend: User terbaru
+        UserBackend-->>UserAPI: JSON tanpa password atau HTTP error
+        UserAPI-->>UI: Tampilkan hasil dan muat ulang
+    else Hapus employee
+        Admin->>UI: Konfirmasi hapus employee
+        UI->>UserAPI: DELETE /api/users/{id}
+        UserAPI->>Filter: Bearer JWT
+        Filter->>UserBackend: Otorisasi ADMIN
+        UserBackend->>DB: SELECT user dan validasi role EMPLOYEE
+        DB-->>UserBackend: User target
+        UserBackend->>DB: DELETE user
+        alt Tidak ada relasi yang menghalangi
+            DB-->>UserBackend: User terhapus
+            UserBackend-->>UserAPI: Berhasil
+            UserAPI-->>UI: Muat ulang daftar
+        else Masih direferensikan attendance atau tugas
+            DB-->>UserBackend: Constraint error
+            UserBackend-->>UserAPI: Error response
+            UserAPI-->>UI: Tampilkan error dan sarankan nonaktifkan akun
+        end
+    end
 ```
 
-## Pengelolaan master jabatan dan jenis tugas
-
-```mermaid
-sequenceDiagram
-    actor Admin
-    participant UI as MasterJabatan MasterJenisTugas
-    participant API as JabatanApiService JenisTugasApiService
-    participant Filter as JWT + SecurityConfig
-    participant C as Controller master
-    participant S as Service master
-    participant Repo as Repository terkait
-    participant DB as MariaDB
-
-    Admin->>UI: Pilih tampil, tambah, ubah, nonaktifkan, atau hapus
-    UI->>API: GET/POST/PUT/DELETE pada endpoint master
-    API->>Filter: Request Bearer token
-    Filter->>C: Otorisasi ADMIN
-    C->>S: Operasi CRUD
-    S->>S: Validasi field dan duplikasi nama/ID
-    opt Jabatan: hapus atau ubah status
-        S->>Repo: Periksa user yang memakai jabatan
-    end
-    opt Jenis tugas: hapus
-        S->>Repo: Periksa tugas yang memakai jenis
-    end
-    S->>Repo: Simpan perubahan
-    Repo->>DB: SELECT / INSERT / UPDATE / DELETE
-    DB-->>Repo: Hasil query
-    Repo-->>S: Hasil persistence
-    S-->>C: Entity/daftar atau error validasi
-    C-->>API: JSON atau HTTP error
-    API-->>UI: Tampilkan hasil operasi
-```
-
-**Interpretasi:** CRUD master jabatan dan jenis tugas hanya tersedia untuk ADMIN. Jabatan menyediakan perubahan status; penghapusan ditolak bila sedang dipakai user. Jenis tugas dapat dihapus hanya bila belum dipakai tugas. Pengelolaan user menolak role selain EMPLOYEE; pembuatan memerlukan jabatan aktif.
+**Interpretasi:** Modul hanya mengelola role `EMPLOYEE`; akun `ADMIN` tidak dapat dibuat, diubah, atau dihapus melalui Master User. Penghapusan employee bisa ditolak karena relasi data. Password hanya dikirim saat pembuatan dan di-hash di backend.
