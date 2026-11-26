@@ -12,9 +12,9 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
 
-        <Route path="/preview-dashboard" element={<Dashboard />} />
+        {/* <Route path="/preview-dashboard" element={<Dashboard />} />
         <Route path="/preview-list-tugas" element={<ListTugas />} />
-        <Route path="/preview-riwayatAbsensi" element={<RiwayatAbsensi />} />
+        <Route path="/preview-riwayatAbsensi" element={<RiwayatAbsensi />} /> */}
 
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />

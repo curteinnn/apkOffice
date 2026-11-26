@@ -144,65 +144,65 @@ export default function ListTugas() {
               const teamMembers = getTeamMembers(item);
 
               return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setSelectedTugas(item);
-                  setActionError("");
-                }}
-                className="flex min-h-40 flex-col rounded-xl bg-white p-6 text-left transition hover:bg-blue-100"
-              >
-                <div className="flex w-full items-start justify-between gap-3">
-                  <h2 className="text-lg font-semibold text-blue-950">
-                    {item.judul || "Tanpa judul"}
-                  </h2>
-                  <div className="shrink-0 text-right text-xs text-gray-500">
-                    <p>ID: {item.id || "-"}</p>
-                    <p>{formatTanggal(item.tanggal)}</p>
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedTugas(item);
+                    setActionError("");
+                  }}
+                  className="flex min-h-40 flex-col rounded-xl bg-white p-6 text-left transition hover:bg-blue-100"
+                >
+                  <div className="flex w-full items-start justify-between gap-3">
+                    <h2 className="text-lg font-semibold text-blue-950">
+                      {item.judul || "Tanpa judul"}
+                    </h2>
+                    <div className="shrink-0 text-right text-xs text-gray-500">
+                      <p>ID: {item.id || "-"}</p>
+                      <p>{formatTanggal(item.tanggal)}</p>
+                    </div>
                   </div>
-                </div>
 
-                <span className="mt-1 w-fit rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800">
-                  {item.jenisTugas
-                    ? item.jenisTugas.nama
-                    : "Belum dikategorikan"}
-                </span>
-
-                <div className="mt-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Team
-                  </p>
-                  <div className="mt-1 flex flex-wrap gap-1.5">
-                    {teamMembers.length > 0 ? (
-                      teamMembers.map((name, index) => (
-                        <span
-                          key={`${item.id}-${name}-${index}`}
-                          className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-900"
-                        >
-                          {name}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-sm text-gray-500">
-                        Nama tim belum tersedia.
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-auto flex items-center justify-end gap-2 pt-4 text-sm text-blue-950">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusClass(item.status)}`}
-                  >
-                    {item.status || "PENDING"}
+                  <span className="mt-1 w-fit rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800">
+                    {item.jenisTugas
+                      ? item.jenisTugas.nama
+                      : "Belum dikategorikan"}
                   </span>
-                </div>
 
-                <span className="mt-3 text-xs text-blue-900">
-                  Lihat detail →
-                </span>
-              </button>
+                  <div className="mt-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Team
+                    </p>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {teamMembers.length > 0 ? (
+                        teamMembers.map((name, index) => (
+                          <span
+                            key={`${item.id}-${name}-${index}`}
+                            className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-900"
+                          >
+                            {name}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-sm text-gray-500">
+                          Nama tim belum tersedia.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-auto flex items-center justify-end gap-2 pt-4 text-sm text-blue-950">
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusClass(item.status)}`}
+                    >
+                      {item.status || "PENDING"}
+                    </span>
+                  </div>
+
+                  <span className="mt-3 text-xs text-blue-900">
+                    Lihat detail →
+                  </span>
+                </button>
               );
             })}
           </div>
@@ -248,15 +248,6 @@ export default function ListTugas() {
               </div>
 
               <div>
-                <p className="text-sm text-gray-500">Jenis tugas</p>
-                <p className="text-gray-800">
-                  {selectedTugas.jenisTugas
-                    ? selectedTugas.jenisTugas.nama
-                    : "Belum dikategorikan"}
-                </p>
-              </div>
-
-              <div>
                 <p className="text-sm text-gray-500">Pelanggan</p>
                 <p className="font-medium text-gray-900">
                   {selectedTugas.namaPelanggan || "Belum ditentukan"}
@@ -269,6 +260,19 @@ export default function ListTugas() {
                   {selectedTugas.deskripsi || "Tidak ada deskripsi."}
                 </p>
               </div>
+
+              {selectedTugas.alasanPenolakan && (
+                <div className="rounded-lg bg-red-50 p-3">
+                  <p className="text-sm font-medium text-red-800">
+                    {selectedTugas.status === "REJECTED"
+                      ? "Alasan penolakan"
+                      : "Catatan penolakan sebelumnya"}
+                  </p>
+                  <p className="mt-1 whitespace-pre-wrap break-words text-sm text-red-700">
+                    {selectedTugas.alasanPenolakan}
+                  </p>
+                </div>
+              )}
 
               <div>
                 <p className="text-sm text-gray-500">Lokasi</p>
@@ -290,13 +294,6 @@ export default function ListTugas() {
                 ) : (
                   <p className="mt-1 text-gray-500">Link belum tersedia.</p>
                 )}
-              </div>
-
-              <div>
-                <p className="text-sm text-gray-500">Tanggal</p>
-                <p className="text-gray-800">
-                  {formatTanggal(selectedTugas.tanggal)}
-                </p>
               </div>
 
               <div>
@@ -332,17 +329,16 @@ export default function ListTugas() {
               </button>
             )}
 
-            {!isCheckedOut &&
-              ["IN_PROGRESS", "REJECTED"].includes(selectedTugas.status) && (
-                <button
-                  type="button"
-                  disabled={actionLoading}
-                  onClick={() => handleStatus("submit")}
-                  className="mt-6 w-full rounded-lg bg-green-600 px-4 py-2.5 font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {actionLoading ? "Mengirim..." : "Selesaikan Tugas"}
-                </button>
-              )}
+            {!isCheckedOut && selectedTugas.status === "IN_PROGRESS" && (
+              <button
+                type="button"
+                disabled={actionLoading}
+                onClick={() => handleStatus("submit")}
+                className="mt-6 w-full rounded-lg bg-green-600 px-4 py-2.5 font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {actionLoading ? "Mengirim..." : "Selesaikan Tugas"}
+              </button>
+            )}
 
             {selectedTugas.status === "SUBMITTED" && (
               <p className="mt-6 rounded-lg bg-purple-50 p-3 text-center text-sm font-medium text-purple-800">
@@ -353,6 +349,12 @@ export default function ListTugas() {
             {selectedTugas.status === "APPROVED" && (
               <p className="mt-6 rounded-lg bg-green-50 p-3 text-center text-sm font-medium text-green-800">
                 Tugas telah disetujui admin.
+              </p>
+            )}
+
+            {selectedTugas.status === "REJECTED" && (
+              <p className="mt-6 rounded-lg bg-red-50 p-3 text-center text-sm font-medium text-red-800">
+                Tugas ditolak oleh admin.
               </p>
             )}
 

@@ -71,15 +71,17 @@ sequenceDiagram
         else Attendance aktif
             DB-->>AR: Attendance jamKeluar null
             AR-->>S: Attendance aktif
-            S->>TR: findAssignedTo(user)
-            TR->>DB: Baca semua tugas assigned user
-            DB-->>TR: List tugas
-            TR-->>S: List tugas (tanpa filter tanggal)
-            alt Tidak ada status SUBMITTED/APPROVED
-                S-->>C: 400 tugas harus dikirim atau disetujui
+            S->>TR: findAssignedToOnDate(user, hariIni)
+            TR->>DB: SELECT tugas join penugasan_karyawan untuk user dan tanggal hari ini
+            DB-->>TR: Tugas user pada tanggal check-in
+            TR-->>S: Daftar tugas hari ini
+            S->>S: Filter status PENDING atau IN_PROGRESS
+            alt Ada tugas PENDING/IN_PROGRESS
+                S-->>C: 400 jumlah dan judul tugas yang masih aktif
                 C-->>API: Error JSON
-                API-->>UI: Tampilkan error
-            else Ada tugas SUBMITTED/APPROVED
+                API-->>UI: Teruskan message backend
+                UI-->>Employee: Tampilkan judul dan status tugas yang menahan check-out
+            else Tidak ada tugas aktif yang memblokir
                 S->>AR: Set jamKeluar WIB dan save
                 AR->>DB: UPDATE attendance
                 DB-->>AR: Attendance check-out berhasil
@@ -87,9 +89,10 @@ sequenceDiagram
                 S-->>C: Attendance tersimpan
                 C-->>API: JSON attendance
                 API-->>UI: JSON attendance
+                UI-->>Employee: Check-out berhasil
             end
         end
     end
 ```
 
-**Interpretasi:** UI membaca riwayat untuk menemukan record tanggal hari ini. Guard frontend memudahkan UX, sementara role dan aturan utama ditegakkan controller/service. Backend tidak membuat checkout otomatis lintas hari pada alur yang ditelusuri ini.
+**Interpretasi:** Tugas dihitung per karyawan dan hanya jika `tugas.tanggal` sama dengan tanggal check-in hari ini. Status `PENDING` dan `IN_PROGRESS` menahan check-out; `SUBMITTED`, `APPROVED`, dan `REJECTED` tidak. Jika tidak ada tugas pada tanggal itu, check-out tetap boleh. Pesan penolakan memuat jumlah, judul, dan status tugas penghambat. Tanggal tugas adalah tanggal rencana, bukan tanggal pembuatan atau deadline; status tugas bersama berlaku bagi seluruh assignee.

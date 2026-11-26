@@ -44,6 +44,9 @@ public class Tugas {
     @Column(nullable = false, length = 20)
     private String status = "PENDING";
 
+    @Column(name = "reject_reason", columnDefinition = "TEXT")
+    private String alasanPenolakan;
+
     @Column(nullable = false)
     private LocalDate tanggal;
 
@@ -122,6 +125,14 @@ public class Tugas {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getAlasanPenolakan() {
+        return alasanPenolakan;
+    }
+
+    public void setAlasanPenolakan(String alasanPenolakan) {
+        this.alasanPenolakan = alasanPenolakan;
     }
 
     public LocalDate getTanggal() {

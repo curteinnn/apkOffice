@@ -209,6 +209,8 @@ public class ListTugas extends javax.swing.JFrame {
                         + "\nJenis tugas: " + (task.jenisTugas() == null ? "Belum dikategorikan" : task.jenisTugas().nama())
                         + "\nJudul: " + task.judul() + "\nTanggal: " + task.tanggal()
                         + "\nLokasi: " + task.lokasi() + "\nStatus: " + task.status()
+                        + (task.alasanPenolakan() == null || task.alasanPenolakan().isBlank()
+                                ? "" : "\nAlasan penolakan: " + task.alasanPenolakan())
                         + "\nDeskripsi: " + (task.deskripsi() == null ? "-" : task.deskripsi()),
                 "Detail Tugas", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -229,6 +231,7 @@ public class ListTugas extends javax.swing.JFrame {
                 JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, choices[2]);
         if (choice < 0 || choice == 2) return;
         Map<Long, BigDecimal> nominalByAssignee = null;
+        String alasanPenolakan = null;
         if (choice == 0) {
             nominalByAssignee = new LinkedHashMap<>();
             if (task.assignees() == null || task.assignees().isEmpty()) {
@@ -250,8 +253,35 @@ public class ListTugas extends javax.swing.JFrame {
                     return;
                 }
             }
+        } else {
+            javax.swing.JTextArea reasonInput = new javax.swing.JTextArea(5, 32);
+            reasonInput.setLineWrap(true);
+            reasonInput.setWrapStyleWord(true);
+            int reasonChoice = JOptionPane.showConfirmDialog(
+                    this,
+                    new javax.swing.JScrollPane(reasonInput),
+                    "Masukkan alasan penolakan",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+            );
+            if (reasonChoice != JOptionPane.OK_OPTION) return;
+            alasanPenolakan = reasonInput.getText().trim();
+            if (alasanPenolakan.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Alasan penolakan wajib diisi.",
+                        "Validasi", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (alasanPenolakan.length() > 2000) {
+                JOptionPane.showMessageDialog(this, "Alasan penolakan maksimal 2000 karakter.",
+                        "Validasi", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
         }
-        VerifyTaskRequest request = new VerifyTaskRequest(choice == 0 ? "APPROVED" : "REJECTED", nominalByAssignee);
+        VerifyTaskRequest request = new VerifyTaskRequest(
+                choice == 0 ? "APPROVED" : "REJECTED",
+                nominalByAssignee,
+                alasanPenolakan
+        );
         new SwingWorker<Void, Void>() {
             @Override protected Void doInBackground() throws Exception {
                 new TaskApiService(ApiContext.client()).verify(task.id(), request);
@@ -277,6 +307,17 @@ public class ListTugas extends javax.swing.JFrame {
                     "Data hanya dapat diubah saat tugas berstatus PENDING atau REJECTED.",
                     "Ubah Tugas", JOptionPane.WARNING_MESSAGE);
             return;
+        }
+        if ("REJECTED".equals(task.status())) {
+            int choice = JOptionPane.showConfirmDialog(
+                    this,
+                    "Tugas yang ditolak akan kembali ke status PENDING setelah diubah. "
+                            + "Atur tanggal penugasan ulang pada form.",
+                    "Jadwalkan Ulang Tugas",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            if (choice != JOptionPane.OK_OPTION) return;
         }
         if (editHandler != null) {
             editHandler.accept(task);

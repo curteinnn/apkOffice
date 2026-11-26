@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGSAP } from "@gsap/react";
 import { animationDashboard } from "../animations/animationDashboard";
+import ChangePasswordModal from "../components/changePasswordModal";
 import useAttendance from "../hooks/useAttendance";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user") || "null");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const {
     isCheckedIn,
@@ -103,7 +106,9 @@ export default function Dashboard() {
             onClick={() => navigate("/list-tugas")}
             className="card-dashboard flex min-h-40 flex-col items-center justify-center rounded-xl bg-blue-200 p-6 text-center transition hover:bg-blue-300"
           >
-            <h2 className="text-lg font-semibold text-blue-950">Daftar Tugas</h2>
+            <h2 className="text-lg font-semibold text-blue-950">
+              Daftar Tugas
+            </h2>
 
             <p className="mt-2 text-sm text-blue-800">
               Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias,
@@ -124,16 +129,28 @@ export default function Dashboard() {
               nostrum quia, minus aliquid error tempora non exercitationem.
             </p>
           </button>
+        </div>
 
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => setShowPasswordModal(true)}
+            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700"
+          >
+            Ubah Password
+          </button>
           <button
             type="button"
             onClick={handleLogout}
-            className="card-dashboard w-20 rounded-lg bg-red-500 px-4 py-2 text-white transition hover:bg-red-600"
+            className="rounded-lg bg-red-500 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-red-600"
           >
             Logout
           </button>
         </div>
       </section>
+      {showPasswordModal && (
+        <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />
+      )}
       {checkoutWarning && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div
@@ -151,7 +168,7 @@ export default function Dashboard() {
             >
               Tugas Belum Selesai
             </h2>
-            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              <p className="mt-2 break-words text-sm leading-relaxed text-gray-600">
               {checkoutWarning}
             </p>
             <button

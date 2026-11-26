@@ -44,49 +44,58 @@ sequenceDiagram
         DB-->>Tasks: Tugas dan assignees
         Tasks-->>TaskS: List tugas
         TaskS-->>TaskC: List tugas
-        TaskC-->>UI: JSON tugas
-        UI-->>Employee: Tampilkan kartu tugas dan anggota tim
-        alt Mulai ketika PENDING
-            Employee->>UI: Mulai tugas
+        TaskC-->>UI: JSON tugas termasuk alasanPenolakan
+        UI-->>Employee: Tampilkan kartu tugas, anggota tim, status, dan tanggal rencana
+        alt Status PENDING
+            Employee->>UI: Tekan Mulai Tugas
             UI->>API: PUT /api/tugas/{id}/start
-        else Kirim ketika IN_PROGRESS atau REJECTED
-            Employee->>UI: Selesaikan tugas
-            UI->>API: PUT /api/tugas/{id}/submit
-        end
-        API->>Filter: Token dan role EMPLOYEE
-        Filter->>TaskC: Otorisasi request
-        TaskC->>Attendance: Cari attendance hari ini, wajib jamMasuk dan jamKeluar null
-        Attendance->>DB: SELECT attendance user hari ini
-        DB-->>Attendance: Record / kosong
-        Attendance-->>TaskC: Attendance hari ini
-        alt Tidak ada check-in atau sudah check-out
-            TaskC-->>API: 403 Forbidden
-            API-->>UI: Tampilkan error
-            UI-->>Employee: Aksi tidak diizinkan
-        else Attendance aktif
-            TaskC->>TaskS: startTugas/submitTugas(id, username)
+            API->>Filter: Bearer JWT
+            Filter->>TaskC: Otorisasi EMPLOYEE
+            TaskC->>Attendance: Pastikan check-in aktif hari ini
+            Attendance->>DB: SELECT attendance user hari ini
+            DB-->>Attendance: jamMasuk terisi dan jamKeluar null
+            TaskC->>TaskS: startTugas(id, username)
             TaskS->>Tasks: findById(id)
             Tasks->>DB: SELECT tugas dan assignees
-            DB-->>Tasks: Tugas
-            Tasks-->>TaskS: Tugas
-            TaskS->>TaskS: Pastikan username assignee dan transisi status sah
-            alt Bukan assignee atau status tidak sah
-                TaskS-->>TaskC: 403/400
-                TaskC-->>API: Error response
-                API-->>UI: Tampilkan error
-                UI-->>Employee: Aksi gagal
-            else Diizinkan
-                TaskS->>Tasks: Ubah status task bersama dan save
-                Tasks->>DB: UPDATE tugas
-                DB-->>Tasks: Tugas terbaru
-                Tasks-->>TaskS: Tugas terbaru
-                TaskS-->>TaskC: Tugas terbaru
-                TaskC-->>API: JSON tugas terbaru
-                API-->>UI: Tugas terbaru
-                UI-->>Employee: Perbarui status
-            end
+            DB-->>Tasks: Tugas PENDING
+            TaskS->>TaskS: Validasi assignee dan status PENDING
+            TaskS->>Tasks: Ubah status bersama menjadi IN_PROGRESS
+            Tasks->>DB: UPDATE tugas
+            DB-->>Tasks: Tugas IN_PROGRESS
+            Tasks-->>TaskS: Tugas terbaru
+            TaskS-->>TaskC: Tugas terbaru
+            TaskC-->>API: JSON tugas
+            API-->>UI: Tugas terbaru
+            UI-->>Employee: Perbarui status
+        else Status IN_PROGRESS
+            Employee->>UI: Tekan Selesaikan Tugas
+            UI->>API: PUT /api/tugas/{id}/submit
+            API->>Filter: Bearer JWT
+            Filter->>TaskC: Otorisasi EMPLOYEE
+            TaskC->>Attendance: Pastikan check-in aktif hari ini
+            Attendance->>DB: SELECT attendance user hari ini
+            DB-->>Attendance: jamMasuk terisi dan jamKeluar null
+            TaskC->>TaskS: submitTugas(id, username)
+            TaskS->>Tasks: findById(id)
+            Tasks->>DB: SELECT tugas dan assignees
+            DB-->>Tasks: Tugas IN_PROGRESS
+            TaskS->>TaskS: Validasi assignee dan status IN_PROGRESS
+            TaskS->>Tasks: Ubah status bersama menjadi SUBMITTED
+            Tasks->>DB: UPDATE tugas
+            DB-->>Tasks: Tugas SUBMITTED
+            Tasks-->>TaskS: Tugas terbaru
+            TaskS-->>TaskC: Tugas terbaru
+            TaskC-->>API: JSON tugas
+            API-->>UI: Tugas terbaru
+            UI-->>Employee: Tampilkan menunggu verifikasi admin
+        else Status REJECTED
+            UI-->>Employee: Tampilkan alasan penolakan tanpa tombol kirim ulang
+            Note over Employee,UI: Admin perlu mengedit dan menyimpan jadwal ulang agar status kembali ke PENDING
+        else Status SUBMITTED atau APPROVED
+            UI-->>Employee: Tampilkan status dan tanpa aksi tugas
         end
     end
+    Note over UI,TaskS: Tanggal adalah tanggal rencana. Start dan submit tidak dibatasi ke tanggal itu sehingga tugas dapat dikerjakan lebih awal.
 ```
 
-**Interpretasi:** Sebelum memuat tugas, UI membaca attendance pribadi lalu memastikan ada check-in hari ini. Controller mengulang pemeriksaan attendance untuk daftar tugas, dan memeriksa attendance aktif (belum checkout) untuk aksi start/submit. Perubahan status pada entity `Tugas` berlaku pada semua assignee.
+**Interpretasi:** Sebelum memuat tugas, UI membaca attendance pribadi lalu memastikan ada check-in hari ini. Controller juga mensyaratkan record check-in hari ini saat `GET /api/tugas`, tetapi tetap mengizinkan karyawan yang sudah check-out melihat daftar. Aksi start/submit memerlukan attendance aktif dan karyawan harus menjadi assignee. UI menampilkan tombol mulai pada `PENDING` dan tombol kirim pada `IN_PROGRESS`; pada `REJECTED`, UI menampilkan alasan penolakan tanpa tombol kirim ulang. Admin mengubah tugas yang ditolak melalui alur penjadwalan ulang. Tanggal rencana tidak membatasi karyawan untuk memulai lebih awal. Status pada entity `Tugas` berlaku bagi semua assignee. Implementasi service masih menerima `REJECTED` pada endpoint submit jika dipanggil langsung, meskipun Employee Web tidak menampilkan tombol untuk status itu.

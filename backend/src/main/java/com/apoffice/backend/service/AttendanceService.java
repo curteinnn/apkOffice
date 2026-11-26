@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AttendanceService {
@@ -98,20 +99,31 @@ public class AttendanceService {
             );
         }
 
-        // Karyawan harus menyelesaikan minimal satu tugas.
-        List<Tugas> daftarTugas =
-                tugasRepository.findAssignedTo(user);
+        List<Tugas> tugasBelumSelesai = tugasRepository
+                .findAssignedToOnDate(user, hariIni)
+                .stream()
+                .filter(tugas -> "PENDING".equals(tugas.getStatus())
+                        || "IN_PROGRESS".equals(tugas.getStatus()))
+                .toList();
 
-        boolean adaTugasSelesai = daftarTugas.stream()
-                .anyMatch(tugas ->
-                        "SUBMITTED".equals(tugas.getStatus())
-                        || "APPROVED".equals(tugas.getStatus())
-                );
+        if (!tugasBelumSelesai.isEmpty()) {
+            String daftarJudul = tugasBelumSelesai.stream()
+                    .map(tugas -> {
+                        String judul = tugas.getJudul();
+                        String judulAman = (judul == null || judul.isBlank())
+                                ? "Tanpa judul"
+                                : judul.trim();
+                        return judulAman + " (" + tugas.getStatus() + ")";
+                    })
+                    .sorted(String.CASE_INSENSITIVE_ORDER)
+                    .collect(Collectors.joining(", "));
 
-        if (!adaTugasSelesai) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Selesaikan minimal satu tugas sebelum check-out"
+                    "Check-out belum dapat dilakukan. Masih ada "
+                            + tugasBelumSelesai.size()
+                            + " tugas hari ini berstatus PENDING atau IN_PROGRESS: "
+                            + daftarJudul
             );
         }
 

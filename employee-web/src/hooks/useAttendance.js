@@ -82,7 +82,7 @@ export default function useAttendance() {
         message.toLowerCase().includes("task")
       ) {
         setCheckoutWarning(
-          "Anda belum menyelesaikan tugas. Selesaikan minimal satu tugas terlebih dahulu sebelum check-out.",
+          message || "Masih ada tugas yang belum selesai sebelum check-out.",
         );
       } else {
         setError(message || "Gagal melakukan check-out.");

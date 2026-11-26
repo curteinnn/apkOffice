@@ -7,6 +7,7 @@ public class VerifyTugasRequest {
 
     private String status;
     private Map<Long, BigDecimal> nominalByAssignee;
+    private String alasanPenolakan;
 
     public String getStatus() {
         return status;
@@ -22,5 +23,13 @@ public class VerifyTugasRequest {
 
     public void setNominalByAssignee(Map<Long, BigDecimal> nominalByAssignee) {
         this.nominalByAssignee = nominalByAssignee;
+    }
+
+    public String getAlasanPenolakan() {
+        return alasanPenolakan;
+    }
+
+    public void setAlasanPenolakan(String alasanPenolakan) {
+        this.alasanPenolakan = alasanPenolakan;
     }
 }

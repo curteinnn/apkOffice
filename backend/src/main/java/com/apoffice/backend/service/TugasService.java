@@ -212,6 +212,9 @@ public class TugasService {
         tugas.setLinkGmaps(optionalText(request.getLinkGmaps()));
         tugas.setDeskripsi(optionalText(request.getDeskripsi()));
         tugas.setTanggal(request.getTanggal());
+        if ("REJECTED".equals(tugas.getStatus())) {
+            tugas.setStatus("PENDING");
+        }
         tugas.setUpdatedAt(LocalDateTime.now());
         return tugasRepository.save(tugas);
     }
@@ -339,7 +342,22 @@ public class TugasService {
             }
             tugas.getPenugasanKaryawan().forEach(assignment ->
                     assignment.setNominal(nominals.get(assignment.getKaryawan().getId())));
+            tugas.setAlasanPenolakan(null);
         } else {
+            String alasanPenolakan = request.getAlasanPenolakan();
+            if (alasanPenolakan == null || alasanPenolakan.isBlank()) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Alasan penolakan wajib diisi"
+                );
+            }
+            if (alasanPenolakan.trim().length() > 2000) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Alasan penolakan maksimal 2000 karakter"
+                );
+            }
+            tugas.setAlasanPenolakan(alasanPenolakan.trim());
             tugas.getPenugasanKaryawan().forEach(assignment -> assignment.setNominal(null));
         }
 
