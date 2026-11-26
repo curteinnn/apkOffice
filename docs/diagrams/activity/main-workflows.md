@@ -70,26 +70,26 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A[Admin Desktop] --> Auth[JWT role ADMIN]
-    Auth --> CRUD{Fitur master?}
-    CRUD -->|Karyawan| Users[/GET POST PUT DELETE /api/users/]
-    CRUD -->|Jabatan| Jabatan[/CRUD /api/jabatan/]
-    CRUD -->|Jenis tugas| Jenis[/CRUD /api/jenis-tugas/]
-    Auth --> Transaction{Fitur transaksi?}
-    Transaction -->|Kelola tugas| Tugas[/GET POST bulk PUT DELETE /api/tugas/]
-    Transaction -->|Verifikasi| Verify[/PUT /api/tugas/{id}/verify/]
-    Transaction -->|Absensi| Attendance[/GET /api/attendance/]
-    Auth --> Report{Laporan?}
+    A["Admin Desktop"] --> Auth["JWT dan role ADMIN"]
+    Auth --> CRUD{"Fitur master?"}
+    CRUD -->|Karyawan| Users["CRUD /api/users"]
+    CRUD -->|Jabatan| Jabatan["CRUD /api/jabatan"]
+    CRUD -->|Jenis tugas| Jenis["CRUD /api/jenis-tugas"]
+    Auth --> Transaction{"Fitur transaksi?"}
+    Transaction -->|Kelola tugas| Tugas["GET, POST bulk, PUT, DELETE /api/tugas"]
+    Transaction -->|Verifikasi| Verify["PUT /api/tugas/{id}/verify"]
+    Transaction -->|Absensi| Attendance["GET /api/attendance"]
+    Auth --> Report{"Laporan?"}
     Report -->|Daftar tugas| Tugas
-    Report -->|Rekap produktivitas / nominal| Tugas
+    Report -->|Rekap tugas dan nominal| Tugas
     Report -->|Rekap absensi| Attendance
-    Users --> API[Backend controller/service/repository]
+    Users --> API["Backend controller, service, repository"]
     Jabatan --> API
     Jenis --> API
     Tugas --> API
     Verify --> API
     Attendance --> API
-    API --> DB[(MariaDB)]
+    API --> DB[("MariaDB")]
     API -->|Response JSON| A
 ```
 
